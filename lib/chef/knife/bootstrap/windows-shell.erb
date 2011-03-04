@@ -1,0 +1,91 @@
+@rem
+@rem Author:: Seth Chisamore (<schisamo@opscode.com>)
+@rem Copyright:: Copyright (c) 2011 Opscode, Inc.
+@rem License:: Apache License, Version 2.0
+@rem
+@rem Licensed under the Apache License, Version 2.0 (the "License");
+@rem you may not use this file except in compliance with the License.
+@rem You may obtain a copy of the License at
+@rem 
+@rem     http://www.apache.org/licenses/LICENSE-2.0
+@rem 
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+
+mkdir C:\chef
+
+> C:\chef\wget.vbs (
+ echo.strFileUrl = WScript.Arguments.Item^(0^)
+ echo.strHDLocation = WScript.Arguments.Item^(1^)
+ echo.Set objXMLHTTP = CreateObject^("MSXML2.XMLHTTP"^)
+ echo.objXMLHTTP.open "GET", strFileURL, false
+ echo.objXMLHTTP.send^(^)
+ echo.If objXMLHTTP.Status = 200 Then
+ echo.Set objADOStream = CreateObject^("ADODB.Stream"^)
+ echo.objADOStream.Open
+ echo.objADOStream.Type = 1
+ echo.objADOStream.Write objXMLHTTP.ResponseBody
+ echo.objADOStream.Position = 0
+ echo.Set objFSO = Createobject^("Scripting.FileSystemObject"^)
+ echo.If objFSO.Fileexists^(strHDLocation^) Then objFSO.DeleteFile strHDLocation
+ echo.Set objFSO = Nothing
+ echo.objADOStream.SaveToFile strHDLocation
+ echo.objADOStream.Close
+ echo.Set objADOStream = Nothing
+ echo.End if
+ echo.Set objXMLHTTP = Nothing
+)
+
+cscript /nologo C:\chef\wget.vbs http://files.rubyforge.vm.bytemark.co.uk/rubyinstaller/rubyinstaller-1.8.7-p334.exe %TEMP%\rubyinstaller.exe
+%TEMP%\rubyinstaller.exe /verysilent /dir="C:\ruby" /tasks="assocfiles,modpath"
+cmd.exe /C C:\ruby\bin\gem install win32-open3 ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
+
+@rem Install Chef gems separately to prevent 'failed to allocate memory' errors
+cmd.exe /C C:\ruby\bin\gem install ohai --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+cmd.exe /C C:\ruby\bin\gem install chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+
+> C:\chef\validation.pem (
+ <% IO.read(Chef::Config[:validation_key]).each_line do |line| -%>
+ <%= "echo.#{line.strip}" %>
+ <% end -%>
+ echo.
+)
+
+> C:\chef\client.rb (
+ echo.require 'win32ole'
+ echo.WIN32OLE.codepage = WIN32OLE::CP_UTF8
+ echo.log_level               :info
+ echo.log_location            STDOUT
+ echo.chef_server_url         "<%= Chef::Config[:chef_server_url] %>"
+ echo.validation_client_name  "<%= Chef::Config[:validation_client_name] %>"
+ echo.client_key              "c:/chef/client.pem"
+ echo.validation_key          "c:/chef/validation.pem"
+ echo.checksum_path           "c:/chef/checksums"
+ echo.file_cache_path         "c:/chef/cache"
+ echo.file_backup_path        "c:/chef/backup"
+ echo.cache_options          ^( {:path, "c:/chef/cache/checksums", :skip_expires, true} ^)
+<% if Chef::Config[:http_proxy] != nil %>
+ echo.http_proxy              "<%= Chef::Config[:http_proxy] %>"
+<% end %>
+<% if Chef::Config[:https_proxy] != nil %>
+ echo.https_proxy             "<%= Chef::Config[:https_proxy] %>"
+<% end %>
+<% if Chef::Config[:no_proxy] != nil %>
+ echo.no_proxy                "<%= Chef::Config[:no_proxy] %>"
+<% end %>
+<% if @config[:chef_node_name] == nil %>
+ echo.# Using default node name
+<% else %>
+ echo.node_name               "<%= @config[:chef_node_name] %>"
+<% end %> 
+)
+
+> C:\chef\first-boot.json (
+ echo.<%= { "run_list" => @run_list }.to_json %>
+)
+
+c:/ruby/bin/ruby c:/ruby/bin/chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json -l <%= Chef::Config[:log_level] %>
