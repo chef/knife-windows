@@ -102,7 +102,21 @@ class Chef
       def session
         session_opts = {}
         session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
-        @session ||= EventMachine::WinRM::Session.new(session_opts)
+        @session ||= begin
+          s = EventMachine::WinRM::Session.new(session_opts)
+          s.on_output do |host, data|
+            print_data(host, data)
+          end
+          s.on_error do |host, err|
+            print_data(host, err, :red)
+          end
+          s.on_command_complete do |host|
+            host = host == :all ? 'All Servers' : host
+            Chef::Log.debug("command complete on #{host}")
+          end
+          s
+        end
+
       end
 
       def h
@@ -166,17 +180,6 @@ class Chef
 
       def winrm_command(command, subsession=nil)
         subsession ||= session
-        
-        subsession.on_output do |host, data|
-          print_data(host, data)
-        end
-        subsession.on_error do |host, err|
-          print_data(host, err, :red)
-        end
-        subsession.on_finish do |host|
-          host = host == :done ? 'All Servers' : host
-          Chef::Log.debug("command complete on #{host}")
-        end
         subsession.relay_command(command)
       end
 
@@ -210,7 +213,7 @@ class Chef
       end
 
       def interactive
-        puts "Connected to #{h.list(session.servers_for.collect { |s| h.color(s.host, :cyan) }, :inline, " and ")}"
+        puts "Connected to #{h.list(session.servers.collect { |s| h.color(s.host, :cyan) }, :inline, " and ")}"
         puts
         puts "To run a command on a list of servers, do:"
         puts "  on SERVER1 SERVER2 SERVER3; COMMAND"
@@ -223,6 +226,7 @@ class Chef
           case command
           when 'quit!'
             puts 'Bye!'
+            session.close
             break
           when /^on (.+?); (.+)$/
             raw_list = $1.split(" ")
@@ -249,6 +253,7 @@ class Chef
           interactive 
         else
           winrm_command(@name_args[1..-1].join(" "))
+          session.close
         end
       end
 

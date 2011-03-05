@@ -32,7 +32,7 @@ Or force a chef run:
     ec2-50-xx-xx-124.compute-1.amazonaws.com [Fri, 04 Mar 2011 22:00:53 +0000] INFO: Running report handlers
     ec2-50-xx-xx-124.compute-1.amazonaws.com [Fri, 04 Mar 2011 22:00:53 +0000] INFO: Report handlers complete
 
-This subcommand operates in a very similar manner as {knife ssh}[http://wiki.opscode.com/display/chef/Knife#Knife-SSHSubcommand]...just leveraging the WinRM protocol for communication.
+This subcommand operates in a very similar manner as {knife ssh}[http://wiki.opscode.com/display/chef/Knife#Knife-SSHSubcommand]...just leveraging the WinRM protocol for communication.  It also include's +knife+ +ssh+'s "{interactive session mode}[http://wiki.opscode.com/display/chef/Knife#Knife-InteractiveMode]"
 
 == knife winrm bootstrap
 

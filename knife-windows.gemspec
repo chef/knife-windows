@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version	= '>= 1.9.1'
   s.add_dependency "chef", ">= 0.9.12"
-  s.add_dependency "em-winrm", ">= 0.0.2"
+  s.add_dependency "em-winrm", ">= 0.0.3"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
