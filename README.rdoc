@@ -66,7 +66,7 @@ This is the default bootstrap template used by the +winrm+ +bootstrap+ subcomman
 {CHEF-1248}[http://tickets.opscode.com/browse/CHEF-1248] added the ability to load Knife subcommands from alternate locations including Ruby gems (such as this one).  This feature will be built into the 0.10 release of Chef.  Until then this feature can be added to Chef 0.9.x releases by using a monkey patched +knife+ bin file:
 
     cd YOUR_CHEF_REPO
-    curl https://gist.github.com/raw/f33e15bac2820dd572d4/cb6ab81023440235868e83b96fa0ae527d37e2d7/knife >> knife
+    curl https://gist.github.com/raw/f33e15bac2820dd572d4/1081ae5d83e7468a4ce43004e9cf60ead105d05d/knife >> knife
     chmod 744 knife
 
 More details about Knife plugins can be {found on the Chef wiki}[http://wiki.opscode.com/display/chef/Knife+Plugins].
