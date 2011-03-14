@@ -153,6 +153,7 @@ class Chef
         winrm.config[:winrm_user] = config[:winrm_user] 
         winrm.config[:winrm_password] = config[:winrm_password]
         winrm.config[:winrm_transport] = config[:winrm_transport]
+        winrm.config[:winrm_port] = config[:winrm_port] if config[:winrm_port]
         winrm.config[:kerberos_keytab_file] = config[:kerberos_keytab_file] if config[:kerberos_keytab_file]
         winrm.config[:kerberos_realm] = config[:kerberos_realm] if config[:kerberos_realm]
         winrm.config[:kerberos_service] = config[:kerberos_service] if config[:kerberos_service]
