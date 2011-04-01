@@ -42,6 +42,15 @@ mkdir C:\chef
 
 cscript /nologo C:\chef\wget.vbs http://files.rubyforge.vm.bytemark.co.uk/rubyinstaller/rubyinstaller-1.8.7-p334.exe %TEMP%\rubyinstaller.exe
 %TEMP%\rubyinstaller.exe /verysilent /dir="C:\ruby" /tasks="assocfiles,modpath"
+
+@rem Install the Ruby Dev Kit so we compile us some native gems
+cscript /nologo C:\chef\wget.vbs http://cloud.github.com/downloads/oneclick/rubyinstaller/DevKit-tdm-32-4.5.1-20101214-1400-sfx.exe %TEMP%\rubydevkit.exe
+mkdir C:\DevKit
+copy %TEMP%\rubydevkit.exe C:\DevKit
+cmd.exe /C C:\DevKit\rubydevkit.exe -y
+cmd.exe /C C:\ruby\bin\ruby c:/DevKit/dk.rb init
+cmd.exe /C C:\ruby\bin\ruby c:/DevKit/dk.rb install
+
 cmd.exe /C C:\ruby\bin\gem install win32-open3 ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
 
 @rem Install Chef gems separately to prevent 'failed to allocate memory' errors

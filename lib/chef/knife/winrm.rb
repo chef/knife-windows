@@ -6,9 +6,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,16 +17,15 @@
 #
 
 require 'chef/knife'
-require 'chef/data_bag_item'
-
-begin
-  gem "em-winrm"
-rescue LoadError
-end
 
 class Chef
   class Knife
     class Winrm < Knife
+
+      deps do
+        require 'readline'
+        require 'chef/search/query'
+      end
 
       attr_writer :password
 
@@ -36,7 +35,7 @@ class Chef
         :short => "-a ATTR",
         :long => "--attribute ATTR",
         :description => "The attribute to use for opening the connection - default is fqdn",
-        :default => "fqdn" 
+        :default => "fqdn"
 
       option :manual,
         :short => "-m",
@@ -48,18 +47,21 @@ class Chef
       option :winrm_user,
         :short => "-x USERNAME",
         :long => "--winrm-user USERNAME",
-        :description => "The WinRM username"
+        :description => "The WinRM username",
+        :default => "Administrator",
+        :proc => Proc.new { |key| Chef::Config[:knife][:winrm_user] = key }
 
       option :winrm_password,
         :short => "-P PASSWORD",
         :long => "--winrm-password PASSWORD",
-        :description => "The WinRM password"
+        :description => "The WinRM password",
+        :proc => Proc.new { |key| Chef::Config[:knife][:winrm_password] = key }
 
       option :winrm_port,
         :short => "-p PORT",
         :long => "--winrm-port PORT",
         :description => "The WinRM port",
-        :default => "80",
+        :default => "5985",
         :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
 
       option :winrm_transport,
@@ -100,6 +102,7 @@ class Chef
         :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
 
       def session
+        require 'em-winrm'
         session_opts = {}
         session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
         @session ||= begin
@@ -119,10 +122,6 @@ class Chef
 
       end
 
-      def h
-        @highline ||= HighLine.new
-      end
-
       def configure_session
         list = case config[:manual]
                when true
@@ -137,27 +136,28 @@ class Chef
                  end
                  r
                end
-        (Chef::Log.fatal("No nodes returned from search!"); exit 10) if list.length == 0
+        (ui.fatal("No nodes returned from search!"); exit 10) if list.length == 0
         session_from_list(list)
       end
 
       def session_from_list(list)
         list.each do |item|
           Chef::Log.debug("Adding #{item}")
-
           session_opts = {}
-          session_opts[:user] = config[:winrm_user] if config[:winrm_user]
-          session_opts[:password] = config[:winrm_password] if config[:winrm_password]
-          session_opts[:port] = config[:winrm_port]
-          session_opts[:keytab] = config[:kerberos_keytab_file] if config[:kerberos_keytab_file]
-          session_opts[:realm] = config[:kerberos_realm] if config[:kerberos_realm]
-          session_opts[:service] = config[:kerberos_service] if config[:kerberos_service]
-          session_opts[:ca_trust_path] = config[:ca_trust_file] if config[:ca_trust_file]
-          
+          session_opts[:user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
+          session_opts[:password] = Chef::Config[:knife][:winrm_password] if config[:winrm_password]
+          session_opts[:port] = Chef::Config[:knife][:winrm_port] || config[:winrm_port]
+          session_opts[:keytab] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
+          session_opts[:realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
+          session_opts[:service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
+          session_opts[:ca_trust_path] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
+
           if config.keys.any? {|k| k.to_s =~ /kerberos/ }
             session_opts[:transport] = :kerberos
+            session_opts[:basic_auth_only] = false
           else
-            session_opts[:transport] = config[:winrm_transport].to_sym
+            session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
+            session_opts[:basic_auth_only] = true
           end
 
           session.use(item, session_opts)
@@ -172,7 +172,7 @@ class Chef
           data.split(/\n/).each { |d| print_data(host, d, color) }
         else
           padding = @longest - host.length
-          print h.color(host, color)
+          print ui.color(host, color)
           padding.downto(0) { print " " }
           puts data.chomp
         end
@@ -184,7 +184,7 @@ class Chef
       end
 
       def get_password
-        @password ||= h.ask("Enter your password: ") { |q| q.echo = false }
+        @password ||= ui.ask("Enter your password: ") { |q| q.echo = false }
       end
 
       # Present the prompt and read a single line from the console. It also
@@ -193,7 +193,7 @@ class Chef
       # line is input.
       def read_line
         loop do
-          command = reader.readline("#{h.color('knife-winrm>', :bold)} ", true)
+          command = reader.readline("#{ui.color('knife-winrm>', :bold)} ", true)
 
           if command.nil?
             command = "exit"
@@ -213,7 +213,7 @@ class Chef
       end
 
       def interactive
-        puts "Connected to #{h.list(session.servers.collect { |s| h.color(s.host, :cyan) }, :inline, " and ")}"
+        puts "Connected to #{ui.list(session.servers.collect { |s| ui.color(s.host, :cyan) }, :inline, " and ")}"
         puts
         puts "To run a command on a list of servers, do:"
         puts "  on SERVER1 SERVER2 SERVER3; COMMAND"
@@ -232,7 +232,7 @@ class Chef
             raw_list = $1.split(" ")
             server_list = Array.new
             session.servers.each do |session_server|
-              server_list << session_server if raw_list.include?(session_server.host) 
+              server_list << session_server if raw_list.include?(session_server.host)
             end
             command = $2
             winrm_command(command, session.on(*server_list))
@@ -242,25 +242,17 @@ class Chef
         end
       end
 
-      def run 
+      def run
         @longest = 0
-        load_late_dependencies
 
         configure_session
 
         case @name_args[1]
         when "interactive"
-          interactive 
+          interactive
         else
           winrm_command(@name_args[1..-1].join(" "))
           session.close
-        end
-      end
-
-      def load_late_dependencies
-        require 'readline'
-        %w[em-winrm highline].each do |dep|
-          load_late_dependency dep
         end
       end
 

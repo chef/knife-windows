@@ -6,9 +6,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,29 +16,38 @@
 # limitations under the License.
 #
 
-require 'chef/knife/bootstrap'
+require 'chef/knife'
 
 class Chef
   class Knife
-    class WinrmBootstrap < Chef::Knife::Bootstrap
+    class WinrmBootstrap < Knife
+
+      deps do
+        require 'chef/json_compat'
+        require 'tempfile'
+        require 'erubis'
+      end
 
       banner "knife winrm bootstrap FQDN [RUN LIST...] (options)"
 
       option :winrm_user,
         :short => "-x USERNAME",
         :long => "--winrm-user USERNAME",
-        :description => "The WinRM username"
+        :description => "The WinRM username",
+        :default => "Administrator",
+        :proc => Proc.new { |key| Chef::Config[:knife][:winrm_user] = key }
 
       option :winrm_password,
         :short => "-P PASSWORD",
         :long => "--winrm-password PASSWORD",
-        :description => "The WinRM password"
+        :description => "The WinRM password",
+        :proc => Proc.new { |key| Chef::Config[:knife][:winrm_password] = key }
 
       option :winrm_port,
         :short => "-p PORT",
         :long => "--winrm-port PORT",
         :description => "The WinRM port",
-        :default => "80",
+        :default => "5985",
         :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
 
       option :winrm_transport,
@@ -108,7 +117,7 @@ class Chef
           bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap', "#{config[:distro]}.erb")
           bootstrap_files << File.join(Dir.pwd, ".chef", "bootstrap", "#{config[:distro]}.erb")
           bootstrap_files << File.join(ENV['HOME'], '.chef', 'bootstrap', "#{config[:distro]}.erb")
-          bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb")) 
+          bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb"))
         end
 
         template = Array(bootstrap_files).find do |bootstrap_template|
@@ -117,26 +126,33 @@ class Chef
         end
 
         unless template
-          Chef::Log.info("Can not find bootstrap definition for #{config[:distro]}")
+          ui.info("Can not find bootstrap definition for #{config[:distro]}")
           raise Errno::ENOENT
         end
 
         Chef::Log.debug("Found bootstrap template in #{File.dirname(template)}")
-        
+
         IO.read(template).chomp
       end
 
-      def run 
-        require 'highline'
+      def render_template(template=nil)
+        context = {}
+        context[:run_list] = config[:run_list]
+        context[:config] = config
+        Erubis::Eruby.new(template).evaluate(context)
+      end
+
+      def run
 
         validate_name_args!
 
+        @node_name = Array(@name_args).first
+        # back compat--templates may use this setting:
+        config[:server_name] = @node_name
+
         $stdout.sync = true
 
-        Chef::Log.info("Bootstrapping Chef on #{h.color(config[:server_name], :bold)}")
-
-        knife_winrm.load_late_dependencies
-
+        ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk, chunk_num|
@@ -147,17 +163,29 @@ class Chef
         knife_winrm(bootstrap_command).run
       end
 
+      def validate_name_args!
+        if Array(@name_args).first.nil?
+          ui.error("Must pass an FQDN or ip to bootstrap")
+          exit 1
+        end
+      end
+
+      def server_name
+        Array(@name_args).first
+      end
+
       def knife_winrm(command = '')
         winrm = Chef::Knife::Winrm.new
         winrm.name_args = [ server_name, command ]
-        winrm.config[:winrm_user] = config[:winrm_user] 
-        winrm.config[:winrm_password] = config[:winrm_password]
-        winrm.config[:winrm_transport] = config[:winrm_transport]
-        winrm.config[:kerberos_keytab_file] = config[:kerberos_keytab_file] if config[:kerberos_keytab_file]
-        winrm.config[:kerberos_realm] = config[:kerberos_realm] if config[:kerberos_realm]
-        winrm.config[:kerberos_service] = config[:kerberos_service] if config[:kerberos_service]
-        winrm.config[:ca_trust_file] = config[:ca_trust_file] if config[:ca_trust_file]
+        winrm.config[:winrm_user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
+        winrm.config[:winrm_password] = Chef::Config[:knife][:winrm_password] if config[:winrm_password]
+        winrm.config[:winrm_transport] = Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]
+        winrm.config[:kerberos_keytab_file] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
+        winrm.config[:kerberos_realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
+        winrm.config[:kerberos_service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
+        winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
+        winrm.config[:winrm_port] = Chef::Config[:knife][:winrm_port]
         winrm
       end
 
@@ -183,11 +211,6 @@ class Chef
 
       def bootstrap_bat_file
         "%TEMP%\\bootstrap.bat"
-      end
-
-      def load_late_dependencies
-        super
-        require 'chef/knife/winrm'
       end
     end
   end

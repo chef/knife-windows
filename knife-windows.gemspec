@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   s.summary     = %q{Plugin that adds functionality to Chef's Knife CLI for configuring/interacting with nodes running Microsoft Windows}
   s.description = s.summary
 
-  s.required_ruby_version	= '>= 1.9.1'
-  s.add_dependency "chef", ">= 0.9.12"
-  s.add_dependency "em-winrm", ">= 0.0.3"
+  s.required_ruby_version	= ">= 1.9.1"
+  s.add_dependency "chef", ">= 0.10.0.beta.5"
+  s.add_dependency "em-winrm", "= 0.0.4"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
