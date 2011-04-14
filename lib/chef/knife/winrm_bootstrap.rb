@@ -28,7 +28,7 @@ class Chef
         require 'erubis'
       end
 
-      banner "knife winrm bootstrap FQDN [RUN LIST...] (options)"
+      banner "knife winrm bootstrap FQDN (options)"
 
       option :winrm_user,
         :short => "-x USERNAME",
