@@ -185,7 +185,7 @@ class Chef
         winrm.config[:kerberos_service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
-        winrm.config[:winrm_port] = Chef::Config[:knife][:winrm_port]
+        winrm.config[:winrm_port] = Chef::Config[:knife][:winrm_port] || config[:winrm_port]
         winrm
       end
 
