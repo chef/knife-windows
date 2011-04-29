@@ -17,15 +17,17 @@
 #
 
 require 'chef/knife'
+require 'erubis'
 
 class Chef
   class Knife
-    class WinrmBootstrap < Knife
+    class WinrmBootstrap < Bootstrap
 
       deps do
+        require 'chef/knife/core/windows_bootstrap_context'
         require 'chef/json_compat'
         require 'tempfile'
-        require 'erubis'
+         Chef::Knife::Winrm.load_deps
       end
 
       banner "knife winrm bootstrap FQDN (options)"
@@ -90,6 +92,11 @@ class Chef
         :long => "--prerelease",
         :description => "Install the pre-release chef gems"
 
+      option :bootstrap_version,
+        :long => "--bootstrap-version VERSION",
+        :description => "The version of Chef to install",
+        :proc => Proc.new { |v| Chef::Config[:knife][:bootstrap_version] = v }
+
       option :distro,
         :short => "-d DISTRO",
         :long => "--distro DISTRO",
@@ -108,6 +115,7 @@ class Chef
         :proc => lambda { |o| o.split(",") },
         :default => []
 
+      # TODO: This should go away when CHEF-2193 is fixed
       def load_template(template=nil)
         # Are we bootstrapping using an already shipped template?
         if config[:template_file]
@@ -136,9 +144,7 @@ class Chef
       end
 
       def render_template(template=nil)
-        context = {}
-        context[:run_list] = config[:run_list]
-        context[:config] = config
+        context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
         Erubis::Eruby.new(template).evaluate(context)
       end
 
@@ -163,16 +169,16 @@ class Chef
         knife_winrm(bootstrap_command).run
       end
 
-      def validate_name_args!
-        if Array(@name_args).first.nil?
-          ui.error("Must pass an FQDN or ip to bootstrap")
-          exit 1
-        end
-      end
-
-      def server_name
-        Array(@name_args).first
-      end
+      # def validate_name_args!
+      #   if Array(@name_args).first.nil?
+      #     ui.error("Must pass an FQDN or ip to bootstrap")
+      #     exit 1
+      #   end
+      # end
+      # 
+      # def server_name
+      #   Array(@name_args).first
+      # end
 
       def knife_winrm(command = '')
         winrm = Chef::Knife::Winrm.new
@@ -212,6 +218,7 @@ class Chef
       def bootstrap_bat_file
         "%TEMP%\\bootstrap.bat"
       end
+
     end
   end
 end
