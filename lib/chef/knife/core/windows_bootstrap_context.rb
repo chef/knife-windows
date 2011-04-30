@@ -45,15 +45,15 @@ class Chef
           client_rb = <<-CONFIG
 log_level        :info
 log_location     STDOUT
+
 chef_server_url  "#{@chef_config[:chef_server_url]}"
 validation_client_name "#{@chef_config[:validation_client_name]}"
-
 client_key        "c:/chef/client.pem"
 validation_key    "c:/chef/validation.pem"
-checksum_path     "c:/chef/checksums"
+
 file_cache_path   "c:/chef/cache"
 file_backup_path  "c:/chef/backup"
-cache_options     ( {:path => "c:/chef/cache/checksums", :skip_expires => true} )
+cache_options     ({:path => "c:/chef/cache/checksums", :skip_expires => true})
 
 CONFIG
           if @config[:chef_node_name]
@@ -74,10 +74,14 @@ CONFIG
 
         def win_wget
           win_wget = <<-WGET
-strFileUrl = WScript.Arguments.Item(0)
-strHDLocation = WScript.Arguments.Item(1)
-Set objXMLHTTP = CreateObject("MSXML2.XMLHTTP")
-objXMLHTTP.open "GET", strFileURL, false
+url = WScript.Arguments.Named("url")
+path = WScript.Arguments.Named("path")
+Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
+'proxy is optional
+On Error Resume Next
+objXMLHTTP.setProxy 2, WScript.Arguments.Named("proxy")
+On Error Goto 0
+objXMLHTTP.open "GET", url, false
 objXMLHTTP.send()
 If objXMLHTTP.Status = 200 Then
 Set objADOStream = CreateObject("ADODB.Stream")
@@ -86,9 +90,9 @@ objADOStream.Type = 1
 objADOStream.Write objXMLHTTP.ResponseBody
 objADOStream.Position = 0
 Set objFSO = Createobject("Scripting.FileSystemObject")
-If objFSO.Fileexists(strHDLocation) Then objFSO.DeleteFile strHDLocation
+If objFSO.Fileexists(path) Then objFSO.DeleteFile path
 Set objFSO = Nothing
-objADOStream.SaveToFile strHDLocation
+objADOStream.SaveToFile path
 objADOStream.Close
 Set objADOStream = Nothing
 End if
