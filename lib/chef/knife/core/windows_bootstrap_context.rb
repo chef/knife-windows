@@ -37,8 +37,7 @@ class Chef
         end
 
         def validation_key
-          val_key = escape_and_echo(super)
-          val_key << 'echo.'
+          escape_and_echo(super)
         end
 
         def config_content
