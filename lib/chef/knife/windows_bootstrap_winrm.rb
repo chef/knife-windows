@@ -16,21 +16,22 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require 'erubis'
+require File.join(File.dirname(__FILE__), 'mixin/windows/bootstrap')
 
 class Chef
   class Knife
-    class WinrmBootstrap < Bootstrap
+    class WindowsBootstrapWinrm < Bootstrap
+
+      include Chef::Mixin::Bootstrap
 
       deps do
         require 'chef/knife/core/windows_bootstrap_context'
         require 'chef/json_compat'
         require 'tempfile'
-         Chef::Knife::Winrm.load_deps
+        Chef::Knife::Winrm.load_deps
       end
 
-      banner "knife winrm bootstrap FQDN (options)"
+      banner "knife windows bootstrap winrm FQDN (options)"
 
       option :winrm_user,
         :short => "-x USERNAME",
@@ -48,14 +49,19 @@ class Chef
       option :winrm_port,
         :short => "-p PORT",
         :long => "--winrm-port PORT",
-        :description => "The WinRM port",
+        :description => "The WinRM port, by default this is 5985",
         :default => "5985",
         :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
+
+      option :identity_file,
+        :short => "-i IDENTITY_FILE",
+        :long => "--identity-file IDENTITY_FILE",
+        :description => "The SSH identity file used for authentication"
 
       option :winrm_transport,
         :short => "-t TRANSPORT",
         :long => "--winrm-transport TRANSPORT",
-        :description => "The WinRM transport type: ssl, or plaintext",
+        :description => "The WinRM transport type.  valid choices are [ssl, plaintext]",
         :default => 'plaintext',
         :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_transport] = transport }
 
@@ -82,6 +88,11 @@ class Chef
         :long => "--ca-trust-file CA_TRUST_FILE",
         :description => "The Certificate Authority (CA) trust file used for SSL transport",
         :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
+
+      option :bootstrap_protocol,
+        :long => "--bootstrap-protocol PROTO",
+        :description => "The protocol to bootstrap with..valid choices are [winrm, ssh]",
+        :default => "winrm"
 
       option :chef_node_name,
         :short => "-N NAME",
@@ -115,108 +126,23 @@ class Chef
         :proc => lambda { |o| o.split(",") },
         :default => []
 
-      # TODO: This should go away when CHEF-2193 is fixed
-      def load_template(template=nil)
-        # Are we bootstrapping using an already shipped template?
-        if config[:template_file]
-          bootstrap_files = config[:template_file]
-        else
-          bootstrap_files = []
-          bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap', "#{config[:distro]}.erb")
-          bootstrap_files << File.join(Dir.pwd, ".chef", "bootstrap", "#{config[:distro]}.erb")
-          bootstrap_files << File.join(ENV['HOME'], '.chef', 'bootstrap', "#{config[:distro]}.erb")
-          bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb"))
-        end
-
-        template = Array(bootstrap_files).find do |bootstrap_template|
-          Chef::Log.debug("Looking for bootstrap template in #{File.dirname(bootstrap_template)}")
-          File.exists?(bootstrap_template)
-        end
-
-        unless template
-          ui.info("Can not find bootstrap definition for #{config[:distro]}")
-          raise Errno::ENOENT
-        end
-
-        Chef::Log.debug("Found bootstrap template in #{File.dirname(template)}")
-
-        IO.read(template).chomp
-      end
-
-      def render_template(template=nil)
-        context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
-        Erubis::Eruby.new(template).evaluate(context)
-      end
-
       def run
-
-        validate_name_args!
-
-        @node_name = Array(@name_args).first
-        # back compat--templates may use this setting:
-        config[:server_name] = @node_name
-
-        $stdout.sync = true
-
-        ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
-        # create a bootstrap.bat file on the node
-        # we have to run the remote commands in 2047 char chunks
-        create_bootstrap_bat_command do |command_chunk, chunk_num|
-          knife_winrm("echo \"Rendering bootstrap.bat chunk #{chunk_num}\" && #{command_chunk}").run
-        end
-
-        # execute the bootstrap.bat file
-        knife_winrm(bootstrap_command).run
+        bootstrap
       end
 
-      # def validate_name_args!
-      #   if Array(@name_args).first.nil?
-      #     ui.error("Must pass an FQDN or ip to bootstrap")
-      #     exit 1
-      #   end
-      # end
-      # 
-      # def server_name
-      #   Array(@name_args).first
-      # end
-
-      def knife_winrm(command = '')
+      def run_command(command = '')
         winrm = Chef::Knife::Winrm.new
         winrm.name_args = [ server_name, command ]
-        winrm.config[:winrm_user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
-        winrm.config[:winrm_password] = Chef::Config[:knife][:winrm_password] if config[:winrm_password]
-        winrm.config[:winrm_transport] = Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]
+        winrm.config[:winrm_user] = locate_config_value(:winrm_user)
+        winrm.config[:winrm_password] = locate_config_value(:winrm_password)
+        winrm.config[:winrm_transport] = locate_config_value(:winrm_transport)
         winrm.config[:kerberos_keytab_file] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
         winrm.config[:kerberos_realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
         winrm.config[:kerberos_service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
-        winrm.config[:winrm_port] = Chef::Config[:knife][:winrm_port] || config[:winrm_port]
+        winrm.config[:winrm_port] = locate_config_value(:winrm_port)
         winrm
-      end
-
-      def bootstrap_command
-        @bootstrap_command ||= "cmd /C #{bootstrap_bat_file}"
-      end
-
-      def create_bootstrap_bat_command(&block)
-        bootstrap_bat = []
-        chunk_num = 0
-        render_template(load_template(config[:bootstrap_template])).each_line do |line|
-          # escape WIN BATCH special chars
-          line.gsub!(/[(<|>)^]/).each{|m| "^#{m}"}
-          # windows commands are limited to 2047 characters
-          if((bootstrap_bat + [line]).join(" && ").size > 2047 )
-            yield bootstrap_bat.join(" && "), chunk_num += 1
-            bootstrap_bat = []
-          end
-          bootstrap_bat << ">> #{bootstrap_bat_file} (echo.#{line.chomp.strip})"
-        end
-        yield bootstrap_bat.join(" && "), chunk_num += 1
-      end
-
-      def bootstrap_bat_file
-        "%TEMP%\\bootstrap.bat"
       end
 
     end
