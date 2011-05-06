@@ -16,6 +16,7 @@
 @rem limitations under the License.
 @rem
 
+<%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
 mkdir C:\chef
 
 > C:\chef\wget.vbs (
@@ -37,7 +38,7 @@ cmd.exe /C C:\ruby\bin\gem install win32-open3 rdp-ruby-wmi windows-api windows-
 
 @rem Install Chef gems separately to prevent 'failed to allocate memory' errors
 cmd.exe /C C:\ruby\bin\gem install ohai --no-rdoc --no-ri --verbose
-cmd.exe /C C:\ruby\bin\gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
+cmd.exe /C C:\ruby\bin\gem install chef --no-rdoc --no-ri --verbose
 
 > C:\chef\validation.pem (
  <%= validation_key %>

@@ -60,6 +60,13 @@ CONFIG
           else
             client_rb << "# Using default node name (fqdn)\n"
           end
+          
+          if knife_config[:bootstrap_proxy]
+            client_rb << "\n"
+            client_rb << %Q{http_proxy        "#{knife_config[:bootstrap_proxy]}"\n}
+            client_rb << %Q{https_proxy       "#{knife_config[:bootstrap_proxy]}"\n}
+          end
+          
           escape_and_echo(client_rb)
         end
 
@@ -75,11 +82,24 @@ CONFIG
           win_wget = <<-WGET
 url = WScript.Arguments.Named("url")
 path = WScript.Arguments.Named("path")
-Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
-'proxy is optional
+Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+Set wshShell = CreateObject( "WScript.Shell" )
+Set objUserVariables = wshShell.Environment("USER")
+
+'http proxy is optional
+'attempt to read from HTTP_PROXY env var first
 On Error Resume Next
+
+If NOT (objUserVariables("HTTP_PROXY") = "") Then
+objXMLHTTP.setProxy 2, objUserVariables("HTTP_PROXY")
+
+'fall back to named arg
+ElseIf NOT (WScript.Arguments.Named("proxy") = "") Then
 objXMLHTTP.setProxy 2, WScript.Arguments.Named("proxy")
+End If
+
 On Error Goto 0
+
 objXMLHTTP.open "GET", url, false
 objXMLHTTP.send()
 If objXMLHTTP.Status = 200 Then
