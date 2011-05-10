@@ -38,7 +38,7 @@ cmd.exe /C C:\ruby\bin\gem install win32-open3 rdp-ruby-wmi windows-api windows-
 
 @rem Install Chef gems separately to prevent 'failed to allocate memory' errors
 cmd.exe /C C:\ruby\bin\gem install ohai --no-rdoc --no-ri --verbose
-cmd.exe /C C:\ruby\bin\gem install chef --no-rdoc --no-ri --verbose
+cmd.exe /C C:\ruby\bin\gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
 
 > C:\chef\validation.pem (
  <%= validation_key %>
