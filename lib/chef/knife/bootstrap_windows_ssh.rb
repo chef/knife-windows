@@ -20,7 +20,7 @@ require File.join(File.dirname(__FILE__), 'mixin/windows/bootstrap')
 
 class Chef
   class Knife
-    class WindowsBootstrapSsh < Bootstrap
+    class BootstrapWindowsSsh < Bootstrap
 
       include Chef::Mixin::Bootstrap
 
@@ -34,7 +34,7 @@ class Chef
         Chef::Knife::Ssh.load_deps
       end
 
-      banner "knife windows bootstrap ssh FQDN (options)"
+      banner "knife bootstrap windows ssh FQDN (options)"
 
       option :ssh_user,
         :short => "-x USERNAME",

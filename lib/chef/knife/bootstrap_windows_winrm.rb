@@ -20,7 +20,7 @@ require File.join(File.dirname(__FILE__), 'mixin/windows/bootstrap')
 
 class Chef
   class Knife
-    class WindowsBootstrapWinrm < Bootstrap
+    class BootstrapWindowsWinrm < Bootstrap
 
       include Chef::Mixin::Bootstrap
 
@@ -31,7 +31,7 @@ class Chef
         Chef::Knife::Winrm.load_deps
       end
 
-      banner "knife windows bootstrap winrm FQDN (options)"
+      banner "knife bootstrap windows winrm FQDN (options)"
 
       option :winrm_user,
         :short => "-x USERNAME",
