@@ -2,7 +2,7 @@
 
 = DESCRIPTION:
 
-This plugins adds additional functionality to the Chef Knife CLI tool for configuring/interacting with nodes running Microsoft Windows.  The subcommands should function on any system running Ruby 1.9.1+ but nodes being configured via these subcommands require Windows Remote Management (WinRM) 1.0+.  WinRM allows you to call native objects in Windows.  This includes, but is not limited to, running batch scripts, powershell scripts and fetching WMI variables.  For more information on WinRM, please visit {Microsoft's WinRM site}[http://msdn.microsoft.com/en-us/library/aa384426(v=VS.85).aspx]. You will want to familiarize yourself with (certain key aspects) of WinRM because you will be {writing scripts/running commands} with this tool to get you from (specific point A) to (specific point B).
+This plugin adds additional functionality to the Chef Knife CLI tool for configuring/interacting with nodes running Microsoft Windows.  The subcommands should function on any system running Ruby 1.9.1+ but nodes being configured via these subcommands require Windows Remote Management (WinRM) 1.0+.  WinRM allows you to call native objects in Windows.  This includes, but is not limited to, running batch scripts, powershell scripts and fetching WMI variables.  For more information on WinRM, please visit {Microsoft's WinRM site}[http://msdn.microsoft.com/en-us/library/aa384426(v=VS.85).aspx]. You will want to familiarize yourself with (certain key aspects) of WinRM because you will be {writing scripts/running commands} with this tool to get you from (specific point A) to (specific point B).
 
 WinRM is built into Windows 7 and Windows Server 2008+.  It can also be easily installed in older version of Windows, including:
 
@@ -36,23 +36,23 @@ Or force a chef run:
 
 This subcommand operates in a very similar manner as {knife ssh}[http://wiki.opscode.com/display/chef/Knife#Knife-SSHSubcommand]...just leveraging the WinRM protocol for communication.  It also include's +knife+ +ssh+'s "{interactive session mode}[http://wiki.opscode.com/display/chef/Knife#Knife-InteractiveMode]"
 
-== knife windows bootstrap winrm
+== knife bootstrap windows winrm
 
 Performs a Chef Bootstrap (via the WinRM protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server. 
 
 This subcommand operates in a very similar manner as {knife bootstrap}[http://wiki.opscode.com/display/chef/Knife+Bootstrap]...just leveraging the WinRM protocol for communication.  An initial run_list for the node can also be passed to the subcommand. Example usage:
 
-    knife windows bootstrap winrm ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver]','role[production]' -x Administrator -P 'super_secret_password'
+    knife bootstrap windows winrm ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver],role[production]' -x Administrator -P 'super_secret_password'
 
-== knife windows bootstrap ssh
+== knife bootstrap windows ssh
 
 Performs a Chef Bootstrap (via the SSH protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server. 
 
-This subcommand assumes the SSH session will use Windows native cmd.exe command shell vs bash through an emulated cygwin layer.  Most popular Windows based SSHd daemons like {freeSSHd}[http://www.freesshd.com/] and {WinSSHD}[http://www.bitvise.com/winsshd] behave this way.
+This subcommand assumes the SSH session will use Windows native cmd.exe command shell vs a bash shell through an emulated cygwin layer.  Most popular Windows based SSHd daemons like {freeSSHd}[http://www.freesshd.com/] and {WinSSHD}[http://www.bitvise.com/winsshd] behave this way.
 
 An initial run_list for the node can also be passed to the subcommand. Example usage:
 
-    knife windows bootstrap ssh ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver]','role[production]' -x Administrator -i ~/.ssh/id_rsa
+    knife bootstrap windows ssh ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver],role[production]' -x Administrator -i ~/.ssh/id_rsa
 
 = BOOTSTRAP TEMPLATES:
 
