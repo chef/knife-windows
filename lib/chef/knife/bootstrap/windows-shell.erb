@@ -16,6 +16,7 @@
 @rem limitations under the License.
 @rem
 
+<%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
 mkdir C:\chef
 
 > C:\chef\wget.vbs (
