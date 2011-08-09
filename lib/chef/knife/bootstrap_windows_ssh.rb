@@ -16,13 +16,13 @@
 # limitations under the License.
 #
 
-require File.join(File.dirname(__FILE__), 'mixin/windows/bootstrap')
+require 'chef/knife/bootstrap_windows_base'
 
 class Chef
   class Knife
     class BootstrapWindowsSsh < Bootstrap
 
-      include Chef::Mixin::Bootstrap
+      include Chef::Knife::BootstrapWindowsBase
 
       deps do
         require 'chef/knife/core/windows_bootstrap_context'
@@ -58,43 +58,6 @@ class Chef
         :short => "-i IDENTITY_FILE",
         :long => "--identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
-
-      option :chef_node_name,
-        :short => "-N NAME",
-        :long => "--node-name NAME",
-        :description => "The Chef node name for your new node"
-
-      option :prerelease,
-        :long => "--prerelease",
-        :description => "Install the pre-release chef gems"
-
-      option :bootstrap_version,
-        :long => "--bootstrap-version VERSION",
-        :description => "The version of Chef to install",
-        :proc => Proc.new { |v| Chef::Config[:knife][:bootstrap_version] = v }
-
-      option :bootstrap_proxy,
-        :long => "--bootstrap-proxy PROXY_URL",
-        :description => "The proxy server for the node being bootstrapped",
-        :proc => Proc.new { |p| Chef::Config[:knife][:bootstrap_proxy] = p }
-
-      option :distro,
-        :short => "-d DISTRO",
-        :long => "--distro DISTRO",
-        :description => "Bootstrap a distro using a template",
-        :default => "windows-shell"
-
-      option :template_file,
-        :long => "--template-file TEMPLATE",
-        :description => "Full path to location of template to use",
-        :default => false
-
-      option :run_list,
-        :short => "-r RUN_LIST",
-        :long => "--run-list RUN_LIST",
-        :description => "Comma separated list of roles/recipes to apply",
-        :proc => lambda { |o| o.split(",") },
-        :default => []
 
       option :no_host_key_verify,
         :long => "--no-host-key-verify",

@@ -1,9 +1,76 @@
+#
+# Author:: Seth Chisamore (<schisamo@opscode.com>)
+# Copyright:: Copyright (c) 2011 Opscode, Inc.
+# License:: Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 require 'chef/knife'
-require 'erubis'
 
 class Chef
-  module Mixin
-    module Bootstrap
+  class Knife
+    module BootstrapWindowsBase
+
+      # :nodoc:
+      # Would prefer to do this in a rational way, but can't be done b/c of
+      # Mixlib::CLI's design :(
+      def self.included(includer)
+        includer.class_eval do
+
+          deps do
+            require 'readline'
+            require 'chef/json_compat'
+          end
+
+          option :chef_node_name,
+            :short => "-N NAME",
+            :long => "--node-name NAME",
+            :description => "The Chef node name for your new node"
+
+          option :prerelease,
+            :long => "--prerelease",
+            :description => "Install the pre-release chef gems"
+
+          option :bootstrap_version,
+            :long => "--bootstrap-version VERSION",
+            :description => "The version of Chef to install",
+            :proc => Proc.new { |v| Chef::Config[:knife][:bootstrap_version] = v }
+
+          option :bootstrap_proxy,
+            :long => "--bootstrap-proxy PROXY_URL",
+            :description => "The proxy server for the node being bootstrapped",
+            :proc => Proc.new { |p| Chef::Config[:knife][:bootstrap_proxy] = p }
+
+          option :distro,
+            :short => "-d DISTRO",
+            :long => "--distro DISTRO",
+            :description => "Bootstrap a distro using a template",
+            :default => "windows-shell"
+
+          option :template_file,
+            :long => "--template-file TEMPLATE",
+            :description => "Full path to location of template to use",
+            :default => false
+
+          option :run_list,
+            :short => "-r RUN_LIST",
+            :long => "--run-list RUN_LIST",
+            :description => "Comma separated list of roles/recipes to apply",
+            :proc => lambda { |o| o.split(",") },
+            :default => []
+        end
+      end
 
       # TODO: This should go away when CHEF-2193 is fixed
       def load_template(template=nil)
@@ -88,7 +155,6 @@ class Chef
         key = key.to_sym
         Chef::Config[:knife][key] || config[key]
       end
-
     end
   end
 end
