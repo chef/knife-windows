@@ -90,6 +90,10 @@ The Chef and Ohai gem installations (that occur during bootstrap) take more memo
 
     C:\Users\Administrator> winrm set winrm/config/winrs @{MaxMemoryPerShellMB="300"}
 
+Bootstrap commands can take longer than the WinRM default 60 seconds to complete, bump to 30 minutes:
+
+    C:\Users\Administrator> winrm set winrm/config @{MaxTimeoutms="1800000"}
+
 WinRM supports both the HTTP and HTTPS transports and the following authentication schemes: Kerberos, Digest, Certificate and Basic.  The details of these authentication transports are outside of the scope of this README but details can be found on the {WinRM configuration guide}[http://msdn.microsoft.com/en-us/library/aa384372(v=vs.85).aspx].  Currently, this plugin support Kerberos and Basic authentication schemes.
 
 For development and testing purposes, unencrypted traffic with Basic authentication can make things easier:
