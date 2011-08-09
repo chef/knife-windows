@@ -25,6 +25,7 @@ class Chef
       deps do
         require 'readline'
         require 'chef/search/query'
+        require 'em-winrm'
       end
 
       attr_writer :password
@@ -102,7 +103,6 @@ class Chef
         :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
 
       def session
-        require 'em-winrm'
         session_opts = {}
         session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
         @session ||= begin
