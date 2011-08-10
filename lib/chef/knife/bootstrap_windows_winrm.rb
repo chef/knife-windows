@@ -65,11 +65,11 @@ class Chef
         :default => 'plaintext',
         :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_transport] = transport }
 
-      option :keytab_file,
+      option :kerberos_keytab_file,
         :short => "-i KEYTAB_FILE",
         :long => "--keytab-file KEYTAB_FILE",
         :description => "The Kerberos keytab file used for authentication",
-        :proc => Proc.new { |keytab| Chef::Config[:knife][:keytab_file] = keytab }
+        :proc => Proc.new { |keytab| Chef::Config[:knife][:kerberos_keytab_file] = keytab }
 
       option :kerberos_realm,
         :short => "-R KERBEROS_REALM",

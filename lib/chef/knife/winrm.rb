@@ -90,12 +90,6 @@ class Chef
         :description => "The Kerberos service used for authentication",
         :proc => Proc.new { |service| Chef::Config[:knife][:kerberos_service] = service }
 
-      option :keytab_file,
-        :short => "-i KEYTAB_FILE",
-        :long => "--keytab-file KEYTAB_FILE",
-        :description => "The Kerberos keytab file used for authentication",
-        :proc => Proc.new { |keytab| Chef::Config[:knife][:keytab_file] = keytab }
-
       option :ca_trust_file,
         :short => "-f CA_TRUST_FILE",
         :long => "--ca-trust-file CA_TRUST_FILE",
@@ -260,7 +254,7 @@ class Chef
           case e.message
           when /401/
             ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
-            ui.info "Response:  #{e.message}"
+            ui.info "Response: #{e.message}"
           else
             raise e
           end
