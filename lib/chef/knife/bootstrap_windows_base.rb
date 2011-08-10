@@ -17,6 +17,7 @@
 #
 
 require 'chef/knife'
+require 'chef/encrypted_data_bag_item'
 
 class Chef
   class Knife
@@ -69,6 +70,17 @@ class Chef
             :description => "Comma separated list of roles/recipes to apply",
             :proc => lambda { |o| o.split(",") },
             :default => []
+
+          option :encrypted_data_bag_secret,
+            :short => "-s SECRET",
+            :long  => "--secret ",
+            :description => "The secret key to use to decrypt data bag item values.  Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config.",
+            :default => false
+
+          option :encrypted_data_bag_secret_file,
+            :long => "--secret-file SECRET_FILE",
+            :description => "A file containing the secret key to use to encrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config."
+
         end
       end
 
@@ -102,6 +114,9 @@ class Chef
       end
 
       def render_template(template=nil)
+        if config[:encrypted_data_bag_secret_file]
+          config[:encrypted_data_bag_secret] = Chef::EncryptedDataBagItem.load_secret(config[:encrypted_data_bag_secret_file])
+        end
         context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
         Erubis::Eruby.new(template).evaluate(context)
       end
