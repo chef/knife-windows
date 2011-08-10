@@ -244,16 +244,26 @@ class Chef
       end
 
       def run
-        @longest = 0
+        begin
+          @longest = 0
 
-        configure_session
+          configure_session
 
-        case @name_args[1]
-        when "interactive"
-          interactive
-        else
-          winrm_command(@name_args[1..-1].join(" "))
-          session.close
+          case @name_args[1]
+          when "interactive"
+            interactive
+          else
+            winrm_command(@name_args[1..-1].join(" "))
+            session.close
+          end
+        rescue WinRM::WinRMHTTPTransportError => e
+          case e.message
+          when /401/
+            ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
+            ui.info "Response:  #{e.message}"
+          else
+            raise e
+          end
         end
       end
 
