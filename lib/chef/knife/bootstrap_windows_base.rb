@@ -129,7 +129,7 @@ class Chef
         # back compat--templates may use this setting:
         config[:server_name] = @node_name
 
-        $stdout.sync = true
+        STDOUT.sync = STDERR.sync = true
 
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node

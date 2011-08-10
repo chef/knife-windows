@@ -190,6 +190,7 @@ class Chef
       end
 
       def run
+        STDOUT.sync = STDERR.sync = true
 
         begin
           @longest = 0
