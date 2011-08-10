@@ -40,6 +40,10 @@ class Chef
           escape_and_echo(super)
         end
 
+        def encrypted_data_bag_secret
+          escape_and_echo(@config[:encrypted_data_bag_secret])
+        end
+
         def config_content
           client_rb = <<-CONFIG
 log_level        :info
@@ -60,13 +64,17 @@ CONFIG
           else
             client_rb << "# Using default node name (fqdn)\n"
           end
-          
+
           if knife_config[:bootstrap_proxy]
             client_rb << "\n"
             client_rb << %Q{http_proxy        "#{knife_config[:bootstrap_proxy]}"\n}
             client_rb << %Q{https_proxy       "#{knife_config[:bootstrap_proxy]}"\n}
           end
-          
+
+          if @config[:encrypted_data_bag_secret]
+            client_rb << %Q{encrypted_data_bag_secret "c:/chef/encrypted_data_bag_secret"\n}
+          end
+
           escape_and_echo(client_rb)
         end
 

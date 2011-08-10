@@ -44,6 +44,12 @@ cmd.exe /C C:\ruby\bin\gem install chef --no-rdoc --no-ri --verbose <%= bootstra
  <%= validation_key %>
 )
 
+<% if @config[:encrypted_data_bag_secret] -%>
+> C:\chef\encrypted_data_bag_secret (
+ <%= encrypted_data_bag_secret %>
+)
+<% end -%>
+
 > C:\chef\client.rb (
  echo.require 'win32ole'
  echo.WIN32OLE.codepage = WIN32OLE::CP_UTF8
