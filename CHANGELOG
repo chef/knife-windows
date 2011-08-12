@@ -1,0 +1,9 @@
+Release Notes - Knife Windows Plugin - Version 0.5.4
+
+** Bug
+    * [KNIFE_WINDOWS-7] - Exception: NoMethodError: undefined method `env_namespace' for Savon:Module
+    * [KNIFE_WINDOWS-8] - winrm based bootstrap fails with 'Bad HTTP response returned from server (500)'
+
+
+** New Feature
+    * [KNIFE_WINDOWS-6] - default bootstrap template should support encrypted_data_bag_secret
