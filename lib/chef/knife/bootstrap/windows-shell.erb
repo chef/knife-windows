@@ -31,14 +31,18 @@ cscript /nologo C:\chef\wget.vbs /url:http://cloud.github.com/downloads/oneclick
 mkdir C:\DevKit
 copy %TEMP%\rubydevkit.exe C:\DevKit
 cmd.exe /C C:\DevKit\rubydevkit.exe -y
-cmd.exe /C C:\ruby\bin\ruby c:/DevKit/dk.rb init
-cmd.exe /C C:\ruby\bin\ruby c:/DevKit/dk.rb install
 
-cmd.exe /C C:\ruby\bin\gem install win32-open3 rdp-ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
+@rem update path during bootstrap session
+SET PATH=%PATH%;C:\ruby\bin
+
+cmd.exe /C ruby c:/DevKit/dk.rb init
+cmd.exe /C ruby c:/DevKit/dk.rb install
+
+cmd.exe /C gem install win32-open3 rdp-ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
 
 @rem Install Chef gems separately to prevent 'failed to allocate memory' errors
-cmd.exe /C C:\ruby\bin\gem install ohai --no-rdoc --no-ri --verbose
-cmd.exe /C C:\ruby\bin\gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
+cmd.exe /C gem install ohai --no-rdoc --no-ri --verbose
+cmd.exe /C gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
 
 > C:\chef\validation.pem (
  <%= validation_key %>
