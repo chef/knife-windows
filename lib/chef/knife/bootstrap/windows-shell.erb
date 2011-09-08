@@ -38,6 +38,7 @@ SET PATH=%PATH%;C:\ruby\bin
 cmd.exe /C ruby c:/DevKit/dk.rb init
 cmd.exe /C ruby c:/DevKit/dk.rb install
 
+cmd.exe /C gem install win32-api win32-service --platform=mswin32
 cmd.exe /C gem install win32-open3 rdp-ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
 
 @rem Install Chef gems separately to prevent 'failed to allocate memory' errors
