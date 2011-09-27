@@ -57,7 +57,7 @@ class Chef
             :short => "-d DISTRO",
             :long => "--distro DISTRO",
             :description => "Bootstrap a distro using a template",
-            :default => "windows-shell"
+            :default => "windows-full-stack"
 
           option :template_file,
             :long => "--template-file TEMPLATE",
@@ -135,7 +135,7 @@ class Chef
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk, chunk_num|
-          run_command("cmd.exe /C echo \"Rendering bootstrap.bat chunk #{chunk_num}\" && #{command_chunk}").run
+          run_command("cmd.exe /C echo \"Rendering '#{bootstrap_bat_file}' chunk #{chunk_num}\" && #{command_chunk}").run
         end
 
         # execute the bootstrap.bat file
@@ -163,7 +163,7 @@ class Chef
       end
 
       def bootstrap_bat_file
-        "%TEMP%\\bootstrap.bat"
+        @bootstrap_bat_file ||= "%TEMP%\\bootstrap-#{Process.pid}-#{Time.now.to_i}.bat"
       end
 
       def locate_config_value(key)

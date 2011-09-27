@@ -58,6 +58,17 @@ An initial run_list for the node can also be passed to the subcommand. Example u
 
 This gem provides the following bootstrap templates:
 
+== windows-full-stack
+
+This bootstrap template does the following:
+
+* Installs the latest version of Chef (and all dependencies) using the `chef-full` stack msi.
+* Writes the validation.pem per the local knife configuration.
+* Writes a default config file for Chef (C:\chef\client.rb) using values from the +knife.rb+.
+* Creates a JSON attributes file containing the specified run list and run Chef.
+
+This is the default bootstrap template used by both the +windows+ +bootstrap+ subcommands.
+
 == windows-shell
 
 This bootstrap template does the following:
@@ -70,7 +81,7 @@ This bootstrap template does the following:
 * Writes a default config file for Chef (C:\chef\client.rb) using values from the +knife.rb+.
 * Creates a JSON attributes file containing the specified run list and run Chef.
 
-This is the default bootstrap template used by both the +windows+ +bootstrap+ subcommands.
+This should be considered a legacy bootstrap template and will most likely be removed in a future version.
 
 = REQUIREMENTS/SETUP:
 

@@ -1,0 +1,48 @@
+@rem
+@rem Author:: Seth Chisamore (<schisamo@opscode.com>)
+@rem Copyright:: Copyright (c) 2011 Opscode, Inc.
+@rem License:: Apache License, Version 2.0
+@rem
+@rem Licensed under the Apache License, Version 2.0 (the "License");
+@rem you may not use this file except in compliance with the License.
+@rem You may obtain a copy of the License at
+@rem 
+@rem     http://www.apache.org/licenses/LICENSE-2.0
+@rem 
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+
+<%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
+mkdir C:\chef
+
+> C:\chef\wget.vbs (
+ <%= win_wget %>
+)
+
+@rem Install Chef using full-stack installer
+cscript /nologo C:\chef\wget.vbs /url:http://s3.amazonaws.com/opscode-full-stack/windows-x86_64/chef-full-0.10.4-1-x86_64.msi /path:%TEMP%\chef-full-0.10.4-1-x86_64.msi
+msiexec /qb /i %TEMP%\chef-full-0.10.4-1-x86_64.msi
+
+> C:\chef\validation.pem (
+ <%= validation_key %>
+)
+
+<% if @config[:encrypted_data_bag_secret] -%>
+> C:\chef\encrypted_data_bag_secret (
+ <%= encrypted_data_bag_secret %>
+)
+<% end -%>
+
+> C:\chef\client.rb (
+ <%= config_content %>
+)
+
+> C:\chef\first-boot.json (
+ <%= run_list %>
+)
+
+<%= start_chef %>
