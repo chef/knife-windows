@@ -23,7 +23,7 @@ This plugin provides the following Knife subcommands.  Specific command options 
 The +winrm+ subcommand allows you to invoke commands in parallel on a subset of the nodes in your infrastructure. The +winrm+ subcommand uses the same syntax as the {search subcommand}[http://wiki.opscode.com/display/chef/Search]; you could could find the uptime of all your web servers using the command:
 
     % knife winrm "role:web" "net stats srv" -x Administrator -P 'super_secret_password'
-    
+
 Or force a chef run:
 
     % knife winrm 'ec2-50-xx-xx-124.compute-1.amazonaws.com' 'chef-client -c c:/chef/client.rb' -m -x Administrator -P 'super_secret_password'
@@ -38,7 +38,7 @@ This subcommand operates in a very similar manner as {knife ssh}[http://wiki.ops
 
 == knife bootstrap windows winrm
 
-Performs a Chef Bootstrap (via the WinRM protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server. 
+Performs a Chef Bootstrap (via the WinRM protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.
 
 This subcommand operates in a very similar manner as {knife bootstrap}[http://wiki.opscode.com/display/chef/Knife+Bootstrap]...just leveraging the WinRM protocol for communication.  An initial run_list for the node can also be passed to the subcommand. Example usage:
 
@@ -46,7 +46,7 @@ This subcommand operates in a very similar manner as {knife bootstrap}[http://wi
 
 == knife bootstrap windows ssh
 
-Performs a Chef Bootstrap (via the SSH protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server. 
+Performs a Chef Bootstrap (via the SSH protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.
 
 This subcommand assumes the SSH session will use Windows native cmd.exe command shell vs a bash shell through an emulated cygwin layer.  Most popular Windows based SSHd daemons like {freeSSHd}[http://www.freesshd.com/] and {WinSSHD}[http://www.bitvise.com/winsshd] behave this way.
 
@@ -58,11 +58,11 @@ An initial run_list for the node can also be passed to the subcommand. Example u
 
 This gem provides the following bootstrap templates:
 
-== windows-full-stack
+== windows-chef-client-msi
 
 This bootstrap template does the following:
 
-* Installs the latest version of Chef (and all dependencies) using the `chef-full` stack msi.
+* Installs the latest version of Chef (and all dependencies) using the `chef-client` msi.
 * Writes the validation.pem per the local knife configuration.
 * Writes a default config file for Chef (C:\chef\client.rb) using values from the +knife.rb+.
 * Creates a JSON attributes file containing the specified run list and run Chef.
@@ -96,7 +96,7 @@ Knife plugins require >= Chef 0.10.  More details about Knife plugins can be {fo
 A server running WinRM must also be configured properly to allow outside connections and the entire network path from the knife workstation to the server.  The easiest way to accomplish this is to use {WinRM's quick configuration option}[http://msdn.microsoft.com/en-us/library/aa384372(v=vs.85).aspx#quick_default_configuration]:
 
     C:\Users\Administrator> winrm quickconfig -q
-    
+
 The Chef and Ohai gem installations (that occur during bootstrap) take more memory than the default 150MB WinRM allocates per shell.  Bump it up to 300MB with the following setting:
 
     C:\Users\Administrator> winrm set winrm/config/winrs @{MaxMemoryPerShellMB="300"}

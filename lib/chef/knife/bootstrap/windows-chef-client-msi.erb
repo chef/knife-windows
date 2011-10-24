@@ -6,9 +6,9 @@
 @rem Licensed under the Apache License, Version 2.0 (the "License");
 @rem you may not use this file except in compliance with the License.
 @rem You may obtain a copy of the License at
-@rem 
+@rem
 @rem     http://www.apache.org/licenses/LICENSE-2.0
-@rem 
+@rem
 @rem Unless required by applicable law or agreed to in writing, software
 @rem distributed under the License is distributed on an "AS IS" BASIS,
 @rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,9 +23,9 @@ mkdir C:\chef
  <%= win_wget %>
 )
 
-@rem Install Chef using full-stack installer
-cscript /nologo C:\chef\wget.vbs /url:http://s3.amazonaws.com/opscode-full-stack/windows-x86_64/chef-full-0.10.4-1-x86_64.msi /path:%TEMP%\chef-full-0.10.4-1-x86_64.msi
-msiexec /qb /i %TEMP%\chef-full-0.10.4-1-x86_64.msi
+@rem Install Chef using chef-client MSI installer
+cscript /nologo C:\chef\wget.vbs /url:http://s3.amazonaws.com/opscode-full-stack/windows/chef-client-0.10.4-6.msi /path:%TEMP%\chef-client-0.10.4-6.msi
+msiexec /qb /i %TEMP%\chef-client-0.10.4-6.msi
 
 > C:\chef\validation.pem (
  <%= validation_key %>

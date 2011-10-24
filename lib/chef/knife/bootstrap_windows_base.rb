@@ -57,7 +57,7 @@ class Chef
             :short => "-d DISTRO",
             :long => "--distro DISTRO",
             :description => "Bootstrap a distro using a template",
-            :default => "windows-full-stack"
+            :default => "windows-chef-client-msi"
 
           option :template_file,
             :long => "--template-file TEMPLATE",
