@@ -1,3 +1,8 @@
+Release Notes - Knife Windows Plugin - Version 0.5.6
+
+** New Feature
+    * new default bootstrap template that installs Chef using official chef-client MSI installer
+
 Release Notes - Knife Windows Plugin - Version 0.5.4
 
 ** Bug
