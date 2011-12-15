@@ -24,8 +24,8 @@ mkdir C:\chef
 )
 
 @rem Install Chef using chef-client MSI installer
-cscript /nologo C:\chef\wget.vbs /url:http://s3.amazonaws.com/opscode-full-stack/windows/chef-client-0.10.6-1.msi /path:%TEMP%\chef-client-0.10.6-1.msi
-msiexec /qb /i %TEMP%\chef-client-0.10.6-1.msi
+cscript /nologo C:\chef\wget.vbs /url:http://s3.amazonaws.com/opscode-full-stack/windows/chef-client-latest.msi /path:%TEMP%\chef-client-latest.msi
+msiexec /qb /i %TEMP%\chef-client-latest.msi
 
 > C:\chef\validation.pem (
  <%= validation_key %>
