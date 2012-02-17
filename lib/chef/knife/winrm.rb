@@ -104,7 +104,7 @@ class Chef
             session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
-            session_opts[:basic_auth_only] = true
+            session_opts[:disable_sspi] = true
           end
 
           session.use(item, session_opts)
