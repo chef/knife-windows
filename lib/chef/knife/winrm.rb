@@ -99,6 +99,13 @@ class Chef
           session_opts[:ca_trust_path] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
 
+          ## If you have a \\ in your name you need to use NTLM domain authentication
+          if session_opts[:user].split("\\").length.eql?(2)
+            session_opts[:basic_auth_only] = false
+          else
+            session_opts[:basic_auth_only] = true
+          end
+
           if config.keys.any? {|k| k.to_s =~ /kerberos/ }
             session_opts[:transport] = :kerberos
             session_opts[:basic_auth_only] = false
