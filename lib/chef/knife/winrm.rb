@@ -91,8 +91,8 @@ class Chef
         list.each do |item|
           Chef::Log.debug("Adding #{item}")
           session_opts = {}
-          session_opts[:user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
-          session_opts[:password] = Chef::Config[:knife][:winrm_password] if config[:winrm_password]
+          session_opts[:user] = config[:winrm_user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
+          session_opts[:password] = config[:winrm_password] = Chef::Config[:knife][:winrm_password] || config[:winrm_password]
           session_opts[:port] = Chef::Config[:knife][:winrm_port] || config[:winrm_port]
           session_opts[:keytab] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
           session_opts[:realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
@@ -115,7 +115,7 @@ class Chef
             session_opts[:disable_sspi] = true
             if session_opts[:user] and
                 (not session_opts[:password])
-                session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = ask("Enter your password:  ") { |q| q.echo = "*" }
+              session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = ask("Enter password for #{session_opts[:user]}:  ") { |q| q.echo = "*" }
 
             end
           end
