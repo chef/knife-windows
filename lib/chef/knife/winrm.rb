@@ -115,7 +115,7 @@ class Chef
             session_opts[:disable_sspi] = true
             if session_opts[:user] and
                 (not session_opts[:password])
-                session_opts[:password] = Chef::Config[:knife][:winrm_password] = ask("Enter your password:  ") { |q| q.echo = "*" }
+                session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = ask("Enter your password:  ") { |q| q.echo = "*" }
 
             end
           end
