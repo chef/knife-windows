@@ -18,6 +18,7 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
+require 'highline/import'
 
 class Chef
   class Knife
@@ -112,6 +113,11 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
             session_opts[:disable_sspi] = true
+            if session_opts[:user] and
+                (not session_opts[:password])
+                session_opts[:password] = ask("Enter your password:  ") { |q| q.echo = "*" }
+
+            end
           end
 
           session.use(item, session_opts)
