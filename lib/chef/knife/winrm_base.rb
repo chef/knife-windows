@@ -18,7 +18,6 @@
 
 require 'chef/knife'
 require 'chef/encrypted_data_bag_item'
-require 'gssapi/hiemdal'
 
 class Chef
   class Knife
