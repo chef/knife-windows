@@ -18,6 +18,7 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
+require 'highline/import'
 
 class Chef
   class Knife
@@ -40,6 +41,13 @@ class Chef
         :long => "--attribute ATTR",
         :description => "The attribute to use for opening the connection - default is fqdn",
         :default => "fqdn"
+
+      option :returns,
+             :long => "--returns CODES",
+             :description => "A comma delimited list of return codes which indicate success",
+             :default => nil,
+             :proc => Proc.new { |codes|
+               Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i} }
 
       option :manual,
         :short => "-m",
@@ -90,8 +98,8 @@ class Chef
         list.each do |item|
           Chef::Log.debug("Adding #{item}")
           session_opts = {}
-          session_opts[:user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
-          session_opts[:password] = Chef::Config[:knife][:winrm_password] if config[:winrm_password]
+          session_opts[:user] = config[:winrm_user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
+          session_opts[:password] = config[:winrm_password] = Chef::Config[:knife][:winrm_password] || config[:winrm_password]
           session_opts[:port] = Chef::Config[:knife][:winrm_port] || config[:winrm_port]
           session_opts[:keytab] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
           session_opts[:realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
@@ -99,12 +107,24 @@ class Chef
           session_opts[:ca_trust_path] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
 
+          ## If you have a \\ in your name you need to use NTLM domain authentication
+          if session_opts[:user].split("\\").length.eql?(2)
+            session_opts[:basic_auth_only] = false
+          else
+            session_opts[:basic_auth_only] = true
+          end
+
           if config.keys.any? {|k| k.to_s =~ /kerberos/ }
             session_opts[:transport] = :kerberos
             session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
-            session_opts[:basic_auth_only] = true
+            session_opts[:disable_sspi] = true
+            if session_opts[:user] and
+                (not session_opts[:password])
+              session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = ask("Enter password for #{session_opts[:user]}:  ") { |q| q.echo = "*" }
+
+            end
           end
 
           session.use(item, session_opts)
@@ -189,6 +209,17 @@ class Chef
         end
       end
 
+      def check_for_errors!(exit_codes)
+
+        exit_codes.each do |host, value|
+          unless Chef::Config[:knife][:returns].include? value.to_i
+            @exit_code = 1
+            ui.error "Failed to execute command on #{host} return code #{value}"
+          end
+        end
+
+      end
+
       def run
         STDOUT.sync = STDERR.sync = true
 
@@ -202,7 +233,13 @@ class Chef
             interactive
           else
             winrm_command(@name_args[1..-1].join(" "))
+
+            if config[:returns]
+              check_for_errors! session.exit_codes
+            end
+
             session.close
+            exit @exit_code || 0
           end
         rescue WinRM::WinRMHTTPTransportError => e
           case e.message

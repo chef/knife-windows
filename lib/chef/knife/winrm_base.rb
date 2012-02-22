@@ -34,6 +34,11 @@ class Chef
             require 'chef/json_compat'
           end
 
+          option :winrm_nego,
+                 :long => "--nego",
+                 :description => "Use negotiate authentication",
+                 :default => false
+
           option :winrm_user,
             :short => "-x USERNAME",
             :long => "--winrm-user USERNAME",
@@ -89,6 +94,8 @@ class Chef
             :long => "--ca-trust-file CA_TRUST_FILE",
             :description => "The Certificate Authority (CA) trust file used for SSL transport",
             :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
+
+
 
         end
       end
