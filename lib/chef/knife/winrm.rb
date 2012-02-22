@@ -42,6 +42,13 @@ class Chef
         :description => "The attribute to use for opening the connection - default is fqdn",
         :default => "fqdn"
 
+      option :returns,
+             :long => "--returns CODES",
+             :description => "A comma delimited list of return codes which indicate success",
+             :default => nil,
+             :proc => Proc.new { |codes|
+               Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i} }
+
       option :manual,
         :short => "-m",
         :long => "--manual-list",
@@ -202,6 +209,17 @@ class Chef
         end
       end
 
+      def check_for_errors!(exit_codes)
+
+        exit_codes.each do |host, value|
+          unless Chef::Config[:knife][:returns].include? value.to_i
+            @exit_code = 1
+            ui.error "Failed to execute command on #{host} return code #{value}"
+          end
+        end
+
+      end
+
       def run
         STDOUT.sync = STDERR.sync = true
 
@@ -215,7 +233,13 @@ class Chef
             interactive
           else
             winrm_command(@name_args[1..-1].join(" "))
+
+            if config[:returns]
+              check_for_errors! session.exit_codes
+            end
+
             session.close
+            exit @exit_code || 0
           end
         rescue WinRM::WinRMHTTPTransportError => e
           case e.message
