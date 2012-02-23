@@ -91,7 +91,7 @@ CONFIG
           win_wget = <<-WGET
 url = WScript.Arguments.Named("url")
 path = WScript.Arguments.Named("path")
-Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
+Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
 Set wshShell = CreateObject( "WScript.Shell" )
 Set objUserVariables = wshShell.Environment("USER")
 
