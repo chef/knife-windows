@@ -107,7 +107,7 @@ class Chef
             session_opts[:basic_auth_only] = true
             if session_opts[:user] and
                 (not session_opts[:password])
-              session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = ui.ask("Enter password for #{session_opts[:user]}:  ") { |q| q.echo = "*" }
+              session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
 
             end
           end
