@@ -32,14 +32,15 @@ class Chef
       end
 
       attr_writer :password
-
+      
       banner "knife winrm QUERY COMMAND (options)"
 
       option :attribute,
-        :short => "-a ATTR",
-        :long => "--attribute ATTR",
-        :description => "The attribute to use for opening the connection - default is fqdn",
-        :default => "fqdn"
+      :short => "-a ATTR",
+      :long => "--attribute ATTR",
+      :description => "The attribute to use for opening the connection - default is fqdn",
+      :default => "fqdn",
+      :proc => Proc.new { |key| Chef::Config[:knife][:winrm_attribute] = key }
 
       option :manual,
         :short => "-m",
@@ -77,7 +78,7 @@ class Chef
                  q = Chef::Search::Query.new
                  @action_nodes = q.search(:node, @name_args[0])[0]
                  @action_nodes.each do |item|
-                   i = format_for_display(item)[config[:attribute]]
+                   i = format_for_display(item)[(Chef::Config[:knife][:winrm_attribute] ||config[:attribute]).strip]
                    r.push(i) unless i.nil?
                  end
                  r
@@ -91,7 +92,7 @@ class Chef
           Chef::Log.debug("Adding #{item}")
           session_opts = {}
           session_opts[:user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
-          session_opts[:password] = Chef::Config[:knife][:winrm_password] if config[:winrm_password]
+          session_opts[:password] = Chef::Config[:knife][:winrm_password] || config[:winrm_password]
           session_opts[:port] = Chef::Config[:knife][:winrm_port] || config[:winrm_port]
           session_opts[:keytab] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
           session_opts[:realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
