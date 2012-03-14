@@ -42,11 +42,11 @@ class Chef
         :default => "fqdn"
 
       option :returns,
-             :long => "--returns CODES",
-             :description => "A comma delimited list of return codes which indicate success",
-             :default => nil,
-             :proc => Proc.new { |codes|
-               Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i} }
+       :long => "--returns CODES",
+       :description => "A comma delimited list of return codes which indicate success",
+       :default => nil,
+       :proc => Proc.new { |codes|
+         Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i} }
 
       option :manual,
         :short => "-m",
