@@ -91,7 +91,8 @@ CONFIG
           win_wget = <<-WGET
 url = WScript.Arguments.Named("url")
 path = WScript.Arguments.Named("path")
-Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+proxy = null
+Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
 Set wshShell = CreateObject( "WScript.Shell" )
 Set objUserVariables = wshShell.Environment("USER")
 
@@ -100,11 +101,17 @@ Set objUserVariables = wshShell.Environment("USER")
 On Error Resume Next
 
 If NOT (objUserVariables("HTTP_PROXY") = "") Then
-objXMLHTTP.setProxy 2, objUserVariables("HTTP_PROXY")
+proxy = objUserVariables("HTTP_PROXY")
 
 'fall back to named arg
 ElseIf NOT (WScript.Arguments.Named("proxy") = "") Then
-objXMLHTTP.setProxy 2, WScript.Arguments.Named("proxy")
+proxy = WScript.Arguments.Named("proxy")
+End If
+
+If NOT isNull(proxy) Then
+' setProxy method is only available on ServerXMLHTTP 6.0+
+Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+objXMLHTTP.setProxy 2, proxy
 End If
 
 On Error Goto 0
