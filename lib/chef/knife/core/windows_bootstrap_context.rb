@@ -79,7 +79,7 @@ CONFIG
         end
 
         def start_chef
-          start_chef = "SET PATH=\"%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
+          start_chef = "SET \"PATH=%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
           start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json -E #{bootstrap_environment}\n"
         end
 
@@ -109,7 +109,7 @@ proxy = WScript.Arguments.Named("proxy")
 End If
 
 If NOT isNull(proxy) Then
-' setProxy method is only available on ServerXMLHTTP 6.0+
+'setProxy method is only available on ServerXMLHTTP 6.0+
 Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
 objXMLHTTP.setProxy 2, proxy
 End If
