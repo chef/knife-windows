@@ -33,7 +33,7 @@ copy %TEMP%\rubydevkit.exe C:\DevKit
 cmd.exe /C C:\DevKit\rubydevkit.exe -y
 
 @rem update path during bootstrap session
-SET PATH=%PATH%;C:\ruby\bin
+SET PATH="%PATH%;C:\ruby\bin"
 
 cmd.exe /C ruby c:/DevKit/dk.rb init
 cmd.exe /C ruby c:/DevKit/dk.rb install
