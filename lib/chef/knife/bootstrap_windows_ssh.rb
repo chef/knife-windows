@@ -59,11 +59,11 @@ class Chef
         :long => "--identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
 
-      option :no_host_key_verify,
-        :long => "--no-host-key-verify",
+      option :host_key_verify,
+        :long => "--[no-]host-key-verify",
         :description => "Disable host key verification",
         :boolean => true,
-        :default => false
+        :default => true
 
       def run
         bootstrap
@@ -77,7 +77,7 @@ class Chef
         ssh.config[:ssh_port] = locate_config_value(:ssh_port)
         ssh.config[:identity_file] = config[:identity_file]
         ssh.config[:manual] = true
-        ssh.config[:no_host_key_verify] = config[:no_host_key_verify]
+        ssh.config[:host_key_verify] = config[:host_key_verify]
         ssh
       end
 
