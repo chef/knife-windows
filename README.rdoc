@@ -85,6 +85,10 @@ This should be considered a legacy bootstrap template and will most likely be re
 
 = REQUIREMENTS/SETUP:
 
+== Ruby
+
+Ruby 1.9.1+ is needed.
+
 == Chef Version
 
 Knife plugins require >= Chef 0.10.  More details about Knife plugins can be {found on the Chef wiki}[http://wiki.opscode.com/display/chef/Knife+Plugins].
