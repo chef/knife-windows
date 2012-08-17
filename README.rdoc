@@ -116,6 +116,11 @@ For development and testing purposes, unencrypted traffic with Basic authenticat
     C:\Users\Administrator> winrm set winrm/config/service @{AllowUnencrypted="true"}
     C:\Users\Administrator> winrm set winrm/config/service/auth @{Basic="true"}
 
+= CONTRIBUTING:
+
+Please file bugs against the KNIFE_WINDOWS project at http://tickets.opscode.com/browse/KNIFE_WINDOWS
+
+More information on the contribution process for Opscode projects can be found at: http://wiki.opscode.com/display/chef/How+to+Contribute
 = LICENSE:
 
 Author:: Seth Chisamore (<schisamo@opscode.com>)
