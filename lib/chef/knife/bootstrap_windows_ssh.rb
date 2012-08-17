@@ -59,8 +59,8 @@ class Chef
         :long => "--identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
 
-      option :host_key_verify,
-        :long => "--[no-]host-key-verify",
+      option :host_key_verification,
+        :long => "--[no-]host-key-verification",
         :description => "Disable host key verification",
         :boolean => true,
         :default => true
