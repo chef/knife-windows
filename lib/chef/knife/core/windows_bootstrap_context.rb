@@ -79,7 +79,7 @@ CONFIG
         end
 
         def start_chef
-          start_chef = "SET \"PATH=%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
+          start_chef = "SET \"PATH=%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin;C:\\opscode\\chef\\embedded\\mingw\\bin\"\n"
           start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json -E #{bootstrap_environment}\n"
         end
 
