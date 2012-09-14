@@ -59,7 +59,7 @@ class Chef
         session_opts = {}
         session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
         @session ||= begin
-          s = EventMachine::WinRM::Session.new(session_opts)
+          s = ::EventMachine::WinRM::Session.new(session_opts)
           s.on_output do |host, data|
             print_data(host, data)
           end
@@ -240,7 +240,7 @@ class Chef
             session.close
             exit @exit_code || 0
           end
-        rescue WinRM::WinRMHTTPTransportError => e
+        rescue ::WinRM::WinRMHTTPTransportError => e
           case e.message
           when /401/
             ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
