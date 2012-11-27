@@ -64,6 +64,7 @@ class Chef
         session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
         @session ||= begin
           if is_platform_windows?
+              require 'em-winrs'
               s = EventMachine::WinRS::Session.new(session_opts)
           else
               s = EventMachine::WinRM::Session.new(session_opts)
