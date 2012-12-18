@@ -17,34 +17,46 @@
 # limitations under the License.
 #
 
-require_relative '../lib/chef/knife/core/windows_bootstrap_context'
-
 def windows?
   !!(RUBY_PLATFORM =~ /mswin|mingw|windows/)
 end
 
+require_relative '../lib/chef/knife/core/windows_bootstrap_context'
+
+if windows?
+  require 'ruby-wmi'
+end
+
 def windows2012?
-
   is_win2k12 = false
+  
+  if  windows?
+    this_operating_system = WMI::Win32_OperatingSystem.find(:first)
+    os_version = this_operating_system.send('Version')
 
-  # Use PowerShell script on Windows Server 2012 to reliably detect
-  # the OS version. Windows 6.2 is Windows Server 2012.
-  if windows?
-    `powershell -noprofile -noninteractive -command "if ( [environment]::osversion.Version.Major -eq 6 -and [environment]::osversion.Version.Minor -eq 2 ) { throw 'Win2k12'}" > NUL`
-    is_win2k12= $?.exitstatus != 0
+    # The operating system version is a string in the following form
+    # that can be split into components based on the '.' delimiter:
+    # MajorVersionNumber.MinorVersionNumber.BuildNumber
+    os_version_components = os_version.split('.')
+
+    if os_version_components.length < 2
+      raise 'WMI returned a Windows version from Win32_OperatingSystem.Version ' +
+        'with an unexpected format. The Windows version could not be determined.'
+    end
+
+    # Windows 6.2 is Windows Server 2012, so test the major and
+    # minor version components
+    is_win2k12 = os_version_components[0] == '6' && os_version_components[1] == '2'
   end
 
   is_win2k12
-
 end
 
 
 RSpec.configure do |config|
-
   config.treat_symbols_as_metadata_keys_with_true_values = true
   
   config.filter_run_excluding :windows_only => true unless windows?
   config.filter_run_excluding :windows_2012_only => true unless windows2012?
-
 end
 
