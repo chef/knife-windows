@@ -142,7 +142,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
   end
 
   # Executes the specified script content as a Windows batch file
-  # in the context for WinRM
+  # in the context of WinRM
   def execute_download_script(script_content)
     script_file_to_execute = File.new(@script_file_path, File::CREAT|File::RDWR)
     script_file_to_execute.write(script_content)
