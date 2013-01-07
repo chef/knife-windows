@@ -136,6 +136,21 @@ WGET
           escape_and_echo(win_wget)
         end
 
+        def win_wget_ps
+          win_wget_ps = <<-WGET_PS
+param(
+   [String] $remoteUrl,
+   [String] $localPath
+)
+
+$webClient = new-object System.Net.WebClient; 
+
+$webClient.DownloadFile($remoteUrl, $localPath);
+WGET_PS
+
+          escape_and_echo(win_wget_ps)
+        end
+
         # escape WIN BATCH special chars
         # and prefixes each line with an
         # echo
