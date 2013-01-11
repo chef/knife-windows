@@ -18,8 +18,7 @@
 #
 
 require 'spec_helper'
-
-require 'erubis'
+require 'tmpdir'
 
 # These test cases exercise the Knife::Windows knife plugin's ability
 # to download a bootstrap msi as part of the bootstrap process on
@@ -41,124 +40,59 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     # All file artifacts from this test will be written into this directory
     @temp_directory = Dir.mktmpdir("bootstrap_test")
 
-    # The batch script will try to create a hard-coded directory, so generate
-    # a new path under the test directory to which to redirect the script
-    @mock_chef_directory = "#{@temp_directory}/mock_chef"
-    @mock_chef_directory_windows_path = @mock_chef_directory.gsub("/","\\")
-
-    # This is another directory the script creates that must be redirected
-    @original_chef_directory="C\:\\chef"
-
-    # This is where the modified batch file will be written and executed
-    @script_file_path = "#{@temp_directory}/bootstrap_script.cmd"
-
     # Location to which the download script will be modified to write
     # the downloaded msi
-    @local_file_download_destination = "#{@mock_chef_directory}/chef-client-latest.msi"
-    
-    source_code_directory = File.dirname(__FILE__)    
-    template_file = File.new("#{source_code_directory}/../../lib/chef/knife/bootstrap/windows-chef-client-msi.erb")
-    @template_data = template_file.read
-    template_file.close
+    @local_file_download_destination = "#{@temp_directory}/chef-client-latest.msi"
   end
 
   after(:all) do
-    # All test state should be written underneath the test's
-    # temporary directory, so removing this should clear all state
+    # Clear the temp directory upon exit
     if Dir.exists?(@temp_directory)
       FileUtils::remove_dir(@temp_directory)
     end
   end
 
-  it "renders the Windows batch file bootstrap erb template" do
-    clean_test_case
+  describe "running on any version of the Windows OS", :windows_only do
+    before do
+      @mock_bootstrap_context = Chef::Knife::Core::WindowsBootstrapContext.new({ }, nil, { })
 
-    script_content = get_rendered_script_content
+      # Stub the bootstrap context and prevent config related sections
+      # to be populated, chef installation and first chef run
+      @mock_bootstrap_context.stub(:validation_key).and_return("echo.validation_key")
+      @mock_bootstrap_context.stub(:encrypted_data_bag_secret).and_return("echo.encrypted_data_bag_secret")
+      @mock_bootstrap_context.stub(:config_content).and_return("echo.config_content")
+      @mock_bootstrap_context.stub(:start_chef).and_return("echo.echo start_chef_command")
+      @mock_bootstrap_context.stub(:run_list).and_return("echo.run_list")
+      @mock_bootstrap_context.stub(:install_chef).and_return("echo.echo install_chef_command")
 
-    script_content.length.should > 0
-  end
+      # Change the directorires where bootstrap files will be created
+      @mock_bootstrap_context.stub(:bootstrap_directory).and_return(@temp_directory)
+      @mock_bootstrap_context.stub(:local_download_path).and_return(@local_file_download_destination)
 
-  describe "running on any version of the Windows OS", :windows_only do 
-    it "downloads the chef-client MSI when the Windows batch file is executed via winrm" do 
+      # Prevent password prompt during bootstrap process
+      @mock_winrm = Chef::Knife::Winrm.new
+      @mock_winrm.stub(:get_password).and_return(nil)
+      Chef::Knife::Winrm.stub(:new).and_return(@mock_winrm)
 
+      Chef::Knife::Core::WindowsBootstrapContext.stub(:new).and_return(@mock_bootstrap_context)
+    end
+
+    it "downloads the chef-client MSI during winrm bootstrap" do
       clean_test_case
 
-      download_only_script_content = get_download_script_content
+      bootstrap_context = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
 
-      script_executed_successfully = execute_download_script(download_only_script_content)
+      # Execute the commands that would normally be executed via WinRM
+      # using winrs tool
+      bootstrap_context.stub(:run_command) do |command|
+        system("winrs -r:127.0.0.1 #{command}")
+      end
 
-      # script_executed_successfully.should == true && download_succeeded?.should == true
-      (script_executed_successfully && download_succeeded?).should == true
+      bootstrap_context.run
+
+      # Download should succeed
+      download_succeeded?.should == true
     end
-  end
-
-  describe "running on Windows Server 2012", :windows_2012_only do
-    it "fails to download the chef-client MSI when the Windows batch file is executed via winrm and the PowerShell download workaround is disabled" do
-      clean_test_case
-
-      download_only_script_content = get_download_script_content
-
-      # Remove the powershell execution by commenting it out so that
-      # the workaround is unavailable and download fails
-      download_only_script_content = download_only_script_content.gsub("powershell", "rem powershell")
-
-      execute_download_script(download_only_script_content)
-
-      download_succeeded?.should == false
-    end
-  end
-  
-  def get_rendered_script_content
-    # Create a context compatible with the erb template for bootstrap
-    empty_config = Hash[]
-    bootstrap_context = Chef::Knife::Core::WindowsBootstrapContext.new(empty_config, nil, empty_config)
-
-    # Stub out problematic methods that fail due to assumptions of a
-    # real environment
-    bootstrap_context.stub(:validation_key) { "echo." }
-    bootstrap_context.should_receive(:validation_key)
-
-    bootstrap_context.stub(:start_chef) { "" }
-    bootstrap_context.should_receive(:start_chef)
-
-    Erubis::Eruby.new(@template_data).evaluate(bootstrap_context)
-  end
-    
-  def get_download_script_content
-    download_and_install_script_content = get_rendered_script_content
-
-    # Comment out the msi package installation command that changes node
-    # state outside of this test's mock directory
-    download_only_script_content = download_and_install_script_content.gsub("msiexec", "rem msiexec")
-
-    # Redirect references to file locations outside the test's
-    # directories to the mock directory
-    download_only_script_content = download_only_script_content.gsub("%TEMP%") { | replace |
-      @mock_chef_directory_windows_path }
-    download_only_script_content = download_only_script_content.gsub(@original_chef_directory) { | replace |
-      @mock_chef_directory_windows_path }
-        
-    download_only_script_content
-  end
-
-  # Executes the specified script content as a Windows batch file
-  # in the context of WinRM
-  def execute_download_script(script_content)
-    script_file_to_execute = File.new(@script_file_path, File::CREAT|File::RDWR)
-    script_file_to_execute.write(script_content)
-    script_file_to_execute.close
-
-    # Execute the script via winrm through the winrs tool
-    `winrs -r:127.0.0.1 "#{@script_file_path}"`
-
-    # Exit status cannot be relied upon to be set to non-zero on
-    # failure, but non-zero may indicate a malformed script
-    # that could not be executed.
-    script_executed_successfully = $?.exitstatus == 0
-    
-    File.delete(script_file_to_execute)
-
-    script_executed_successfully
   end
 
   def download_succeeded?
@@ -167,18 +101,9 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
 
   # Remove file artifiacts generated by individual test cases
   def clean_test_case
-    if Dir.exists?(@mock_chef_directory)
-      FileUtils::remove_dir(@mock_chef_directory)
-    end
-
     if File.exists?(@local_file_download_destination)
       File.delete(@local_file_download_destination)
-    end
-
-    if File.exists?(@script_file_path)
-      File.delete(@script_file_path)
     end
   end
   
 end 
-

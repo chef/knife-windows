@@ -19,13 +19,13 @@
 @setlocal
 
 <%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
-mkdir C:\chef
+mkdir <%= bootstrap_directory %>
 
-> C:\chef\wget.vbs (
+> <%= bootstrap_directory %>\wget.vbs (
  <%= win_wget %>
 )
 
-> C:\chef\wget.ps1 (
+> <%= bootstrap_directory %>\wget.ps1 (
  <%= win_wget_ps %>
 )
 
@@ -71,10 +71,10 @@ goto install
 @rem Install Chef using chef-client MSI installer
 
 @set "REMOTE_SOURCE_MSI_URL=https://www.opscode.com/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%"
-@set "LOCAL_DESTINATION_MSI_PATH=%TEMP%\chef-client-latest.msi"
+@set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
 @set "FALLBACK_QUERY_STRING=&DownloadContext=PowerShell"
 
-cscript /nologo C:\chef\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
+cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
 
 @rem Work around issues found in Windows Server 2012 around job objects not respecting WSMAN memory quotas
 @rem that cause the MSI download process to exceed the quota even when it is increased by administrators.
@@ -83,7 +83,7 @@ cscript /nologo C:\chef\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DE
     echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
     echo Warning: Retrying download with PowerShell if available
     if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
-    @powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive "& 'C:\chef\wget.ps1' '%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%' '%LOCAL_DESTINATION_MSI_PATH%'"
+    @powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive "& '<%= bootstrap_directory %>\wget.ps1' '%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%' '%LOCAL_DESTINATION_MSI_PATH%'"
 
     if NOT ERRORLEVEL 1 (
         echo Download succeeded
@@ -93,25 +93,25 @@ cscript /nologo C:\chef\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DE
     )
 )
 
-msiexec /qb /i "%LOCAL_DESTINATION_MSI_PATH%"
+<%= install_chef %>
 
 @endlocal
 
-> C:\chef\validation.pem (
+> <%= bootstrap_directory %>\validation.pem (
  <%= validation_key %>
 )
 
 <% if @config[:encrypted_data_bag_secret] -%>
-> C:\chef\encrypted_data_bag_secret (
+> <%= bootstrap_directory %>\encrypted_data_bag_secret (
  <%= encrypted_data_bag_secret %>
 )
 <% end -%>
 
-> C:\chef\client.rb (
+> <%= bootstrap_directory %>\client.rb (
  <%= config_content %>
 )
 
-> C:\chef\first-boot.json (
+> <%= bootstrap_directory %>\first-boot.json (
  <%= run_list %>
 )
 

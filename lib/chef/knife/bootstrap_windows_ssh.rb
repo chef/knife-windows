@@ -78,7 +78,7 @@ class Chef
         ssh.config[:identity_file] = config[:identity_file]
         ssh.config[:manual] = true
         ssh.config[:host_key_verify] = config[:host_key_verify]
-        ssh
+        ssh.run
       end
 
     end
