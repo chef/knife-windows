@@ -37,6 +37,13 @@ require 'tmpdir'
 describe 'Knife::Windows::Core msi download functionality for knife Windows winrm bootstrap template' do 
 
   before(:all) do
+    # Since we're always running 32-bit Ruby, fix the
+    # PROCESSOR_ARCHITECTURE environment variable.
+
+    if ENV["PROCESSOR_ARCHITEW6432"]
+      ENV["PROCESSOR_ARCHITECTURE"] = ENV["PROCESSOR_ARCHITEW6432"]
+    end
+    
     # All file artifacts from this test will be written into this directory
     @temp_directory = Dir.mktmpdir("bootstrap_test")
 
