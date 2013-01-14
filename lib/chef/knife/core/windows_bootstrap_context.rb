@@ -136,6 +136,33 @@ WGET
           escape_and_echo(win_wget)
         end
 
+        def win_wget_ps
+          win_wget_ps = <<-WGET_PS
+param(
+   [String] $remoteUrl,
+   [String] $localPath
+)
+
+$webClient = new-object System.Net.WebClient; 
+
+$webClient.DownloadFile($remoteUrl, $localPath);
+WGET_PS
+
+          escape_and_echo(win_wget_ps)
+        end
+
+        def install_chef
+          install_chef = 'msiexec /qb /i "%LOCAL_DESTINATION_MSI_PATH%"'
+        end
+
+        def bootstrap_directory
+          bootstrap_directory = "C:\\chef"
+        end
+
+        def local_download_path
+          local_download_path = "%TEMP%\\chef-client-latest.msi"
+        end
+
         # escape WIN BATCH special chars
         # and prefixes each line with an
         # echo
