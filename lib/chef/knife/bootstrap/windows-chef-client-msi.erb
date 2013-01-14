@@ -16,60 +16,110 @@
 @rem limitations under the License.
 @rem
 
-<%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
-mkdir C:\chef
+@setlocal
 
-> C:\chef\wget.vbs (
+<%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
+mkdir <%= bootstrap_directory %>
+
+> <%= bootstrap_directory %>\wget.vbs (
  <%= win_wget %>
 )
 
+> <%= bootstrap_directory %>\wget.ps1 (
+ <%= win_wget_ps %>
+)
+
+@rem Determine the version and the architecture
+
+FOR /F "tokens=1-8 delims=.[] " %%A IN ('ver') DO (
+@set WinMajor=%%D
+@set WinMinor=%%E
+@set WinBuild=%%F
+)
+
+goto Version%WinMajor%.%WinMinor%
+
+@rem If this is an unknown version of windows set the default
+@set MACHINE_OS=2008r2
+goto architecture
+
+:Version6.0
+@set MACHINE_OS=2008
+goto architecture
+
+:Version5.2
+@set MACHINE_OS=2003r2
+goto architecture
+
+:Version6.1
+@set MACHINE_OS=2008r2
+goto architecture
+
+:Version6.2
+@set MACHINE_OS=2012
+goto architecture
+
+:architecture
+
+goto Architecture%PROCESSOR_ARCHITECTURE%
+
+@rem If this is an unknown architecture set the default
+@set MACHINE_ARCH=i686
+goto install
+
+:Architecturex86
+@set MACHINE_ARCH=i686
+goto install
+
+:Architectureamd64
+@set MACHINE_ARCH=x86_64
+goto install
+
+:install
 @rem Install Chef using chef-client MSI installer
-@setlocal
 
-@set REMOTE_SOURCE_MSI_URL=https://www.opscode.com/chef/install.msi
-@set LOCAL_DESTINATION_MSI_PATH=%TEMP%\chef-client-latest.msi
-@set FALLBACK_QUERY_STRING=?DownloadContext=PowerShell
+@set "REMOTE_SOURCE_MSI_URL=https://www.opscode.com/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%"
+@set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
+@set "FALLBACK_QUERY_STRING=&DownloadContext=PowerShell"
 
-@set ALTERNATE_DOWNLOAD_COMMAND=$webClient=new-object System.Net.WebClient; $webClient.DownloadFile('%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%', '%LOCAL_DESTINATION_MSI_PATH%')
-
-cscript /nologo C:\chef\wget.vbs /url:%REMOTE_SOURCE_MSI_URL% /path:"%LOCAL_DESTINATION_MSI_PATH%"
+cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
 
 @rem Work around issues found in Windows Server 2012 around job objects not respecting WSMAN memory quotas
 @rem that cause the MSI download process to exceed the quota even when it is increased by administrators.
 @rem Retry the download using a more memory-efficient mechanism that only works if PowerShell is available.
 @if ERRORLEVEL 1 (      
-    echo Warning: Failed to download %REMOTE_SOURCE_MSI_URL% to %LOCAL_DESTINATION_MSI_PATH%
+    echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
     echo Warning: Retrying download with PowerShell if available
     if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
-    echo powershell -noprofile -noninteractive -command "%ALTERNATE_DOWNLOAD_COMMAND%"
-    powershell -noprofile -noninteractive -command "%ALTERNATE_DOWNLOAD_COMMAND%"
+    @powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive "& '<%= bootstrap_directory %>\wget.ps1' '%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%' '%LOCAL_DESTINATION_MSI_PATH%'"
+
     if NOT ERRORLEVEL 1 (
         echo Download succeeded
     ) else (
-        echo Failed to download %REMOTE_SOURCE_MSI_URL%
+        echo Failed to download "%REMOTE_SOURCE_MSI_URL%"
         echo Subsequent attempt to install the downloaded MSI is likely to fail
     )
 )
 
-msiexec /qb /i "%LOCAL_DESTINATION_MSI_PATH%"
+<%= install_chef %>
 
 @endlocal
 
-> C:\chef\validation.pem (
+> <%= bootstrap_directory %>\validation.pem (
  <%= validation_key %>
 )
 
 <% if @config[:encrypted_data_bag_secret] -%>
-> C:\chef\encrypted_data_bag_secret (
+> <%= bootstrap_directory %>\encrypted_data_bag_secret (
  <%= encrypted_data_bag_secret %>
 )
 <% end -%>
 
-> C:\chef\client.rb (
+> <%= bootstrap_directory %>\client.rb (
  <%= config_content %>
 )
 
-> C:\chef\first-boot.json (
+> <%= bootstrap_directory %>\first-boot.json (
  <%= run_list %>
 )
 

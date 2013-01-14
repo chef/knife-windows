@@ -22,6 +22,7 @@ def windows?
 end
 
 require_relative '../lib/chef/knife/core/windows_bootstrap_context'
+require_relative '../lib/chef/knife/bootstrap_windows_winrm'
 
 if windows?
   require 'ruby-wmi'

@@ -238,7 +238,7 @@ class Chef
             end
 
             session.close
-            exit @exit_code || 0
+            @exit_code || 0
           end
         rescue WinRM::WinRMHTTPTransportError => e
           case e.message
