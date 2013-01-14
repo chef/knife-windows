@@ -39,6 +39,10 @@ FOR /F "tokens=1-8 delims=.[] " %%A IN ('ver') DO (
 
 goto Version%WinMajor%.%WinMinor%
 
+@rem If this is an unknown version of windows set the default
+@set MACHINE_OS=2008r2
+goto architecture
+
 :Version6.0
 @set MACHINE_OS=2008
 goto architecture
@@ -58,6 +62,10 @@ goto architecture
 :architecture
 
 goto Architecture%PROCESSOR_ARCHITECTURE%
+
+@rem If this is an unknown architecture set the default
+@set MACHINE_ARCH=i686
+goto install
 
 :Architecturex86
 @set MACHINE_ARCH=i686
