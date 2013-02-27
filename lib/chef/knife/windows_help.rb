@@ -1,6 +1,6 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2011 Opscode, Inc.
+# Author:: Chirag Jog (<chirag@clogeny.com>)
+# Copyright:: Copyright (c) 2013 Opscode, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,14 +24,6 @@ require 'chef/knife/bootstrap_windows_winrm'
 class Chef
   class Knife
     class WindowsHelp < Knife
-
-      deps do
-        require 'readline'
-        require 'chef/search/query'
-        require 'em-winrm'
-      end
-
-      attr_writer :password
 
       banner "#{BootstrapWindowsWinrm.banner}\n" +
               "#{BootstrapWindowsSsh.banner}\n" +
