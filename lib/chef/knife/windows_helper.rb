@@ -23,7 +23,7 @@ require 'chef/knife/bootstrap_windows_winrm'
 
 class Chef
   class Knife
-    class WindowsHelp < Knife
+    class WindowsHelper < Knife
 
       banner "#{BootstrapWindowsWinrm.banner}\n" +
               "#{BootstrapWindowsSsh.banner}\n" +
