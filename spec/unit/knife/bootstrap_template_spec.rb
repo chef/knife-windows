@@ -15,13 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+TEMPLATE_FILE = File.expand_path(File.dirname(__FILE__)) + "/lib/chef/knife/bootstrap/windows-chef-client-msi.erb"
 
 require 'spec_helper'
 
 describe "While Windows Bootstrapping" do
   context "the default Windows bootstrapping template" do
     bootstrap = Chef::Knife::BootstrapWindowsWinrm.new
-    template = bootstrap.load_template
+    template = bootstrap.load_template("#{TEMPLATE_FILE}")
     template_file_lines = template.split('\n')
     it "should download Platform specific MSI" do
       download_url=template_file_lines.find {|l| l.include?("url=")}
