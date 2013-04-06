@@ -152,7 +152,7 @@ WGET_PS
         end
 
         def install_chef
-          install_chef = 'msiexec /qb /i "%LOCAL_DESTINATION_MSI_PATH%"'
+          install_chef = 'msiexec /qn /i "%LOCAL_DESTINATION_MSI_PATH%"'
         end
 
         def bootstrap_directory
