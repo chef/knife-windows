@@ -252,6 +252,10 @@ class Chef
                               "fqdn").strip
       end
 
+      def extract_nested_value(data_structure, path_spec)
+        ui.presenter.extract_nested_value(data_structure, path_spec)
+      end
+
       def run
         STDOUT.sync = STDERR.sync = true
 
