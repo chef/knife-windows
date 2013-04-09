@@ -84,8 +84,20 @@ class Chef
                  q = Chef::Search::Query.new
                  @action_nodes = q.search(:node, @name_args[0])[0]
                  @action_nodes.each do |item|
-                   i = format_for_display(item)[config[:attribute]]
-                   r.push(i) unless i.nil?
+                   # we should skip the loop to next iteration if the item returned by the search is nil
+                   next if item.nil? 
+                   # if a command line attribute was not passed, and we have a cloud public_hostname, use that.
+                   # see #configure_attribute for the source of config[:attribute] and config[:override_attribute]
+                   if !config[:override_attribute] && item[:cloud] and item[:cloud][:public_hostname]
+                     i = item[:cloud][:public_hostname]
+                   elsif config[:override_attribute]
+                     i = extract_nested_value(item, config[:override_attribute])
+                   else
+                     i = extract_nested_value(item, config[:attribute])
+                   end
+                   # next if we couldn't find the specified attribute in the returned node object
+                   next if i.nil?
+                   r.push(i)
                  end
                  r
                end
@@ -228,12 +240,24 @@ class Chef
 
       end
 
+      def configure_attribute
+        # Setting 'knife[:winrm_attribute] = "foo"' in knife.rb => Chef::Config[:knife][:wirm_attribute] == 'foo'
+        # Running 'knife winrm -a foo' => both Chef::Config[:knife][:winrm_attribute] && config[:attribute] == foo
+        # Thus we can differentiate between a config file value and a command line override at this point by checking config[:attribute]
+        # We can tell here if fqdn was passed from the command line, rather than being the default, by checking config[:attribute]
+        # However, after here, we cannot tell these things, so we must preserve config[:attribute]
+        config[:override_attribute] = config[:attribute] || Chef::Config[:knife][:ssh_attribute] 
+        config[:attribute] = (Chef::Config[:knife][:ssh_attribute] ||
+                              config[:attribute] ||
+                              "fqdn").strip
+      end
+
       def run
         STDOUT.sync = STDERR.sync = true
 
         begin
           @longest = 0
-
+          configure_attribute
           configure_session
 
           case @name_args[1]
