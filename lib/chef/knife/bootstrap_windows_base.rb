@@ -167,7 +167,7 @@ class Chef
       end
 
       def bootstrap_bat_file
-        @bootstrap_bat_file ||= "%TEMP%\\bootstrap-#{Process.pid}-#{Time.now.to_i}.bat"
+        @bootstrap_bat_file ||= "\"%TEMP%\\bootstrap-#{Process.pid}-#{Time.now.to_i}.bat\""
       end
 
       def locate_config_value(key)
