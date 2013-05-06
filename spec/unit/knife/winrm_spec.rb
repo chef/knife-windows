@@ -49,6 +49,7 @@ describe Chef::Knife::Winrm do
 
     context "when there are some hosts found but they do not have an attribute to connect with" do
       before do
+        @knife.config[:manual] = false
         @query.stub!(:search).and_return([[@node_foo, @node_bar]])
         @node_foo.automatic_attrs[:fqdn] = nil
         @node_bar.automatic_attrs[:fqdn] = nil
