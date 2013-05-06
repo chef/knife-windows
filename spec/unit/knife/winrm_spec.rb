@@ -40,6 +40,7 @@ describe Chef::Knife::Winrm do
     @node_bar = Chef::Node.new
     @node_bar.automatic_attrs[:fqdn] = "bar.example.org"
     @node_bar.automatic_attrs[:ipaddress] = "10.0.0.2"
+    @node_bar.automatic_attrs[:ec2][:public_hostname] = "somewhere.com"
   end
 
   describe "#configure_session" do
@@ -60,6 +61,21 @@ describe Chef::Knife::Winrm do
         @knife.ui.should_receive(:fatal).with(/does not have the required attribute/)
         @knife.should_receive(:exit).with(10)
         @knife.configure_session
+      end
+    end
+
+    context "when there are nested attributes" do
+      before do
+        @knife.config[:manual] = false
+        @query.stub!(:search).and_return([[@node_foo, @node_bar]])
+        Chef::Search::Query.stub!(:new).and_return(@query)
+      end
+    
+      it "should use nested attributes (KNIFE-276)" do
+        @knife.config[:attribute] = "ec2.public_hostname"
+        @knife.stub!(:session_from_list)
+        @knife.configure_session
+
       end
     end
   end
