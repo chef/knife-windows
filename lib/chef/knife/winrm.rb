@@ -75,6 +75,26 @@ class Chef
 
       end
 
+      # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
+      def extract_nested_value(data, nested_value_spec)
+        nested_value_spec.split(".").each do |attr|
+          if data.nil?
+            nil # don't get no method error on nil
+          elsif data.respond_to?(attr.to_sym)
+            data = data.send(attr.to_sym)
+          elsif data.respond_to?(:[])
+            data = data[attr]
+          else
+            data = begin
+                     data.send(attr.to_sym)
+                   rescue NoMethodError
+                     nil
+                   end
+          end
+        end
+        ( !data.kind_of?(Array) && data.respond_to?(:to_hash) ) ? data.to_hash : data
+      end
+
       def configure_session
         list = case config[:manual]
                when true
@@ -84,7 +104,7 @@ class Chef
                  q = Chef::Search::Query.new
                  @action_nodes = q.search(:node, @name_args[0])[0]
                  @action_nodes.each do |item|
-                   i = item[config[:attribute]]
+                   i = extract_nested_value(item, config[:attribute])
                    r.push(i) unless i.nil?
                  end
                  r
