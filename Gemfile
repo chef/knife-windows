@@ -7,4 +7,5 @@ group :test do
   gem "rspec"
   gem "ruby-wmi"
   gem "chef"
+  gem 'rake'
 end
