@@ -54,12 +54,21 @@ class Chef
         :boolean => true,
         :description => "QUERY is a space separated list of servers",
         :default => false
+      
+      def is_platform_windows?
+        return RUBY_PLATFORM.scan('w32').size > 0
+      end
 
       def session
         session_opts = {}
         session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
         @session ||= begin
-          s = EventMachine::WinRM::Session.new(session_opts)
+          if is_platform_windows?
+              require 'em-winrs'
+              s = EventMachine::WinRS::Session.new(session_opts)
+          else
+              s = EventMachine::WinRM::Session.new(session_opts)
+          end
           s.on_output do |host, data|
             print_data(host, data)
           end
