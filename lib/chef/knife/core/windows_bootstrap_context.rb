@@ -83,8 +83,8 @@ CONFIG
           start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json -E #{bootstrap_environment}\n"
         end
 
-        def run_list
-          escape_and_echo({ "run_list" => @run_list }.to_json)
+        def first_boot
+          escape_and_echo((@config[:first_boot_attributes] || {}).merge(:run_list => @run_list).to_json)
         end
 
         def win_wget
