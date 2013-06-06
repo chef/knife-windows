@@ -71,6 +71,13 @@ class Chef
             :proc => lambda { |o| o.split(",") },
             :default => []
 
+          option :first_boot_attributes,
+            :short => "-j JSON_ATTRIBS",
+            :long => "--json-attributes",
+            :description => "A JSON string to be added to the first run of chef-client",
+            :proc => lambda { |o| JSON.parse(o) },
+            :default => {}
+          
           option :encrypted_data_bag_secret,
             :short => "-s SECRET",
             :long  => "--secret ",

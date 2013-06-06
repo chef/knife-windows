@@ -123,7 +123,7 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
 )
 
 > <%= bootstrap_directory %>\first-boot.json (
- <%= run_list %>
+ <%= first_boot %>
 )
 
 <%= start_chef %>
