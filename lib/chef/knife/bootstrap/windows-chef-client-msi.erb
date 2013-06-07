@@ -108,9 +108,15 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
 
 @endlocal
 
+@echo off
+echo Writing validation key...
+
 > <%= bootstrap_directory %>\validation.pem (
  <%= validation_key %>
 )
+
+echo Validation key written.
+@echo on
 
 <% if @config[:encrypted_data_bag_secret] -%>
 > <%= bootstrap_directory %>\encrypted_data_bag_secret (
