@@ -90,6 +90,13 @@ class Chef
             :description => "The Certificate Authority (CA) trust file used for SSL transport",
             :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
 
+          option :winrm_timeout,
+            :short => "-T TIMEOUT_SECONDS",
+            :long => "--winrm-timeout SECONDS",
+            :description => "The WinRM timeout, by default this is 1800",
+            :default => "1800",
+            :proc => Proc.new { |timeout| Chef::Config[:knife][:winrm_timeout] = timeout }
+
         end
       end
 
