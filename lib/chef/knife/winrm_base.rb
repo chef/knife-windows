@@ -90,6 +90,10 @@ class Chef
             :description => "The Certificate Authority (CA) trust file used for SSL transport",
             :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
 
+          option :no_ssl_peer_verification,
+            :long => "--no-ssl-peer-verification",
+            :description => "Do not verify the SSL peer's certificate"
+
         end
       end
 
