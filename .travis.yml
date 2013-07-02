@@ -1,7 +1,5 @@
 rvm:
- #  - 1.8.7
- # requires gssapi.  knife-windows will not work on 1.8.7 
- - 1.9.2
+  - 1.9.2
   - 1.9.3
   - 2.0.0
 
