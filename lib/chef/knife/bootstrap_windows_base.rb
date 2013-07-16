@@ -19,11 +19,32 @@
 require 'chef/knife'
 require 'chef/encrypted_data_bag_item'
 require 'chef/knife/core/windows_bootstrap_context'
+require 'readline'
+require 'chef/json_compat'
 
 class Chef
   class Knife
-    module BootstrapWindowsBase
+    module TemplateFinder
+      def get_template(config)
+        if config[:template_file]
+          bootstrap_files = config[:template_file]
+        else
+          bootstrap_files = []
+          bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap', "#{config[:distro]}.erb")
+          bootstrap_files << File.join(Dir.pwd, ".chef", "bootstrap", "#{config[:distro]}.erb")
+          bootstrap_files << File.join(ENV['HOME'], '.chef', 'bootstrap', "#{config[:distro]}.erb")
+          bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb"))
+          bootstrap_files.flatten!
+        end
 
+        template = Array(bootstrap_files).find do |bootstrap_template|
+          Chef::Log.debug("Looking for bootstrap template in #{File.dirname(bootstrap_template)}")
+          ::File.exists?(bootstrap_template)
+        end
+      end
+    end
+
+    module BootstrapWindowsBase
       # :nodoc:
       # Would prefer to do this in a rational way, but can't be done b/c of
       # Mixlib::CLI's design :(
@@ -78,7 +99,7 @@ class Chef
             :description => "A JSON string to be added to the first run of chef-client",
             :proc => lambda { |o| JSON.parse(o) },
             :default => {}
-          
+
           option :encrypted_data_bag_secret,
             :short => "-s SECRET",
             :long  => "--secret ",
@@ -92,25 +113,10 @@ class Chef
         end
       end
 
-      # TODO: This should go away when CHEF-2193 is fixed
+      include Chef::Knife::TemplateFinder
+
       def load_template(template=nil)
-        # Are we bootstrapping using an already shipped template?
-        if config[:template_file]
-          bootstrap_files = config[:template_file]
-        else
-          bootstrap_files = []
-          bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap', "#{config[:distro]}.erb")
-          bootstrap_files << File.join(Dir.pwd, ".chef", "bootstrap", "#{config[:distro]}.erb")
-          bootstrap_files << File.join(ENV['HOME'], '.chef', 'bootstrap', "#{config[:distro]}.erb")
-          bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb"))
-          bootstrap_files.flatten!
-        end
-
-        template = Array(bootstrap_files).find do |bootstrap_template|
-          Chef::Log.debug("Looking for bootstrap template in #{File.dirname(bootstrap_template)}")
-          ::File.exists?(bootstrap_template)
-        end
-
+        template = get_template(config)
         unless template
           ui.info("Can not find bootstrap definition for #{config[:distro]}")
           raise Errno::ENOENT
@@ -183,5 +189,7 @@ class Chef
         Chef::Config[:knife][key] || config[key]
       end
     end
+
+
   end
 end
