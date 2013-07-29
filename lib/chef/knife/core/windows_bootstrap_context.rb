@@ -83,13 +83,6 @@ CONFIG
           start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json -E #{bootstrap_environment}\n"
         end
 
-<<<<<<< HEAD
-        def first_boot
-          escape_and_echo((@config[:first_boot_attributes] || {}).merge(:run_list => @run_list).to_json)
-        end
-
-=======
->>>>>>> upstream/master
         def win_wget
           win_wget = <<-WGET
 url = WScript.Arguments.Named("url")
