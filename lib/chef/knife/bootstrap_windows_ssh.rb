@@ -84,7 +84,7 @@ class Chef
         ssh.config[:ssh_user] = locate_config_value(:ssh_user)
         ssh.config[:ssh_password] = locate_config_value(:ssh_password)
         ssh.config[:ssh_port] = locate_config_value(:ssh_port)
-        ssh.config[:ssh_gateway] = Chef::Config[:knife][:ssh_gateway] || config[:ssh_gateway]
+        ssh.config[:ssh_gateway] =  locate_config_value(:ssh_gateway)
         ssh.config[:identity_file] = config[:identity_file]
         ssh.config[:manual] = true
         ssh.config[:host_key_verify] = config[:host_key_verify]
