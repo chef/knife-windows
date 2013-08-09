@@ -84,12 +84,21 @@ class Chef
                  q = Chef::Search::Query.new
                  @action_nodes = q.search(:node, @name_args[0])[0]
                  @action_nodes.each do |item|
-                   i = format_for_display(item)[config[:attribute]]
+                   i = item[config[:attribute]]
                    r.push(i) unless i.nil?
                  end
                  r
                end
-        (ui.fatal("No nodes returned from search!"); exit 10) if list.length == 0
+        if list.length == 0
+          if @action_nodes.length == 0
+            ui.fatal("No nodes returned from search!")
+          else
+            ui.fatal("#{@action_nodes.length} #{@action_nodes.length > 1 ? "nodes":"node"} found, " +
+                     "but does not have the required attribute (#{config[:attribute]}) to establish the connection. " +
+                     "Try setting another attribute to open the connection using --attribute.")
+          end
+          exit 10
+        end
         session_from_list(list)
       end
 
@@ -238,7 +247,7 @@ class Chef
             end
 
             session.close
-            exit @exit_code || 0
+            @exit_code || 0
           end
         rescue WinRM::WinRMHTTPTransportError => e
           case e.message

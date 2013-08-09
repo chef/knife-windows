@@ -83,10 +83,6 @@ CONFIG
           start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json -E #{bootstrap_environment}\n"
         end
 
-        def run_list
-          escape_and_echo({ "run_list" => @run_list }.to_json)
-        end
-
         def win_wget
           win_wget = <<-WGET
 url = WScript.Arguments.Named("url")
@@ -135,6 +131,38 @@ Set objXMLHTTP = Nothing
 WGET
           escape_and_echo(win_wget)
         end
+
+        def win_wget_ps
+          win_wget_ps = <<-WGET_PS
+param(
+   [String] $remoteUrl,
+   [String] $localPath
+)
+
+$webClient = new-object System.Net.WebClient; 
+
+$webClient.DownloadFile($remoteUrl, $localPath);
+WGET_PS
+
+          escape_and_echo(win_wget_ps)
+        end
+
+        def install_chef
+          install_chef = 'msiexec /qn /i "%LOCAL_DESTINATION_MSI_PATH%"'
+        end
+
+        def bootstrap_directory
+          bootstrap_directory = "C:\\chef"
+        end
+
+        def local_download_path
+          local_download_path = "%TEMP%\\chef-client-latest.msi"
+        end
+
+        def first_boot
+          first_boot_attributes_and_run_list = (@config[:first_boot_attributes] || {}).merge(:run_list => @run_list)          
+          escape_and_echo(first_boot_attributes_and_run_list.to_json)
+        end                
 
         # escape WIN BATCH special chars
         # and prefixes each line with an

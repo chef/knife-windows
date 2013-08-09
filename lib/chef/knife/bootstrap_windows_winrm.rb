@@ -17,7 +17,9 @@
 #
 
 require 'chef/knife/bootstrap_windows_base'
+require 'chef/knife/winrm'
 require 'chef/knife/winrm_base'
+require 'chef/knife/bootstrap'
 
 class Chef
   class Knife
@@ -51,7 +53,7 @@ class Chef
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
-        winrm
+        winrm.run
       end
 
     end

@@ -18,6 +18,7 @@
 
 require 'chef/knife'
 require 'chef/encrypted_data_bag_item'
+require 'chef/knife/core/windows_bootstrap_context'
 
 class Chef
   class Knife
@@ -71,6 +72,13 @@ class Chef
             :proc => lambda { |o| o.split(",") },
             :default => []
 
+          option :first_boot_attributes,
+            :short => "-j JSON_ATTRIBS",
+            :long => "--json-attributes",
+            :description => "A JSON string to be added to the first run of chef-client",
+            :proc => lambda { |o| JSON.parse(o) },
+            :default => {}
+          
           option :encrypted_data_bag_secret,
             :short => "-s SECRET",
             :long  => "--secret ",
@@ -136,14 +144,14 @@ class Chef
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk, chunk_num|
           begin
-            run_command("cmd.exe /C echo \"Rendering '#{bootstrap_bat_file}' chunk #{chunk_num}\" && #{command_chunk}").run
+            run_command("cmd.exe /C echo \"Rendering '#{bootstrap_bat_file}' chunk #{chunk_num}\" && #{command_chunk}")
           rescue SystemExit => e
             raise unless e.success?
           end
         end
 
         # execute the bootstrap.bat file
-        run_command(bootstrap_command).run
+        run_command(bootstrap_command)
       end
 
       def bootstrap_command
