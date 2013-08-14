@@ -37,10 +37,20 @@ FOR /F "tokens=1-8 delims=.[] " %%A IN ('ver') DO (
 @set WinBuild=%%F
 )
 
+@set LATEST_OS_VERSION_MAJOR=6
+@set LATEST_OS_VERSION_MINOR=3
+
+@if /i %WinMajor% GTR %LATEST_OS_VERSION_MAJOR% goto VersionUnknown
+@if /i %WinMajor% EQU %LATEST_OS_VERSION_MAJOR%  (
+  @if /i %WinMinor% GTR %LATEST_OS_VERSION_MINOR% goto VersionUnknown
+)
+
 goto Version%WinMajor%.%WinMinor%
 
+:VersionUnknown
 @rem If this is an unknown version of windows set the default
 @set MACHINE_OS=2008r2
+@echo Warning: Unknown version of Windows, assuming default of Windows %MACHINE_OS%
 goto architecture
 
 :Version6.0
@@ -58,6 +68,10 @@ goto architecture
 :Version6.2
 @set MACHINE_OS=2012
 goto architecture
+
+@rem Currently Windows Server 2012 R2 is treated as equivalent to Windows Server 2012 
+:Version6.3
+goto Version6.2
 
 :architecture
 
