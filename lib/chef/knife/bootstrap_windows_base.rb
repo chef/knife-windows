@@ -89,6 +89,10 @@ class Chef
             :long => "--secret-file SECRET_FILE",
             :description => "A file containing the secret key to use to encrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config."
 
+          option :no_ssl_peer_verification,
+            :long => "--no-ssl-peer-verification",
+            :description => "Do not verify the SSL peer's certificate"
+
         end
       end
 
@@ -144,7 +148,7 @@ class Chef
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk, chunk_num|
           begin
-            run_command("cmd.exe /C echo \"Rendering '#{bootstrap_bat_file}' chunk #{chunk_num}\" && #{command_chunk}")
+            run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
           rescue SystemExit => e
             raise unless e.success?
           end
@@ -165,7 +169,7 @@ class Chef
           # escape WIN BATCH special chars
           line.gsub!(/[(<|>)^]/).each{|m| "^#{m}"}
           # windows commands are limited to 2047 characters
-          if((bootstrap_bat + [line]).join(" && ").size > 2047 )
+          if((bootstrap_bat + [line]).join(" && ").size > 2047)
             yield bootstrap_bat.join(" && "), chunk_num += 1
             bootstrap_bat = []
           end

@@ -22,10 +22,10 @@ class Chef
   class Knife
     module Core
       # Instances of BootstrapContext are the context objects (i.e., +self+) for
-      # bootstrap templates. For backwards compatability, they +must+ set the
+      # bootstrap templates. For backwards compatibility, they +must+ set the
       # following instance variables:
       # * @config   - a hash of knife's config values
-      # * @run_list - the run list for the node to boostrap
+      # * @run_list - the run list for the node to bootstrap
       #
       class WindowsBootstrapContext < BootstrapContext
 
@@ -92,20 +92,20 @@ Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
 Set wshShell = CreateObject( "WScript.Shell" )
 Set objUserVariables = wshShell.Environment("USER")
 
-'http proxy is optional
-'attempt to read from HTTP_PROXY env var first
+rem http proxy is optional
+rem attempt to read from HTTP_PROXY env var first
 On Error Resume Next
 
 If NOT (objUserVariables("HTTP_PROXY") = "") Then
 proxy = objUserVariables("HTTP_PROXY")
 
-'fall back to named arg
+rem fall back to named arg
 ElseIf NOT (WScript.Arguments.Named("proxy") = "") Then
 proxy = WScript.Arguments.Named("proxy")
 End If
 
 If NOT isNull(proxy) Then
-'setProxy method is only available on ServerXMLHTTP 6.0+
+rem setProxy method is only available on ServerXMLHTTP 6.0+
 Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
 objXMLHTTP.setProxy 2, proxy
 End If

@@ -41,7 +41,7 @@ cmd.exe /C ruby c:/DevKit/dk.rb install
 cmd.exe /C gem install win32-api win32-service --platform=mswin32
 cmd.exe /C gem install win32-open3 rdp-ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
 
-@rem Install Chef gems separately to prevent 'failed to allocate memory' errors
+@rem Install Chef gems separately to prevent failed to allocate memory errors
 cmd.exe /C gem install ohai --no-rdoc --no-ri --verbose
 cmd.exe /C gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
 
@@ -56,13 +56,13 @@ cmd.exe /C gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_st
 <% end -%>
 
 > C:\chef\client.rb (
- echo.require 'win32ole'
+ echo.require "win32ole"
  echo.WIN32OLE.codepage = WIN32OLE::CP_UTF8
  <%= config_content %>
 )
 
 > C:\chef\first-boot.json (
- <%= run_list %>
+ <%= first_boot %>
 )
 
 <%= start_chef %>

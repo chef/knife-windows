@@ -113,6 +113,8 @@ class Chef
           session_opts[:realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
           session_opts[:service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
           session_opts[:ca_trust_path] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
+          session_opts[:no_ssl_peer_verification] = true if config.has_key?(:no_ssl_peer_verification)
+          Chef::Log.debug "config.has_key?(:no_ssl_peer_verification) = #{config.has_key?(:no_ssl_peer_verification)} (#{config[:no_ssl_peer_verification]})"
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
 
           ## If you have a \\ in your name you need to use NTLM domain authentication
@@ -135,6 +137,7 @@ class Chef
             end
           end
 
+          Chef::Log.debug "session_opts[:no_ssl_peer_verification] = #{session_opts[:no_ssl_peer_verification]}"
           session.use(item, session_opts)
 
           @longest = item.length if item.length > @longest

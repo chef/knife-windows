@@ -51,6 +51,8 @@ class Chef
         winrm.config[:kerberos_realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
         winrm.config[:kerberos_service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
+        winrm.config[:no_ssl_peer_verification] = true if config.has_key?(:no_ssl_peer_verification)
+        Chef::Log.debug "config.has_key?(:no_ssl_peer_verification) = #{config.has_key?(:no_ssl_peer_verification)} (#{config[:no_ssl_peer_verification]})"
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
         winrm.run
