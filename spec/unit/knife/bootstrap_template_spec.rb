@@ -37,3 +37,54 @@ describe "While Windows Bootstrapping" do
     end
   end
 end
+
+describe Chef::Knife::BootstrapWindowsWinrm do
+  before(:all) do
+    @original_config = Chef::Config.hash_dup
+    @original_knife_config = Chef::Config[:knife].dup
+  end
+
+  after(:all) do
+    Chef::Config.configuration = @original_config
+    Chef::Config[:knife] = @original_knife_config
+  end
+
+  before(:each) do
+    Chef::Log.logger = Logger.new(StringIO.new)
+    @knife = Chef::Knife::Bootstrap.new
+    # Merge default settings in.
+    @knife.merge_configs
+    @knife.config[:template_file] = TEMPLATE_FILE
+    @stdout = StringIO.new
+    @knife.ui.stub(:stdout).and_return(@stdout)
+    @stderr = StringIO.new
+    @knife.ui.stub(:stderr).and_return(@stderr)
+  end
+
+  describe "specifying no_proxy with various entries" do
+    subject(:knife) { described_class.new }
+    let(:options){ ["--bootstrap-proxy", "", "--bootstrap-no-proxy", setting] }
+    let(:template_file) { TEMPLATE_FILE }
+    let(:rendered_template) do
+      knife.instance_variable_set("@template_file", template_file)
+      knife.parse_options(options)
+      template_string = knife.read_template
+      knife.render_template(template_string)
+    end
+
+    context "via --bootstrap-no-proxy" do
+      let(:setting) { "api.opscode.com" }
+
+      it "renders the client.rb with a single FQDN no_proxy entry" do
+        rendered_template.should match(%r{.*no_proxy\s*\"api.opscode.com\".*})
+      end
+    end
+    context "via --bootstrap-no-proxy multiple" do
+      let(:setting) { "api.opscode.com,172.16.10.*" }
+
+      it "renders the client.rb with comma-separated FQDN and wildcard IP address no_proxy entries" do
+        rendered_template.should match(%r{.*no_proxy\s*"api.opscode.com,172.16.10.\*".*})
+      end
+    end
+  end
+end
