@@ -51,7 +51,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   before(:each) do
     Chef::Log.logger = Logger.new(StringIO.new)
-    @knife = Chef::Knife::Bootstrap.new
+    @knife = Chef::Knife::BootstrapWindowsWinrm.new
     # Merge default settings in.
     @knife.merge_configs
     @knife.config[:template_file] = TEMPLATE_FILE
@@ -68,7 +68,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     let(:rendered_template) do
       knife.instance_variable_set("@template_file", template_file)
       knife.parse_options(options)
-      template_string = knife.read_template
+      # Avoid referencing a validation keyfile we won't find during #render_template
+      template_string = knife.read_template.gsub(/^.*[Vv]alidation_key.*$/, '')
       knife.render_template(template_string)
     end
 
