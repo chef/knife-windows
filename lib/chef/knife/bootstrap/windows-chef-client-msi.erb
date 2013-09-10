@@ -51,30 +51,32 @@ goto Version%WinMajor%.%WinMinor%
 @rem If this is an unknown version of windows set the default
 @set MACHINE_OS=2008r2
 @echo Warning: Unknown version of Windows, assuming default of Windows %MACHINE_OS%
-goto architecture
+goto architecture_select
 
 :Version6.0
 @set MACHINE_OS=2008
-goto architecture
+goto architecture_select
 
 :Version5.2
 @set MACHINE_OS=2003r2
-goto architecture
+goto architecture_select
 
 :Version6.1
 @set MACHINE_OS=2008r2
-goto architecture
+goto architecture_select
 
 :Version6.2
 @set MACHINE_OS=2012
-goto architecture
+goto architecture_select
 
 @rem Currently Windows Server 2012 R2 is treated as equivalent to Windows Server 2012 
 :Version6.3
 goto Version6.2
 
-:architecture
+:architecture_select
+goto Architecture%PROCESSOR_ARCHITEW6432%
 
+:Architecture
 goto Architecture%PROCESSOR_ARCHITECTURE%
 
 @rem If this is an unknown architecture set the default
