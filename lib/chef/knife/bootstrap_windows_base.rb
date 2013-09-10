@@ -54,6 +54,11 @@ class Chef
             :description => "The proxy server for the node being bootstrapped",
             :proc => Proc.new { |p| Chef::Config[:knife][:bootstrap_proxy] = p }
 
+          option :bootstrap_no_proxy,
+            :long => "--bootstrap-no-proxy ",
+            :description => "Avoid a proxy server for the given addresses",
+            :proc => Proc.new { |np| Chef::Config[:knife][:bootstrap_no_proxy] = np }
+
           option :distro,
             :short => "-d DISTRO",
             :long => "--distro DISTRO",
