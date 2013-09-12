@@ -115,6 +115,7 @@ For development and testing purposes, unencrypted traffic with Basic authenticat
 
     C:\Users\Administrator> winrm set winrm/config/service @{AllowUnencrypted="true"}
     C:\Users\Administrator> winrm set winrm/config/service/auth @{Basic="true"}
+    C:\Users\Administrator> winrm set winrm/config/client/auth @{Basic="true"}
 
 = CONTRIBUTING:
 
