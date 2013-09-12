@@ -17,6 +17,9 @@
 #
 
 require 'chef/knife/bootstrap_windows_base'
+# Avoid NameError: uninitialized constant Net::SSH::Service::Forward::UNIXServer
+# http://stackoverflow.com/questions/11581019/netsshserviceforwardunixserver
+Net::SSH::Service::Forward::UNIXServer = nil
 
 class Chef
   class Knife
@@ -53,6 +56,12 @@ class Chef
         :description => "The ssh port",
         :default => "22",
         :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key }
+        
+      option :ssh_gateway,
+        :short => "-G GATEWAY",
+        :long => "--ssh-gateway GATEWAY",
+        :description => "The ssh gateway",
+        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_gateway] = key }
 
       option :identity_file,
         :short => "-i IDENTITY_FILE",
@@ -75,6 +84,7 @@ class Chef
         ssh.config[:ssh_user] = locate_config_value(:ssh_user)
         ssh.config[:ssh_password] = locate_config_value(:ssh_password)
         ssh.config[:ssh_port] = locate_config_value(:ssh_port)
+        ssh.config[:ssh_gateway] = Chef::Config[:knife][:ssh_gateway] || config[:ssh_gateway]
         ssh.config[:identity_file] = config[:identity_file]
         ssh.config[:manual] = true
         ssh.config[:host_key_verify] = config[:host_key_verify]
