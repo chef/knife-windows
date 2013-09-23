@@ -118,7 +118,7 @@ For development and testing purposes, unencrypted traffic with Basic authenticat
 
 = CONTRIBUTING:
 
-Please file bugs against the KNIFE_WINDOWS project at http://tickets.opscode.com/browse/KNIFE_WINDOWS
+Please file bugs against the KNIFE_WINDOWS project at http://tickets.opscode.com/browse/knife
 
 More information on the contribution process for Opscode projects can be found at: http://wiki.opscode.com/display/chef/How+to+Contribute
 = LICENSE:
