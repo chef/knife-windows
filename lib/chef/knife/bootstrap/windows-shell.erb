@@ -23,11 +23,11 @@ mkdir C:\chef
  <%= win_wget %>
 )
 
-cscript /nologo C:\chef\wget.vbs /url:http://files.rubyforge.vm.bytemark.co.uk/rubyinstaller/rubyinstaller-1.8.7-p334.exe /path:%TEMP%\rubyinstaller.exe
+cscript /nologo C:\chef\wget.vbs /url:http://rubyforge.org/frs/download.php/76952/rubyinstaller-1.9.3-p429.exe /path:%TEMP%\rubyinstaller.exe
 %TEMP%\rubyinstaller.exe /verysilent /dir="C:\ruby" /tasks="assocfiles,modpath"
 
 @rem Install the Ruby Dev Kit so we compile us some native gems
-cscript /nologo C:\chef\wget.vbs /url:http://cloud.github.com/downloads/oneclick/rubyinstaller/DevKit-tdm-32-4.5.1-20101214-1400-sfx.exe /path:%TEMP%\rubydevkit.exe
+cscript /nologo C:\chef\wget.vbs /url:http://cloud.github.com/downloads/oneclick/rubyinstaller/DevKit-tdm-32-4.5.2-20111229-1559-sfx.exe /path:%TEMP%\rubydevkit.exe
 mkdir C:\DevKit
 copy %TEMP%\rubydevkit.exe C:\DevKit
 cmd.exe /C C:\DevKit\rubydevkit.exe -y
@@ -38,8 +38,9 @@ SET PATH=%PATH%;C:\ruby\bin
 cmd.exe /C ruby c:/DevKit/dk.rb init
 cmd.exe /C ruby c:/DevKit/dk.rb install
 
-cmd.exe /C gem install win32-api win32-service --platform=mswin32
-cmd.exe /C gem install win32-open3 rdp-ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
+cmd.exe /C gem install ffi --no-rdoc --no-ri --verbose
+cmd.exe /C gem install win32-api win32-service --platform=mswin32 --no-rdoc --no-ri --verbose
+cmd.exe /C gem install rdp-ruby-wmi windows-api windows-pr --no-rdoc --no-ri --verbose
 
 @rem Install Chef gems separately to prevent failed to allocate memory errors
 cmd.exe /C gem install ohai --no-rdoc --no-ri --verbose
