@@ -16,10 +16,21 @@
 @rem limitations under the License.
 @rem
 
-@setlocal
+@rem Use delayed environment expansion so that ERRORLEVEL can be evaluated with the
+@rem !ERRORLEVEL! syntax which evaluates at execution of the line of script, not when
+@rem the line is read. See help for the /E switch from cmd.exe /? .
+@setlocal ENABLEDELAYEDEXPANSION
 
 <%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
-mkdir <%= bootstrap_directory %>
+
+@set BOOTSTRAP_DIRECTORY=<%= bootstrap_directory %>
+@echo Checking for existing directory "%BOOTSTRAP_DIRECTORY%"...
+@if NOT EXIST %BOOTSTRAP_DIRECTORY% (
+    @echo Existing directory not found, creating.
+    @mkdir %BOOTSTRAP_DIRECTORY%
+) else (
+    @echo Existing directory found, skipping creation.
+)
 
 > <%= bootstrap_directory %>\wget.vbs (
  <%= win_wget %>
@@ -31,11 +42,13 @@ mkdir <%= bootstrap_directory %>
 
 @rem Determine the version and the architecture
 
-FOR /F "tokens=1-8 delims=.[] " %%A IN ('ver') DO (
+@FOR /F "tokens=1-8 delims=.[] " %%A IN ('ver') DO (
 @set WinMajor=%%D
 @set WinMinor=%%E
 @set WinBuild=%%F
 )
+
+@echo Detected Windows Version %WinMajor%.%WinMinor% Build %WinBuild%
 
 @set LATEST_OS_VERSION_MAJOR=6
 @set LATEST_OS_VERSION_MINOR=3
@@ -94,31 +107,64 @@ goto install
 :install
 @rem Install Chef using chef-client MSI installer
 
-
 <% url="https://www.opscode.com/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%" -%>
 <% url += "&v=#{@config[:bootstrap_version]}" if @config.key? :bootstrap_version -%>
 @set "REMOTE_SOURCE_MSI_URL=<%= url %>"
 @set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
 @set "FALLBACK_QUERY_STRING=&DownloadContext=PowerShell"
 
+@rem Clear any pre-existing downloads
+@echo Checking for existing downloaded package at "%LOCAL_DESTINATION_MSI_PATH%"
+@if EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
+    @echo Found existing downloaded package, deleting.
+    @del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
+    @if ERRORLEVEL 1 (
+        echo Warning: Failed to delete pre-existing package with status code !ERRORLEVEL! > "&2"
+    )
+) else (
+    echo No existing downloaded packages to delete.
+)
+
+@echo Attempting to download client package using cscript...
 cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
 
 @rem Work around issues found in Windows Server 2012 around job objects not respecting WSMAN memory quotas
 @rem that cause the MSI download process to exceed the quota even when it is increased by administrators.
 @rem Retry the download using a more memory-efficient mechanism that only works if PowerShell is available.
-@if ERRORLEVEL 1 (      
-    echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
-    echo Warning: Retrying download with PowerShell if available
-    if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
-    @powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive "& '<%= bootstrap_directory %>\wget.ps1' '%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%' '%LOCAL_DESTINATION_MSI_PATH%'"
-
-    if NOT ERRORLEVEL 1 (
-        echo Download succeeded
+@set DOWNLOAD_ERROR_STATUS=!ERRORLEVEL!
+@if ERRORLEVEL 1 (
+    @echo Failed cscript download with status code !DOWNLOAD_ERROR_STATUS! > "&2"
+    @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2
+) else (
+    @rem Sometimes the error level is not set even when the download failed,
+    @rem so check for the file to be sure it is there -- if it's not, we'll retry
+    @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
+        echo Failed download: download completed, but downloaded file not found > "&2"
+        set DOWNLOAD_ERROR_STATUS=2
     ) else (
-        echo Failed to download "%REMOTE_SOURCE_MSI_URL%"
-        echo Subsequent attempt to install the downloaded MSI is likely to fail
+        echo Download via cscript succeeded.
     )
 )
+
+@if NOT %DOWNLOAD_ERROR_STATUS%==0 (
+    @echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
+    @echo Warning: Retrying download with PowerShell if available...
+
+    @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
+
+    @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command "& '<%= bootstrap_directory %>\wget.ps1' '%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%' '%LOCAL_DESTINATION_MSI_PATH%'"
+    @echo !powershell_download!
+    @call !powershell_download!
+    @if NOT ERRORLEVEL 1 (
+        echo Download via PowerShell succeeded.
+    ) else (
+        echo Failed to download "%REMOTE_SOURCE_MSI_URL%" with status code !ERRORLEVEL!. > "&2"
+        echo Exiting without bootstrapping due to download failure. > "&2"
+        exit /b 1
+    )
+)
+
+@echo Starting bootstrap with downloaded client package
 
 <%= install_chef %>
 
