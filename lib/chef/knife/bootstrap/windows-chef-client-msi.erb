@@ -111,6 +111,7 @@ goto install
 <% url += "&v=#{@config[:bootstrap_version]}" if @config.key? :bootstrap_version -%>
 @set "REMOTE_SOURCE_MSI_URL=<%= url %>"
 @set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
+@set "CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi%RANDOM%.log"
 @set "FALLBACK_QUERY_STRING=&DownloadContext=PowerShell"
 
 @rem Clear any pre-existing downloads
@@ -124,6 +125,9 @@ goto install
 ) else (
     echo No existing downloaded packages to delete.
 )
+
+@rem If there's somehow a name collision, remove pre-existing log
+@if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
 
 @echo Attempting to download client package using cscript...
 cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
@@ -164,9 +168,17 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
     )
 )
 
-@echo Starting bootstrap with downloaded client package
+@echo Installing downloaded client package...
 
 <%= install_chef %>
+
+@if ERRORLEVEL 1 (
+    echo Chef-client package failed to install with status code !ERRORLEVEL!. > "&2"
+    echo See installation log for additional detail: %CHEF_CLIENT_MSI_LOG_PATH%. > "&2"
+) else (
+    @echo Installation completed successfully
+    del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
+)
 
 @endlocal
 
@@ -194,5 +206,6 @@ echo Validation key written.
  <%= first_boot %>
 )
 
+@echo Starting chef to bootstrap the node...
 <%= start_chef %>
 
