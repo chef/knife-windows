@@ -149,14 +149,18 @@ class Chef
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk, chunk_num|
           begin
-            run_command("cmd.exe /C echo \"Rendering #{bootstrap_bat_file} chunk #{chunk_num}\" && #{command_chunk}")
+            render_command_result = run_command("cmd.exe /C echo \"Rendering #{bootstrap_bat_file} chunk #{chunk_num}\" && #{command_chunk}")
+            ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
+            render_command_result
           rescue SystemExit => e
             raise unless e.success?
           end
         end
 
         # execute the bootstrap.bat file
-        run_command(bootstrap_command)
+        bootstrap_command_result = run_command(bootstrap_command)
+        ui.error("Bootstrap command returned #{bootstrap_command_result}") if bootstrap_command_result != 0
+        bootstrap_command_result
       end
 
       def bootstrap_command
