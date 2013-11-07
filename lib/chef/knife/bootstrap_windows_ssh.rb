@@ -17,9 +17,6 @@
 #
 
 require 'chef/knife/bootstrap_windows_base'
-# Avoid NameError: uninitialized constant Net::SSH::Service::Forward::UNIXServer
-# http://stackoverflow.com/questions/11581019/netsshserviceforwardunixserver
-Net::SSH::Service::Forward::UNIXServer = nil
 
 class Chef
   class Knife
