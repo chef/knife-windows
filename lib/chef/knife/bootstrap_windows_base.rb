@@ -19,6 +19,7 @@
 require 'chef/knife'
 require 'chef/encrypted_data_bag_item'
 require 'chef/knife/core/windows_bootstrap_context'
+require 'pry'
 
 class Chef
   class Knife
@@ -149,7 +150,8 @@ class Chef
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk, chunk_num|
           begin
-            render_command_result = run_command("cmd.exe /C echo \"Rendering #{bootstrap_bat_file} chunk #{chunk_num}\" && #{command_chunk}")
+            puts chunk_num
+            render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
             ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
             render_command_result
           rescue SystemExit => e
