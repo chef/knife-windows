@@ -17,6 +17,7 @@
 #
 
 require 'chef/knife/core/bootstrap_context'
+require 'pry'
 
 class Chef
   class Knife
@@ -85,6 +86,7 @@ CONFIG
         end
 
         def win_wget
+          #binding.pry
           win_wget = <<-WGET
 url = WScript.Arguments.Named("url")
 path = WScript.Arguments.Named("path")
