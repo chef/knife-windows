@@ -18,7 +18,7 @@
 
 require 'chef/knife'
 require 'chef/encrypted_data_bag_item'
-require 'KConv'
+require 'kconv'
 
 class Chef
   class Knife
