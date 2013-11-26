@@ -274,6 +274,7 @@ class Chef
           when /401/
             ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
             ui.info "Response: #{e.message}"
+            return -1
           else
             raise e
           end
