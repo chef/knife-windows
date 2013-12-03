@@ -157,7 +157,7 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
 
     @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
 
-    @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command "& "<%= bootstrap_directory %>\wget.ps1" "%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%" "%LOCAL_DESTINATION_MSI_PATH%""
+    @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%" "%LOCAL_DESTINATION_MSI_PATH%"
     @echo !powershell_download!
     @call !powershell_download!
     @if NOT ERRORLEVEL 1 (
