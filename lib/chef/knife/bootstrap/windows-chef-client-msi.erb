@@ -126,7 +126,7 @@ goto install
     echo No existing downloaded packages to delete.
 )
 
-@rem If theres somehow a name collision, remove pre-existing log
+@rem If there is somehow a name collision, remove pre-existing log
 @if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
 
 @echo Attempting to download client package using cscript...
@@ -141,7 +141,7 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
     @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2
 ) else (
     @rem Sometimes the error level is not set even when the download failed,
-    @rem so check for the file to be sure it is there -- if its not, well retry
+    @rem so check for the file to be sure it is there -- if it is not, we will retry
     @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
         echo Failed download: download completed, but downloaded file not found > "&2"
         set DOWNLOAD_ERROR_STATUS=2
