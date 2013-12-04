@@ -45,16 +45,16 @@ describe Chef::Knife::Winrm do
 
   describe "#configure_session" do
     before do
-      @query = mock("Chef::Search::Query")
+      @query = double("Chef::Search::Query")
     end
 
     context "when there are some hosts found but they do not have an attribute to connect with" do
       before do
         @knife.config[:manual] = false
-        @query.stub!(:search).and_return([[@node_foo, @node_bar]])
+        @query.stub(:search).and_return([[@node_foo, @node_bar]])
         @node_foo.automatic_attrs[:fqdn] = nil
         @node_bar.automatic_attrs[:fqdn] = nil
-        Chef::Search::Query.stub!(:new).and_return(@query)
+        Chef::Search::Query.stub(:new).and_return(@query)
       end
     
       it "should raise a specific error (KNIFE-222)" do
@@ -67,13 +67,13 @@ describe Chef::Knife::Winrm do
     context "when there are nested attributes" do
       before do
         @knife.config[:manual] = false
-        @query.stub!(:search).and_return([[@node_foo, @node_bar]])
-        Chef::Search::Query.stub!(:new).and_return(@query)
+        @query.stub(:search).and_return([[@node_foo, @node_bar]])
+        Chef::Search::Query.stub(:new).and_return(@query)
       end
     
       it "should use nested attributes (KNIFE-276)" do
         @knife.config[:attribute] = "ec2.public_hostname"
-        @knife.stub!(:session_from_list)
+        @knife.stub(:session_from_list)
         @knife.configure_session
 
       end

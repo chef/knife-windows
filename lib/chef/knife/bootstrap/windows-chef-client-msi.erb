@@ -42,7 +42,7 @@
 
 @rem Determine the version and the architecture
 
-@FOR /F "tokens=1-8 delims=.[] " %%A IN ('ver') DO (
+@FOR /F "usebackq tokens=1-8 delims=.[] " %%A IN (`ver`) DO (
 @set WinMajor=%%D
 @set WinMinor=%%E
 @set WinBuild=%%F
@@ -82,7 +82,7 @@ goto architecture_select
 @set MACHINE_OS=2012
 goto architecture_select
 
-@rem Currently Windows Server 2012 R2 is treated as equivalent to Windows Server 2012 
+@rem Currently Windows Server 2012 R2 is treated as equivalent to Windows Server 2012
 :Version6.3
 goto Version6.2
 
@@ -126,7 +126,7 @@ goto install
     echo No existing downloaded packages to delete.
 )
 
-@rem If there's somehow a name collision, remove pre-existing log
+@rem If there is somehow a name collision, remove pre-existing log
 @if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
 
 @echo Attempting to download client package using cscript...
@@ -141,7 +141,7 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
     @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2
 ) else (
     @rem Sometimes the error level is not set even when the download failed,
-    @rem so check for the file to be sure it is there -- if it's not, we'll retry
+    @rem so check for the file to be sure it is there -- if it is not, we will retry
     @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
         echo Failed download: download completed, but downloaded file not found > "&2"
         set DOWNLOAD_ERROR_STATUS=2
@@ -156,7 +156,7 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
 
     @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
 
-    @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command "& '<%= bootstrap_directory %>\wget.ps1' '%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%' '%LOCAL_DESTINATION_MSI_PATH%'"
+    @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%" "%LOCAL_DESTINATION_MSI_PATH%"
     @echo !powershell_download!
     @call !powershell_download!
     @if NOT ERRORLEVEL 1 (
