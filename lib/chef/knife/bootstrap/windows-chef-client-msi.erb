@@ -42,8 +42,7 @@
 
 @rem Determine the version and the architecture
 
-@ver > %TEMP%\win_ver.txt
-@FOR /F "tokens=1-8 delims=.[] " %%A IN (%TEMP%\win_ver.txt) DO (
+@FOR /F "usebackq tokens=1-8 delims=.[] " %%A IN (`ver`) DO (
 @set WinMajor=%%D
 @set WinMinor=%%E
 @set WinBuild=%%F
