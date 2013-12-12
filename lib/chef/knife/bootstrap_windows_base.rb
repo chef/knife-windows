@@ -151,7 +151,7 @@ class Chef
           begin
             render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
             ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
-            render_command_result
+            return render_command_result if render_command_result != 0
           rescue SystemExit => e
             raise unless e.success?
           end
