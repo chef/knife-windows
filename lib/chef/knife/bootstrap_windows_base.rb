@@ -147,6 +147,7 @@ class Chef
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
+        tries = 40
         create_bootstrap_bat_command do |command_chunk, chunk_num|
           begin            
             if chunk_num == 1
@@ -154,22 +155,24 @@ class Chef
               # this retry-bootstrap logic ideally applies only to the first chunk. 
               # once the first chunk_command is through,
               # all other chunks should not ideally get the 401 error
-              tries = 40
-              until (tries -= 1) <= 0 do
-                render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
-                ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
-                if render_command_result == 1
-                  ui.info("Retrying bootstrap again...") 
-                  sleep 30
-                else
-                  break
+              begin
+                until (tries -= 1) <= 0 do
+                  render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
+                  ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
+                  if render_command_result == 1
+                    ui.info("#{tries}: Retrying bootstrap again...") 
+                    sleep 30
+                  else
+                    break
+                  end
                 end
+                rescue HTTPClient::ConnectTimeoutError => e
+                  ui.error "HTTPClient::ConnectTimeoutError: #{e.message}"
+                  ui.info("#{tries}: Retrying bootstrap again...")
               end
             else
               run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
             end
-          rescue HTTPClient::ConnectTimeoutError => e
-            ui.error "HTTPClient::ConnectTimeoutError: #{e.message}"
           rescue SystemExit => e
             raise unless e.success?
           end
