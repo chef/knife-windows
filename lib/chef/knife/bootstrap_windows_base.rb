@@ -148,19 +148,28 @@ class Chef
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk, chunk_num|
-          begin
-            tries = 20            
-            until (tries -= 1) <= 0 do
-              render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
-              ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
-              #return render_command_result if render_command_result != 0
-              if render_command_result == 1
-                ui.info("Retrying bootstrap again...") 
-                sleep 60
-              else
-                break
+          begin            
+            if chunk_num == 1
+              # retry for upto 20 mins for the machine to be ready.
+              # this retry-bootstrap logic ideally applies only to the first chunk. 
+              # once the first chunk_command is through,
+              # all other chunks should not ideally get the 401 error
+              tries = 40
+              until (tries -= 1) <= 0 do
+                render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
+                ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
+                if render_command_result == 1
+                  ui.info("Retrying bootstrap again...") 
+                  sleep 30
+                else
+                  break
+                end
               end
+            else
+              run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
             end
+          rescue HTTPClient::ConnectTimeoutError => e
+            ui.error "HTTPClient::ConnectTimeoutError: #{e.message}"
           rescue SystemExit => e
             raise unless e.success?
           end
