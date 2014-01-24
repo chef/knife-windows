@@ -21,7 +21,7 @@ require 'openssl'
 
 class Chef
   class Knife
-    class Listener < Knife
+    class ListenerCreate < Knife
 
       banner "knife listener create (options)"
 
@@ -37,13 +37,24 @@ class Chef
         :description => "Specify port. Default is 5986",
         :default => "5986"
 
+      option :hostname,
+        :short => "-h HOSTNAME",
+        :long => "--hostname HOSTNAME",
+        :description => "Hostname on the listener. Default is *",
+        :default => "*"
+          
+      option :thumbprint,
+        :short => "-t THUMBPRINT",
+        :long => "--thumbprint THUMBPRINT",
+        :description => "Thumbprint of the certificate"
+
       def run
         STDOUT.sync = STDERR.sync = true
         file_path = config[:cert_path]
 
         begin
-          exec "cmd.exec winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\'#{hostname}\';CertificateThumbprint=\'#{thumbprint}\';Port=\'#{config[:port]}\'}"
-          ui.info "Certificate installed to certificate store."
+          exec "cmd.exec winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\'#{config[:hostname]}\';CertificateThumbprint=\'#{config[:thumbprint]}\';Port=\'#{config[:port]}\'}"
+          ui.info "Winrm listener created"
         rescue => e
           puts "ERROR: + #{e}"
         end
