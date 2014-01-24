@@ -27,7 +27,7 @@ describe Chef::Knife::Certinstall do
   it "installs certificate" do
     @certinstall.config[:cert_path] = "test-path"
     @certinstall.config[:cert_passphrase] = "your-secret!"
-    @certinstall.should_receive("exec").with("certutil -p 'your-secret!' -importPFX 'test-path' AT_KEYEXCHANGE")
+    @certinstall.should_receive("exec").with("powershell.exe certutil -p 'your-secret!' -importPFX 'test-path' AT_KEYEXCHANGE")
     @certinstall.ui.should_receive(:info).with("Certificate installed to certificate store.")
     @certinstall.run
   end
