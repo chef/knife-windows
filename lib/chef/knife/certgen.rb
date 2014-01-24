@@ -24,12 +24,6 @@ class Chef
   class Knife
     class Certgen < Knife
 
-      deps do
-        require 'readline'
-        require 'chef/search/query'
-        require 'em-winrm'
-      end
-
       attr_accessor :thumbprint, :hostname
 
       banner "knife certgen (options)"
