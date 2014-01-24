@@ -1,6 +1,6 @@
 #
-# Author:: Chirag Jog (<chirag@clogeny.com>)
-# Copyright:: Copyright (c) 2013 Opscode, Inc.
+# Author:: Mukta Aphale <mukta.aphale@clogeny.com>
+# Copyright:: Copyright (c) 2014 Opscode, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,23 +16,19 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require 'chef/knife/winrm'
-require 'chef/knife/bootstrap_windows_ssh'
-require 'chef/knife/bootstrap_windows_winrm'
-require 'chef/knife/certgen'
+require 'spec_helper'
 require 'chef/knife/certinstall'
 
-class Chef
-  class Knife
-    class WindowsHelper < Knife
+describe Chef::Knife::Certinstall do
+  before(:all) do
+    @certinstall = Chef::Knife::Certinstall.new
+  end
 
-      banner "#{BootstrapWindowsWinrm.banner}\n" +
-              "#{BootstrapWindowsSsh.banner}\n" +
-              "#{Winrm.banner}\n" +
-              "#{Certgen.banner}\n" +
-              "#{Certinstall.banner}"
-    end
+  it "installs certificate" do
+    @certinstall.config[:cert_path] = "test-path"
+    @certinstall.config[:cert_passphrase] = "your-secret!"
+    @certinstall.should_receive("exec").with("certutil -p 'your-secret!' -importPFX 'test-path' AT_KEYEXCHANGE")
+    @certinstall.ui.should_receive(:info).with("Certificate installed to certificate store.")
+    @certinstall.run
   end
 end
-
