@@ -98,9 +98,7 @@ class Chef
       def run
         STDOUT.sync = STDERR.sync = true
         file_path = "winrmcert"
-        if config[:output_file]
-          file_path = config[:output_file].split(".")[0]
-        end
+        file_path = config[:output_file].sub(/\.(\w+)$/,'')
 
         begin
           rsa_key = generate_keypair
