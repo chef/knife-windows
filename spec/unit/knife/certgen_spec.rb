@@ -40,17 +40,16 @@ describe Chef::Knife::Certgen do
   end
 
   it "writes certificate to file" do
-    pending
-    File.should_receive(:open).exactly(:three).times
-    OpenSSL::PKCS12.stub(:create)
+    File.should_receive(:open).exactly(3).times
     cert = double(OpenSSL::X509::Certificate.new)
-    cert.stub(:to_pem)
     key = double(OpenSSL::PKey::RSA.new)
+    @certgen.config[:cert_passphrase] = "password"
+    OpenSSL::PKCS12.should_receive(:create).with("password", "winrmcert", key, cert)
     @certgen.write_certificate_to_file cert, "test", key
   end
 
   it "creates certificate" do
-    @certgen.config[:output_file] = nil
+    @certgen.config[:output_file] = 'winrmcert'
     @certgen.should_receive(:generate_keypair)
     @certgen.should_receive(:generate_certificate)
     @certgen.should_receive(:write_certificate_to_file)
