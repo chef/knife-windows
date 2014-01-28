@@ -90,7 +90,7 @@ class Chef
 
       def write_certificate_to_file cert, file_path, rsa_key
         File.open(file_path + ".pem", "wb") { |f| f.print cert.to_pem }
-        pfx = OpenSSL::PKCS12.create('#{config[:cert_passphrase]}', 'winrmcert', rsa_key, cert)
+        pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "winrmcert", rsa_key, cert)
         File.open(file_path + ".pfx", "wb") { |f| f.print pfx.to_der }
         File.open(file_path + ".der", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
       end
