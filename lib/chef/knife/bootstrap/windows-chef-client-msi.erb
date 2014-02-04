@@ -198,6 +198,17 @@ echo Validation key written.
 )
 <% end -%>
 
+<%# Generate Ohai Hints -%>
+<% unless @chef_config[:knife][:hints].nil? || @chef_config[:knife][:hints].empty? -%>
+mkdir C:\chef\ohai\hints
+
+<% @chef_config[:knife][:hints].each do |name, hash| -%>
+> C:\chef\ohai\hints\<%= name %>.json (
+  <%= escape_and_echo(hash.to_json) %>
+)
+<% end -%>
+<% end -%>
+
 > <%= bootstrap_directory %>\client.rb (
  <%= config_content %>
 )
