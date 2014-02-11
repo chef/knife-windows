@@ -200,10 +200,10 @@ echo Validation key written.
 
 <%# Generate Ohai Hints -%>
 <% unless @chef_config[:knife][:hints].nil? || @chef_config[:knife][:hints].empty? -%>
-mkdir C:\chef\ohai\hints
+mkdir <%= bootstrap_directory %>\ohai\hints
 
 <% @chef_config[:knife][:hints].each do |name, hash| -%>
-> C:\chef\ohai\hints\<%= name %>.json (
+> <%= bootstrap_directory %>\ohai\hints\<%= name %>.json (
   <%= escape_and_echo(hash.to_json) %>
 )
 <% end -%>
