@@ -171,6 +171,12 @@ WGET_PS
         def escape_and_echo(file_contents)
           file_contents.gsub(/^(.*)$/, 'echo.\1').gsub(/([(<|>)^])/, '^\1')
         end
+
+        # Config value from cli or knife file
+        def locate_config_value(key)
+          key = key.to_sym
+          @config[key] || @chef_config[:knife][key]
+        end
       end
     end
   end
