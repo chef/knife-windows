@@ -21,7 +21,7 @@
 @rem the line is read. See help for the /E switch from cmd.exe /? .
 @setlocal ENABLEDELAYEDEXPANSION
 
-<%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
+<%= "SETX HTTP_PROXY \"#{locate_config_value(:bootstrap_proxy)}\"" if locate_config_value(:bootstrap_proxy) %>
 
 @set BOOTSTRAP_DIRECTORY=<%= bootstrap_directory %>
 @echo Checking for existing directory "%BOOTSTRAP_DIRECTORY%"...
@@ -108,7 +108,7 @@ goto install
 @rem Install Chef using chef-client MSI installer
 
 <% url="https://www.opscode.com/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%" -%>
-<% url += "&v=#{knife_config[:bootstrap_version]}" if knife_config.key? :bootstrap_version -%>
+<% url += "&v=#{locate_config_value(:bootstrap_version)}" if locate_config_value(:bootstrap_version) -%>
 @set "REMOTE_SOURCE_MSI_URL=<%= url %>"
 @set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
 @set "CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi%RANDOM%.log"
