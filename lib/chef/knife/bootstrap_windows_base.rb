@@ -147,41 +147,51 @@ class Chef
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
-        tries = 40
         create_bootstrap_bat_command do |command_chunk, chunk_num|
-          begin            
-            if chunk_num == 1
-              # retry for upto 20 mins for the machine to be ready.
-              # this retry-bootstrap logic ideally applies only to the first chunk. 
-              # once the first chunk_command is through,
-              # all other chunks should not ideally get the 401 error
-              begin
-                until (tries -= 1) <= 0 do
-                  render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
-                  ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
-                  if render_command_result == 1
-                    ui.info("#{tries}: Retrying bootstrap again...") 
-                    sleep 30
-                  else
-                    break
-                  end
-                end
-                rescue HTTPClient::ConnectTimeoutError => e
-                  ui.error "HTTPClient::ConnectTimeoutError: #{e.message}"
-                  ui.info("#{tries}: Retrying bootstrap again...")
-              end
-            else
-              run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
-            end
-          rescue SystemExit => e
-            raise unless e.success?
+                      
+          if chunk_num == 1
+            wait_for_winrm_readiness bootstrap_bat_file, chunk_num, command_chunk
+          else
+            run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
           end
         end
 
-        # execute the bootstrap.bat file
-        bootstrap_command_result = run_command(bootstrap_command)
-        ui.error("Bootstrap command returned #{bootstrap_command_result}") if bootstrap_command_result != 0
-        bootstrap_command_result
+        begin
+          # execute the bootstrap.bat file
+          run_command(bootstrap_command)
+        rescue SystemExit => e
+          ui.error("Bootstrap command returned error. #{e.message}")
+          return 1
+        end
+        return 0
+      end
+
+      def wait_for_winrm_readiness bootstrap_bat_file, chunk_num, command_chunk
+        tries = 40        
+        # retry for upto 20 mins for the machine to be ready.
+        # this retry-bootstrap logic applies only to the first chunk. 
+        # once the first chunk_command is through, it means winrm is ready and
+        # all other chunks should not ideally get error
+        until (tries -= 1) <= 0 do
+          begin
+            return_code = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
+            if return_code != 0
+              ui.info "Waiting for WinRM to be ready."
+              ui.info("#{tries}: Retrying bootstrap again...")
+              sleep 30
+            else
+              break
+            end
+          rescue HTTPClient::ConnectTimeoutError => e
+            ui.info "HTTPClient::ConnectTimeoutError: #{e.message}"
+            ui.info("#{tries}: Retrying bootstrap again...")
+            sleep 30
+          end
+        end
+        if tries <= 0
+          ui.error "WinRM not configured properly. WinRM user may not be created properly. Unable to connect. Bootstrap unsuccessful."
+          exit 1
+        end        
       end
 
       def bootstrap_command
