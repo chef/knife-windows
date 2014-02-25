@@ -116,6 +116,14 @@ For development and testing purposes, unencrypted traffic with Basic authenticat
     C:\Users\Administrator> winrm set winrm/config/service @{AllowUnencrypted="true"}
     C:\Users\Administrator> winrm set winrm/config/service/auth @{Basic="true"}
 
+=== Troubleshooting
+
+#### When I run the winrm command I get: "Error: Invalid use of command line. Type "winrm -?" for help."
+- You're running the winrm command from powershell and you need to put the key/value pair in single quotes. For example:
+```
+   winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'
+```
+
 = CONTRIBUTING:
 
 Please file bugs against the KNIFE_WINDOWS project at http://tickets.opscode.com/browse/knife
