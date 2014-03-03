@@ -53,6 +53,7 @@ class Chef
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
+        winrm.config[:return_exit_code] = true
         winrm.run
       end
 

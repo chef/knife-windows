@@ -240,8 +240,8 @@ class Chef
       def check_for_errors!(exit_codes)
 
         exit_codes.each do |host, value|
-          unless Chef::Config[:knife][:returns].include? value.to_i
-            @exit_code = 1
+          if Chef::Config[:knife][:returns].include? value.to_i
+            @exit_code = value.to_i
             ui.error "Failed to execute command on #{host} return code #{value}"
           end
         end
@@ -262,20 +262,33 @@ class Chef
           else
             winrm_command(@name_args[1..-1].join(" "))
 
-            if config[:returns]
+            if config[:returns] != nil
               check_for_errors! session.exit_codes
             end
 
             session.close
-            @exit_code || 0
+            if config[:return_exit_code]
+              @exit_code || 0
+            else
+              exit @exit_code || 0
+            end
           end
         rescue WinRM::WinRMHTTPTransportError => e
           case e.message
           when /401/
             ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
             ui.info "Response: #{e.message}"
+            if config[:return_exit_code]
+              return 1
+            else
+              exit 1
+            end
           else
-            raise e
+            if config[:return_exit_code]
+              raise e
+            else
+              exit 1
+            end
           end
         end
       end
