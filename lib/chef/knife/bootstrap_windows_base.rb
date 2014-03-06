@@ -164,33 +164,36 @@ class Chef
         bootstrap_command_result
       end
 
-      def wait_for_winrm_response
-        wait_max_minutes = 25
+      def wait_for_winrm_response(wait_max_minutes = 25)
         wait_max_seconds = wait_max_minutes * 60
         retry_interval_seconds = 10
         retries_left = wait_max_seconds / retry_interval_seconds
 
-        print("#{ui.color("\nWaiting for WinRM response before bootstrap", :magenta)}")
+        print(ui.color("\nWaiting for WinRM response before bootstrap", :magenta))
 
         wait_start_time = Time.now
 
         begin
           print(".")
-          status = run_command("echo . & echo Response received.")
-          elapsed_time_in_minutes = ((Time.now - wait_start_time) / 60).round(2)
-          ui.info(ui.color("WinRM responded after #{elapsed_time_in_minutes} minutes.", :magenta))
+          # Return status of the command is ignored, just checking for
+          # ability to execute it, which is detected by the absence of exception
+          run_command("echo . & echo Response received.")
+          ui.info(ui.color("WinRM responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
           return
         rescue
           retries_left -= 1
-          elapsed_time_in_minutes = ((Time.now - wait_start_time) / 60).round(2)
           if retries_left <= 0 || (elapsed_time_in_minutes > wait_max_minutes)
-            ui.error("\nNo response received from WinRM after #{elapsed_time_in_minutes} minutes, giving up.")
+            ui.error("No response received from WinRM after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
             raise
           end
 
           sleep retry_interval_seconds
           retry
         end
+      end
+
+      def elapsed_time_in_minutes(start_time)
+        ((Time.now - start_time) / 60).round(2)        
       end
 
       def bootstrap_command
