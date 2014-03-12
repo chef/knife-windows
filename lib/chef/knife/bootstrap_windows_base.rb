@@ -177,16 +177,16 @@ class Chef
           print(".")
           # Return status of the command is ignored, just checking for
           # ability to execute it, which is detected by the absence of exception
-          run_command("echo . & echo Response received.")
+          status = run_command("echo . & echo Response received.")
+          raise RunTimeError, 'Command not executed' if status != 0
           ui.info(ui.color("WinRM responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
           return
         rescue
           retries_left -= 1
-          if retries_left <= 0 || (elapsed_time_in_minutes > wait_max_minutes)
+          if retries_left <= 0 || (elapsed_time_in_minutes(wait_start_time) > wait_max_minutes)
             ui.error("No response received from WinRM after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
             raise
           end
-
           sleep retry_interval_seconds
           retry
         end
