@@ -160,6 +160,7 @@ class Chef
         # execute the bootstrap.bat file
         bootstrap_command_result = run_command(bootstrap_command)
         ui.error("Bootstrap command returned #{bootstrap_command_result}") if bootstrap_command_result != 0
+        throw SystemExit if bootstrap_command_result != 0
         bootstrap_command_result
       end
 
