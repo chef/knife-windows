@@ -175,10 +175,12 @@ class Chef
 
         begin
           print(".")
-          # Return status of the command is ignored, just checking for
-          # ability to execute it, which is detected by the absence of exception
+          # Return status of the command is non-zero, typically nil,
+          # for our simple echo command in cases where run_command
+          # swallows the exception, such as 401's. Treat such cases
+          # the same as the case where we encounter an exception.
           status = run_command("echo . & echo Response received.")
-          raise RunTimeError, 'Command not executed' if status != 0
+          raise RunTimeError, 'Command execution failed.' if status != 0
           ui.info(ui.color("WinRM responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
           return
         rescue
