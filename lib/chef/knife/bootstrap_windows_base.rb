@@ -144,6 +144,7 @@ class Chef
 
         STDOUT.sync = STDERR.sync = true
 
+        wait_for_winrm_response
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
@@ -161,6 +162,40 @@ class Chef
         bootstrap_command_result = run_command(bootstrap_command)
         ui.error("Bootstrap command returned #{bootstrap_command_result}") if bootstrap_command_result != 0
         bootstrap_command_result
+      end
+
+      def wait_for_winrm_response(wait_max_minutes = 25)
+        wait_max_seconds = wait_max_minutes * 60
+        retry_interval_seconds = 10
+        retries_left = wait_max_seconds / retry_interval_seconds
+
+        print(ui.color("\nWaiting for WinRM response before bootstrap", :magenta))
+
+        wait_start_time = Time.now
+
+        begin
+          print(".")
+          # Return status of the command is non-zero, typically nil,
+          # for our simple echo command in cases where run_command
+          # swallows the exception, such as 401's. Treat such cases
+          # the same as the case where we encounter an exception.
+          status = run_command("echo . & echo Response received.")
+          raise RunTimeError, 'Command execution failed.' if status != 0
+          ui.info(ui.color("WinRM responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
+          return
+        rescue
+          retries_left -= 1
+          if retries_left <= 0 || (elapsed_time_in_minutes(wait_start_time) > wait_max_minutes)
+            ui.error("No response received from WinRM after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
+            raise
+          end
+          sleep retry_interval_seconds
+          retry
+        end
+      end
+
+      def elapsed_time_in_minutes(start_time)
+        ((Time.now - start_time) / 60).round(2)        
       end
 
       def bootstrap_command
