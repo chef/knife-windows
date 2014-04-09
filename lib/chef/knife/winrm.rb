@@ -272,8 +272,15 @@ class Chef
         rescue WinRM::WinRMHTTPTransportError => e
           case e.message
           when /401/
-            ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
-            ui.info "Response: #{e.message}"
+            if ! config[:quiet_transient_failures]
+              # Display errors if the caller hasn't opted to suppress them
+              ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
+              ui.info "Response: #{e.message}"
+            else
+              # Callers may opt to just show progress instead of an
+              # error, particularly if they are going to retry this operation
+              print '.'
+            end
           else
             raise e
           end
