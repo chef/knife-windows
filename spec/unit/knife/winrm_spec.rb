@@ -23,12 +23,12 @@ Chef::Knife::Winrm.load_deps
 describe Chef::Knife::Winrm do
   before(:all) do
     @original_config = Chef::Config.hash_dup
-    @original_knife_config = Chef::Config[:knife].dup
+    @original_knife_config = Chef::Config[:knife].nil? ? nil : Chef::Config[:knife].dup
   end
 
   after(:all) do
     Chef::Config.configuration = @original_config
-    Chef::Config[:knife] = @original_knife_config
+    Chef::Config[:knife] = @original_knife_config if @original_knife_config
   end
 
   before do
