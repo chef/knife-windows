@@ -53,10 +53,43 @@ class Chef
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
-        winrm.config[:quiet_transient_failures] = true
+        winrm.config[:retry_on_auth_failure] = true
         winrm.run
       end
 
+      protected
+
+      def wait_for_remote_response(wait_max_minutes)
+        wait_max_seconds = wait_max_minutes * 60
+        retry_interval_seconds = 10
+        retries_left = wait_max_seconds / retry_interval_seconds
+        print(ui.color("\nWaiting for remote response before bootstrap", :magenta))
+        wait_start_time = Time.now
+        puts wait_start_time.to_s
+        begin
+          print(".")
+          # Return status of the command is non-zero, typically nil,
+          # for our simple echo command in cases where run_command
+          # swallows the exception, such as 401's. Treat such cases
+          # the same as the case where we encounter an exception.
+          status = run_command("echo . & echo Response received.")
+          raise RuntimeError, 'Command execution failed.' if status != 0
+          ui.info(ui.color("Remote node responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
+          return
+        rescue
+          retries_left -= 1
+          if retries_left <= 0 || (elapsed_time_in_minutes(wait_start_time) > wait_max_minutes)
+            ui.error("No response received from remote node after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
+            raise
+          end
+          sleep retry_interval_seconds
+          retry
+        end
+      end
+
+      def elapsed_time_in_minutes(start_time)
+        ((Time.now - start_time) / 60).round(2)
+      end
     end
   end
 end

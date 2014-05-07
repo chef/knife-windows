@@ -94,6 +94,10 @@ class Chef
             :long => "--secret-file SECRET_FILE",
             :description => "A file containing the secret key to use to encrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config."
 
+          option :auth_timeout,
+            :long => "--auth-timeout MINUTES",
+            :description => "The maximum time in minutes to wait to for authentication over the transport to the node to succeed. The default value is 25 minutes.",
+            :default => 25
         end
       end
 
@@ -135,7 +139,6 @@ class Chef
       end
 
       def bootstrap(proto=nil)
-
         validate_name_args!
 
         @node_name = Array(@name_args).first
@@ -144,7 +147,7 @@ class Chef
 
         STDOUT.sync = STDERR.sync = true
 
-        wait_for_winrm_response
+        wait_for_remote_response( config[:auth_timeout].to_i )
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
@@ -164,38 +167,10 @@ class Chef
         bootstrap_command_result
       end
 
-      def wait_for_winrm_response(wait_max_minutes = 25)
-        wait_max_seconds = wait_max_minutes * 60
-        retry_interval_seconds = 10
-        retries_left = wait_max_seconds / retry_interval_seconds
+      protected
 
-        print(ui.color("\nWaiting for WinRM response before bootstrap", :magenta))
-
-        wait_start_time = Time.now
-
-        begin
-          print(".")
-          # Return status of the command is non-zero, typically nil,
-          # for our simple echo command in cases where run_command
-          # swallows the exception, such as 401's. Treat such cases
-          # the same as the case where we encounter an exception.
-          status = run_command("echo . & echo Response received.")
-          raise RunTimeError, 'Command execution failed.' if status != 0
-          ui.info(ui.color("WinRM responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
-          return
-        rescue
-          retries_left -= 1
-          if retries_left <= 0 || (elapsed_time_in_minutes(wait_start_time) > wait_max_minutes)
-            ui.error("No response received from WinRM after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
-            raise
-          end
-          sleep retry_interval_seconds
-          retry
-        end
-      end
-
-      def elapsed_time_in_minutes(start_time)
-        ((Time.now - start_time) / 60).round(2)        
+      # Default implementation -- override only if required by the transport
+      def wait_for_remote_response(wait_max_minutes)
       end
 
       def bootstrap_command
