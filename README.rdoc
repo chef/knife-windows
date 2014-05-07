@@ -69,20 +69,6 @@ This bootstrap template does the following:
 
 This is the default bootstrap template used by both the +windows+ +bootstrap+ subcommands.
 
-== windows-shell
-
-This bootstrap template does the following:
-
-* Installs Ruby 1.8.7 via the {Ruby Installer for Windows}[http://rubyinstaller.org/] which also includes the latest version of RubyGems
-* Installs the RubyInstaller Development Kit (DevKit). The RubyInstaller Development Kit (DevKit) is a MSYS/MinGW based toolkit than enables you to build many of the native C/C++ extensions available for Ruby.
-* Installs required Windows-related gems from RubyGems.org
-* Installs latest Chef version from RubyGems.org including {Ohai}[https://rubygems.org/gems/ohai] and {Chef}[https://rubygems.org/gems/chef]. The Chef version is configurable using the *--bootstrap-version* option.
-* Writes the validation.pem per the local knife configuration.
-* Writes a default config file for Chef (C:\chef\client.rb) using values from the +knife.rb+.
-* Creates a JSON attributes file containing the specified run list and run Chef.
-
-This should be considered a legacy bootstrap template and will most likely be removed in a future version.
-
 = REQUIREMENTS/SETUP:
 
 == Ruby
