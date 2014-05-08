@@ -54,6 +54,7 @@ class Chef
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
         winrm.config[:suppress_auth_failure] = true
+        winrm.config[:returns] = nil
         winrm.run
       end
 
