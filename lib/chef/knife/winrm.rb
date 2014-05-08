@@ -267,21 +267,23 @@ class Chef
             end
 
             session.close
+
+            # Knife seems to ignore the return value of this method,
+            # so we exit to force the process exit code for this
+            # subcommand if returns is set
+            exit @exit_code if @exit_code && @exit_code != 0
             @exit_code || 0
           end
         rescue WinRM::WinRMHTTPTransportError => e
           case e.message
           when /401/
-            if ! config[:retry_on_auth_failure]
+            if ! config[:suppress_auth_failure]
               # Display errors if the caller hasn't opted to retry
               ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
               ui.info "Response: #{e.message}"
               raise e
-            else
-              # Callers may opt to just show progress instead of an
-              # error, particularly if they are going to retry this operation
-              print '.'
             end
+            @exit_code = 401
           else
             raise e
           end

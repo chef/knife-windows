@@ -53,7 +53,7 @@ class Chef
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
-        winrm.config[:retry_on_auth_failure] = true
+        winrm.config[:suppress_auth_failure] = true
         winrm.run
       end
 
@@ -65,7 +65,6 @@ class Chef
         retries_left = wait_max_seconds / retry_interval_seconds
         print(ui.color("\nWaiting for remote response before bootstrap", :magenta))
         wait_start_time = Time.now
-        puts wait_start_time.to_s
         begin
           print(".")
           # Return status of the command is non-zero, typically nil,
@@ -82,6 +81,7 @@ class Chef
             ui.error("No response received from remote node after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
             raise
           end
+          print '.'
           sleep retry_interval_seconds
           retry
         end
