@@ -94,6 +94,10 @@ class Chef
             :long => "--secret-file SECRET_FILE",
             :description => "A file containing the secret key to use to encrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config."
 
+          option :auth_timeout,
+            :long => "--auth-timeout MINUTES",
+            :description => "The maximum time in minutes to wait to for authentication over the transport to the node to succeed. The default value is 25 minutes.",
+            :default => 25
         end
       end
 
@@ -135,7 +139,6 @@ class Chef
       end
 
       def bootstrap(proto=nil)
-
         validate_name_args!
 
         @node_name = Array(@name_args).first
@@ -144,6 +147,7 @@ class Chef
 
         STDOUT.sync = STDERR.sync = true
 
+        wait_for_remote_response( config[:auth_timeout].to_i )
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
@@ -161,6 +165,12 @@ class Chef
         bootstrap_command_result = run_command(bootstrap_command)
         ui.error("Bootstrap command returned #{bootstrap_command_result}") if bootstrap_command_result != 0
         bootstrap_command_result
+      end
+
+      protected
+
+      # Default implementation -- override only if required by the transport
+      def wait_for_remote_response(wait_max_minutes)
       end
 
       def bootstrap_command

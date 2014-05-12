@@ -64,7 +64,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
 
   describe "running on any version of the Windows OS", :windows_only do
     before do
-      @mock_bootstrap_context = Chef::Knife::Core::WindowsBootstrapContext.new({ }, nil, { })
+      @mock_bootstrap_context = Chef::Knife::Core::WindowsBootstrapContext.new({ }, nil, { :knife => {} })
 
       # Stub the bootstrap context and prevent config related sections
       # from being populated, i.e. chef installation and first chef
@@ -89,9 +89,11 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     end
 
     it "downloads the chef-client MSI during winrm bootstrap" do
+
       clean_test_case
 
       winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
+      winrm_bootstrapper.stub(:wait_for_remote_response)
       winrm_bootstrapper.config[:template_file] = @template_file_path      
 
       # Execute the commands locally that would normally be executed via WinRM
