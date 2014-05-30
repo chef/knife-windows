@@ -63,7 +63,7 @@ class Chef
           option :winrm_transport,
             :short => "-t TRANSPORT",
             :long => "--winrm-transport TRANSPORT",
-            :description => "The WinRM transport type.  valid choices are [ssl, plaintext]",
+            :description => "The WinRM transport type.  valid choices are [ssl, plaintext, sspinegotiate]",
             :default => 'plaintext',
             :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_transport] = transport }
 
