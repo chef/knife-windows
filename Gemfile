@@ -4,8 +4,7 @@ source "https://rubygems.org"
 gemspec
 
 # TODO - remove branch on winrm-s merge.
-gem 'winrm-s', :github => 'opscode/winrm-s',
-  :branch => 'winrm-sspi-nego'
+gem 'winrm-s', :github => 'opscode/winrm-s', :branch => 'winrm-sspi-nego'
 
 group :test do
   gem "rspec"

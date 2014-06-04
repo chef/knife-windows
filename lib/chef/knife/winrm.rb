@@ -148,9 +148,9 @@ class Chef
             session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
-            if Chef::Platform.windows? and session_opts[:transport] == 'plaintext'
+            if Chef::Platform.windows? and session_opts[:transport] == :plaintext
               # windows - force only encrypted communication
-              session_opts[:transport] = "sspinegotiate"
+              session_opts[:transport] = :sspinegotiate
               session_opts[:disable_sspi] = false
             else
               session_opts[:disable_sspi] = true
