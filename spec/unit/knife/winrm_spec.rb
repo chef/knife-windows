@@ -147,7 +147,7 @@ describe Chef::Knife::Winrm do
           exit_code.should == 401
         end
 
-        describe "validate sspinegotiate transport option" do
+        context "validate sspinegotiate transport option" do
           before do
             Chef::Config[:knife] = {:winrm_transport => :plaintext}
             @winrm.stub(:winrm_command).and_return(0)
