@@ -146,6 +146,28 @@ describe Chef::Knife::Winrm do
           exit_code = @winrm.run_with_pretty_exceptions
           exit_code.should == 401
         end
+
+        describe "validate sspinegotiate transport option" do
+          before do
+            Chef::Config[:knife] = {:winrm_transport => :plaintext}
+            @winrm.stub(:winrm_command).and_return(0)
+          end
+
+          it "should have winrm opts transport set to sspinegotiate for windows" do
+            Chef::Platform.stub(:windows?).and_return(true)
+
+            @winrm.session.should_receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false})
+            exit_code = @winrm.run
+          end
+
+          it "should not have winrm opts transport set to sspinegotiate for unix" do
+            Chef::Platform.stub(:windows?).and_return(false)
+
+            @winrm.session.should_receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:plaintext, :disable_sspi=>true})
+            exit_code = @winrm.run
+          end
+        end
+
       end
     end
   end
