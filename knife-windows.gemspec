@@ -18,8 +18,6 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-s"
   s.add_dependency "em-winrm", "~> 0.5", ">= 0.5.4"
 
-  %w(rspec-core rspec-expectations rspec-mocks).each { |gem| s.add_development_dependency gem, "~> 2.14.0" }
-
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
