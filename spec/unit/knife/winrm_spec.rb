@@ -51,15 +51,15 @@ describe Chef::Knife::Winrm do
     context "when there are some hosts found but they do not have an attribute to connect with" do
       before do
         @knife.config[:manual] = false
-        @query.stub(:search).and_return([[@node_foo, @node_bar]])
+        allow(@query).to receive(:search).and_return([[@node_foo, @node_bar]])
         @node_foo.automatic_attrs[:fqdn] = nil
         @node_bar.automatic_attrs[:fqdn] = nil
-        Chef::Search::Query.stub(:new).and_return(@query)
+        allow(Chef::Search::Query).to receive(:new).and_return(@query)
       end
     
       it "should raise a specific error (KNIFE-222)" do
-        @knife.ui.should_receive(:fatal).with(/does not have the required attribute/)
-        @knife.should_receive(:exit).with(10)
+        expect(@knife.ui).to receive(:fatal).with(/does not have the required attribute/)
+        expect(@knife).to receive(:exit).with(10)
         @knife.configure_session
       end
     end
@@ -67,13 +67,13 @@ describe Chef::Knife::Winrm do
     context "when there are nested attributes" do
       before do
         @knife.config[:manual] = false
-        @query.stub(:search).and_return([[@node_foo, @node_bar]])
-        Chef::Search::Query.stub(:new).and_return(@query)
+        allow(@query).to receive(:search).and_return([[@node_foo, @node_bar]])
+        allow(Chef::Search::Query).to receive(:new).and_return(@query)
       end
     
       it "should use nested attributes (KNIFE-276)" do
         @knife.config[:attribute] = "ec2.public_hostname"
-        @knife.stub(:session_from_list)
+        allow(@knife).to receive(:session_from_list)
         @knife.configure_session
 
       end
@@ -92,76 +92,82 @@ describe Chef::Knife::Winrm do
         end
 
         it "should return with 0 if the command succeeds" do
-          @winrm.stub(:winrm_command).and_return(0)
+          allow(@winrm).to receive(:winrm_command).and_return(0)
           exit_code = @winrm.run
-          exit_code.should == 0
+          expect(exit_code).to be_zero
         end
 
         it "should exit the process with 0 if the command fails and returns config is not set" do
-          @winrm.stub(:winrm_command).and_return(1)
+          allow(@winrm).to receive(:winrm_command).and_return(1)
           exit_code = @winrm.run
-          exit_code.should == 0
+          expect(exit_code).to be_zero
         end
 
         it "should exit the process with non-zero status if the command fails and returns config is set to 0" do
           command_status = 1
           @winrm.config[:returns] = [0,53]
           Chef::Config[:knife][:returns] = [0,53]
-          @winrm.stub(:winrm_command).and_return(command_status)
-          EventMachine::WinRM::Session.any_instance.stub(:exit_codes).and_return({"thishost" => command_status})
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| e.status.should == command_status }
+          allow(@winrm).to receive(:winrm_command).and_return(command_status)
+          session_mock = EventMachine::WinRM::Session.new
+          allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
 
         it "should exit the process with a zero status if the command returns an expected non-zero status" do
           command_status = 53
           Chef::Config[:knife][:returns] = [0,53]
-          @winrm.stub(:winrm_command).and_return(command_status)
-          EventMachine::WinRM::Session.any_instance.stub(:exit_codes).and_return({"thishost" => command_status})
+          allow(@winrm).to receive(:winrm_command).and_return(command_status)
+          session_mock = EventMachine::WinRM::Session.new
+          allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
           exit_code = @winrm.run
-          exit_code.should == 0
+          expect(exit_code).to be_zero
         end
 
         it "should exit the process with a zero status if the command returns an expected non-zero status" do
           command_status = 53
           Chef::Config[:knife][:returns] = [0,53]
-          @winrm.stub(:winrm_command).and_return(command_status)
-          EventMachine::WinRM::Session.any_instance.stub(:exit_codes).and_return({"thishost" => command_status})
+          allow(@winrm).to receive(:winrm_command).and_return(command_status)
+          session_mock = EventMachine::WinRM::Session.new
+          allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
           exit_code = @winrm.run
-          exit_code.should == 0
+          expect(exit_code).to be_zero
         end
 
         it "should exit the process with 100 if command execution raises an exception other than 401" do
-          @winrm.stub(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '500')
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| e.status.should == 100 }
+          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '500')
+          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
         it "should exit the process with 100 if command execution raises a 401" do
-          @winrm.stub(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| e.status.should == 100 }
+          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
+          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
         it "should exit the process with 0 if command execution raises a 401 and suppress_auth_failure is set to true" do
           @winrm.config[:suppress_auth_failure] = true
-          @winrm.stub(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
+          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
           exit_code = @winrm.run_with_pretty_exceptions
-          exit_code.should == 401
+          expect(exit_code).to eq(401)
         end
 
         context "validate sspinegotiate transport option" do
           before do
             Chef::Config[:knife] = {:winrm_transport => :plaintext}
-            @winrm.stub(:winrm_command).and_return(0)
+            allow(@winrm).to receive(:winrm_command).and_return(0)
           end
 
           it "should have winrm opts transport set to sspinegotiate for windows" do
-            Chef::Platform.stub(:windows?).and_return(true)
+            allow(Chef::Platform).to receive(:windows?).and_return(true)
 
-            @winrm.session.should_receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false})
+            expect(@winrm.session).to receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false})
             exit_code = @winrm.run
           end
 
           it "should have winrm monkey patched for windows" do
-            Chef::Platform.stub(:windows?).and_return(true)
+            allow(Chef::Platform).to receive(:windows?).and_return(true)
             WinRM::WinRMWebService.new("http://mywinrmhost:5985/wsman", :sspinegotiate, :user => "test_winrm_user", :pass => "test_winrm_pass")
             expect{WinRM::HTTP::HttpSSPINegotiate}.not_to raise_exception
             expect(HTTPClient::SSPINegotiateAuth.new).to respond_to(:encrypt_payload)
@@ -169,9 +175,9 @@ describe Chef::Knife::Winrm do
           end
 
           it "should not have winrm opts transport set to sspinegotiate for unix" do
-            Chef::Platform.stub(:windows?).and_return(false)
+            allow(Chef::Platform).to receive(:windows?).and_return(false)
 
-            @winrm.session.should_receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:plaintext, :disable_sspi=>true})
+            expect(@winrm.session).to receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:plaintext, :disable_sspi=>true})
             exit_code = @winrm.run
           end
         end

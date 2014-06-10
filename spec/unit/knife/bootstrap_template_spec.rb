@@ -56,9 +56,9 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     @knife.merge_configs
     @knife.config[:template_file] = TEMPLATE_FILE
     @stdout = StringIO.new
-    @knife.ui.stub(:stdout).and_return(@stdout)
+    allow(@knife.ui).to receive(:stdout).and_return(@stdout)
     @stderr = StringIO.new
-    @knife.ui.stub(:stderr).and_return(@stderr)
+    allow(@knife.ui).to receive(:stderr).and_return(@stderr)
   end
 
   describe "specifying no_proxy with various entries" do
@@ -77,14 +77,14 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       let(:setting) { "api.opscode.com" }
 
       it "renders the client.rb with a single FQDN no_proxy entry" do
-        rendered_template.should match(%r{.*no_proxy\s*\"api.opscode.com\".*})
+        expect(rendered_template).to match(%r{.*no_proxy\s*\"api.opscode.com\".*})
       end
     end
     context "via --bootstrap-no-proxy multiple" do
       let(:setting) { "api.opscode.com,172.16.10.*" }
 
       it "renders the client.rb with comma-separated FQDN and wildcard IP address no_proxy entries" do
-        rendered_template.should match(%r{.*no_proxy\s*"api.opscode.com,172.16.10.\*".*})
+        expect(rendered_template).to match(%r{.*no_proxy\s*"api.opscode.com,172.16.10.\*".*})
       end
     end
   end
