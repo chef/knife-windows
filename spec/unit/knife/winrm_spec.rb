@@ -160,6 +160,14 @@ describe Chef::Knife::Winrm do
             exit_code = @winrm.run
           end
 
+          it "should have winrm monkey patched for windows" do
+            Chef::Platform.stub(:windows?).and_return(true)
+            WinRM::WinRMWebService.new("http://mywinrmhost:5985/wsman", :sspinegotiate, :user => "test_winrm_user", :pass => "test_winrm_pass")
+            expect{WinRM::HTTP::HttpSSPINegotiate}.not_to raise_exception
+            expect(HTTPClient::SSPINegotiateAuth.new).to respond_to(:encrypt_payload)
+            expect(HTTPClient::SSPINegotiateAuth.new).to respond_to(:decrypt_payload)
+          end
+
           it "should not have winrm opts transport set to sspinegotiate for unix" do
             Chef::Platform.stub(:windows?).and_return(false)
 
