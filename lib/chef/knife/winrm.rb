@@ -240,7 +240,7 @@ class Chef
       def check_for_errors!(exit_codes)
 
         exit_codes.each do |host, value|
-          unless Chef::Config[:knife][:returns].include? value.to_i
+          if Chef::Config[:knife][:returns].include? value.to_i
             @exit_code = 1
             ui.error "Failed to execute command on #{host} return code #{value}"
           end
@@ -262,7 +262,7 @@ class Chef
           else
             winrm_command(@name_args[1..-1].join(" "))
 
-            if config[:returns]
+            if config[:returns] != nil
               check_for_errors! session.exit_codes
             end
 
