@@ -159,19 +159,19 @@ describe Chef::Knife::Winrm do
             allow(@winrm).to receive(:winrm_command).and_return(0)
           end
 
-          it "should have winrm opts transport set to sspinegotiate for windows", :windows_only do
+          it "should have winrm opts transport set to sspinegotiate for windows" do
             allow(Chef::Platform).to receive(:windows?).and_return(true)
+            allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
 
             expect(@winrm.session).to receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false})
             exit_code = @winrm.run
           end
 
-          it "should have winrm monkey patched for windows", :windows_only do
+          it "should have winrm monkey patched for windows" do
             allow(Chef::Platform).to receive(:windows?).and_return(true)
-            WinRM::WinRMWebService.new("http://mywinrmhost:5985/wsman", :sspinegotiate, :user => "test_winrm_user", :pass => "test_winrm_pass")
-            expect{WinRM::HTTP::HttpSSPINegotiate}.not_to raise_exception
-            expect(HTTPClient::SSPINegotiateAuth.new).to respond_to(:encrypt_payload)
-            expect(HTTPClient::SSPINegotiateAuth.new).to respond_to(:decrypt_payload)
+            expect(@winrm).to receive(:require).with('winrm-s')
+
+            exit_code = @winrm.run
           end
 
           it "should not have winrm opts transport set to sspinegotiate for unix" do
