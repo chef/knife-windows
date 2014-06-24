@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.required_ruby_version	= ">= 1.9.1"
+  s.add_dependency "winrm-s"
   s.add_dependency "em-winrm", "~> 0.5", ">= 0.5.4"
 
   s.files         = `git ls-files`.split("\n")

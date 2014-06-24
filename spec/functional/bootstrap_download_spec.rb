@@ -69,23 +69,23 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       # Stub the bootstrap context and prevent config related sections
       # from being populated, i.e. chef installation and first chef
       # run sections
-      @mock_bootstrap_context.stub(:validation_key).and_return("echo.validation_key")
-      @mock_bootstrap_context.stub(:encrypted_data_bag_secret).and_return("echo.encrypted_data_bag_secret")
-      @mock_bootstrap_context.stub(:config_content).and_return("echo.config_content")
-      @mock_bootstrap_context.stub(:start_chef).and_return("echo.echo start_chef_command")
-      @mock_bootstrap_context.stub(:run_list).and_return("echo.run_list")
-      @mock_bootstrap_context.stub(:install_chef).and_return("echo.echo install_chef_command")
+      allow(@mock_bootstrap_context).to receive(:validation_key).and_return("echo.validation_key")
+      allow(@mock_bootstrap_context).to receive(:encrypted_data_bag_secret).and_return("echo.encrypted_data_bag_secret")
+      allow(@mock_bootstrap_context).to receive(:config_content).and_return("echo.config_content")
+      allow(@mock_bootstrap_context).to receive(:start_chef).and_return("echo.echo start_chef_command")
+      allow(@mock_bootstrap_context).to receive(:run_list).and_return("echo.run_list")
+      allow(@mock_bootstrap_context).to receive(:install_chef).and_return("echo.echo install_chef_command")
 
       # Change the directories where bootstrap files will be created
-      @mock_bootstrap_context.stub(:bootstrap_directory).and_return(@temp_directory.gsub(::File::SEPARATOR, ::File::ALT_SEPARATOR))
-      @mock_bootstrap_context.stub(:local_download_path).and_return(@local_file_download_destination.gsub(::File::SEPARATOR, ::File::ALT_SEPARATOR))
+      allow(@mock_bootstrap_context).to receive(:bootstrap_directory).and_return(@temp_directory.gsub(::File::SEPARATOR, ::File::ALT_SEPARATOR))
+      allow(@mock_bootstrap_context).to receive(:local_download_path).and_return(@local_file_download_destination.gsub(::File::SEPARATOR, ::File::ALT_SEPARATOR))
 
       # Prevent password prompt during bootstrap process
       @mock_winrm = Chef::Knife::Winrm.new
-      @mock_winrm.stub(:get_password).and_return(nil)
-      Chef::Knife::Winrm.stub(:new).and_return(@mock_winrm)
+      allow(@mock_winrm).to receive(:get_password).and_return(nil)
+      allow(Chef::Knife::Winrm).to receive(:new).and_return(@mock_winrm)
 
-      Chef::Knife::Core::WindowsBootstrapContext.stub(:new).and_return(@mock_bootstrap_context)
+      allow(Chef::Knife::Core::WindowsBootstrapContext).to receive(:new).and_return(@mock_bootstrap_context)
     end
 
     it "downloads the chef-client MSI during winrm bootstrap" do
@@ -93,18 +93,18 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       clean_test_case
 
       winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
-      winrm_bootstrapper.stub(:wait_for_remote_response)
+      allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
       winrm_bootstrapper.config[:template_file] = @template_file_path      
 
       # Execute the commands locally that would normally be executed via WinRM
-      winrm_bootstrapper.stub(:run_command) do |command|
+      allow(winrm_bootstrapper).to receive(:run_command) do |command|
         system(command)
       end
 
       winrm_bootstrapper.run
 
       # Download should succeed
-      download_succeeded?.should == true
+      expect(download_succeeded?).to be true
     end
   end
 
