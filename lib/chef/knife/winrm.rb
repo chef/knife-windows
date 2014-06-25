@@ -44,9 +44,7 @@ class Chef
       option :returns,
        :long => "--returns CODES",
        :description => "A comma delimited list of return codes which indicate success",
-       :default => nil,
-       :proc => Proc.new { |codes|
-         Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i} }
+       :default => "0"
 
       option :manual,
         :short => "-m",
@@ -54,6 +52,13 @@ class Chef
         :boolean => true,
         :description => "QUERY is a space separated list of servers",
         :default => false
+
+
+      # Given a comma delimited string 
+      # sets the return codes that can be marked as success
+      def set_return_codes(codes)
+        Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i}
+      end
 
       def session
         session_opts = {}
@@ -96,6 +101,9 @@ class Chef
       end
 
       def configure_session
+
+        set_return_codes(config[:returns])
+
         list = case config[:manual]
                when true
                  @name_args[0].split(" ")
@@ -256,6 +264,7 @@ class Chef
       end
 
       def run
+
         STDOUT.sync = STDERR.sync = true
 
         begin
