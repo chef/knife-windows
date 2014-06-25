@@ -102,7 +102,7 @@ class Chef
 
       def configure_session
 
-        set_return_codes(config[:returns])
+        set_return_codes(config[:returns]) unless !(config[:returns])
 
         list = case config[:manual]
                when true
