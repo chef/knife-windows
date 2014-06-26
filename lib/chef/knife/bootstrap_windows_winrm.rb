@@ -53,7 +53,7 @@ class Chef
         winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
-        winrm.config[:suppress_auth_failure] = true
+        winrm.config[:suppress_auth_failure] = locate_config_value(:suppress_auth_failure)
         winrm.config[:returns] = nil
         winrm.run
       end
