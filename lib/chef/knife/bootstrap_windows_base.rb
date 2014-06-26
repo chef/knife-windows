@@ -98,6 +98,12 @@ class Chef
             :long => "--auth-timeout MINUTES",
             :description => "The maximum time in minutes to wait to for authentication over the transport to the node to succeed. The default value is 25 minutes.",
             :default => 25
+
+          option :suppress_auth_failure,
+            :long => "--suppress-auth-failure",
+            :description => "Suppress authentication failures when connecting to a target system.",
+            :default => false,
+            :boolean => true
         end
       end
 
