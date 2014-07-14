@@ -76,6 +76,11 @@ class Chef
 
       end
 
+      def return_codes 
+        return [0] unless config[:returns] 
+        return config[:returns].split(',').collect {|item| item.to_i} 
+      end
+
       # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
       def extract_nested_value(data, nested_value_spec)
         nested_value_spec.split(".").each do |attr|
@@ -249,7 +254,7 @@ class Chef
       def check_for_errors!(exit_codes)
 
         exit_codes.each do |host, value|
-          unless Chef::Config[:knife][:returns].include? value.to_i
+          unless return_codes.include? value.to_i
             @exit_code = 1
             ui.error "Failed to execute command on #{host} return code #{value}"
           end
