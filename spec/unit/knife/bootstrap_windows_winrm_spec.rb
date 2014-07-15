@@ -34,7 +34,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:sleep).and_return(10)
   end
 
-  let (:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new }
+  let (:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-d', 'windows-chef-client-msi',  '-x', 'Administrator', 'localhost']) }
+
   let(:initial_fail_count) { 4 }  
   it 'should retry if a 401 is received from WinRM' do
     call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '401'}}
@@ -71,6 +72,26 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     expect(bootstrap).to receive(:run_command).exactly(call_result_sequence.length).times
     bootstrap.send(:wait_for_remote_response, 2)
   end
+
+  it "should exit bootstrap with non-zero status if the bootstrap fails" do
+    command_status = 1
+
+    #Stub out calls to create the session and just get the exit codes back
+    winrm_mock = Chef::Knife::Winrm.new
+    allow(Chef::Knife::Winrm).to receive(:new).and_return(winrm_mock)
+    allow(winrm_mock).to receive(:configure_session)
+    allow(winrm_mock).to receive(:winrm_command)
+    session_mock = EventMachine::WinRM::Session.new
+    allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+    allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+   
+    #Skip over templating stuff and checking with the remote end
+    allow(bootstrap).to receive(:create_bootstrap_bat_command)
+    allow(bootstrap).to receive(:wait_for_remote_response)
+    
+    expect { bootstrap.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
+  end
+
 
   it 'should stop retrying if more than 25 minutes has elapsed' do
     times = [ Time.new(2014, 4, 1, 22, 25), Time.new(2014, 4, 1, 22, 51), Time.new(2014, 4, 1, 22, 52) ]
