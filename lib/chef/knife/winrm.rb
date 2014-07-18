@@ -44,9 +44,7 @@ class Chef
       option :returns,
        :long => "--returns CODES",
        :description => "A comma delimited list of return codes which indicate success",
-       :default => "0",
-       :proc => Proc.new { |codes|
-         Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i} }
+       :default => "0"
 
       option :manual,
         :short => "-m",
@@ -76,7 +74,8 @@ class Chef
 
       end
 
-      def return_codes 
+      def success_return_codes 
+        #Redundant if the CLI options parsing occurs
         return [0] unless config[:returns] 
         return config[:returns].split(',').collect {|item| item.to_i} 
       end
@@ -254,7 +253,7 @@ class Chef
       def check_for_errors!(exit_codes)
 
         exit_codes.each do |host, value|
-          unless return_codes.include? value.to_i
+          unless success_return_codes.include? value.to_i
             @exit_code = 1
             ui.error "Failed to execute command on #{host} return code #{value}"
           end
