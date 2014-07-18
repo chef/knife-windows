@@ -97,7 +97,7 @@ class Chef
           option :auth_timeout,
             :long => "--auth-timeout MINUTES",
             :description => "The maximum time in minutes to wait to for authentication over the transport to the node to succeed. The default value is 25 minutes.",
-            :default => 25
+            :default => 2
         end
       end
 
