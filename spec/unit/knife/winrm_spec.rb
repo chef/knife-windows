@@ -97,12 +97,6 @@ describe Chef::Knife::Winrm do
           expect(exit_code).to be_zero
         end
 
-        it "should exit the process with 0 if the command fails and returns config is not set" do
-          allow(@winrm).to receive(:winrm_command).and_return(1)
-          exit_code = @winrm.run
-          expect(exit_code).to be_zero
-        end
-
         it "should exit the process with non-zero status if the command fails and returns config is set to 0" do
           command_status = 1
           @winrm.config[:returns] = "0,53"
