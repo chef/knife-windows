@@ -22,11 +22,11 @@ require 'socket'
 
 class Chef
   class Knife
-    class Certgen < Knife
+    class WinrmCertgen < Knife
 
       attr_accessor :thumbprint, :hostname
 
-      banner "knife certgen (options)"
+      banner "knife winrm certgen (options)"
 
       option :domain,
         :short => "-d DOMAIN",

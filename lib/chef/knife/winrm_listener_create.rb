@@ -17,12 +17,13 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
+require 'openssl'
 
 class Chef
   class Knife
-    class Certinstall < Knife
+    class WinrmListenerCreate < Knife
 
-      banner "knife certinstall (options)"
+      banner "knife winrm listener create (options)"
 
       option :cert_path,
         :short => "-c CERT_PATH",
@@ -30,19 +31,30 @@ class Chef
         :description => "Path of the certificate path. Default is './winrmcert.pfx'",
         :default => "./winrmcert.pfx"
 
-      option :cert_passphrase,
-        :short => "-cp PASSWORD",
-        :long => "--cert-passphrase PASSWORD",
-        :description => "Passphraseth of the certificate. Default is 'winrmcertgen'",
-        :default => "winrmcertgen"
+      option :port,
+        :short => "-p PORT",
+        :long => "--port PORT",
+        :description => "Specify port. Default is 5986",
+        :default => "5986"
+
+      option :hostname,
+        :short => "-h HOSTNAME",
+        :long => "--hostname HOSTNAME",
+        :description => "Hostname on the listener. Default is *",
+        :default => "*"
+          
+      option :thumbprint,
+        :short => "-t THUMBPRINT",
+        :long => "--thumbprint THUMBPRINT",
+        :description => "Thumbprint of the certificate"
 
       def run
         STDOUT.sync = STDERR.sync = true
         file_path = config[:cert_path]
 
         begin
-          exec "powershell.exe certutil -p \'#{config[:cert_passphrase]}\' -importPFX \'#{config[:cert_path]}\' AT_KEYEXCHANGE"
-          ui.info "Certificate installed to certificate store."
+          exec "cmd.exec winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\'#{config[:hostname]}\';CertificateThumbprint=\'#{config[:thumbprint]}\';Port=\'#{config[:port]}\'}"
+          ui.info "Winrm listener created"
         rescue => e
           puts "ERROR: + #{e}"
         end
