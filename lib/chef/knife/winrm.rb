@@ -18,17 +18,43 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
+require 'winrm'
 
 class Chef
   class Knife
     class Winrm < Knife
+
+      class Session
+
+        def initialize(options={})
+          #TODO parse options to call WinRMWebService correctly
+          endpoint = "http://" + options[:host] + ":" + options[:port] + "/wsman"
+          @host = options[:host]
+          @winrm_session = WinRM::WinRMWebService.new(endpoint,  options[:transport], :user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only])
+        end
+
+        def relay_command(command)
+          @winrm_session.cmd(command) do |stdout, stderr|
+            @stdout = stdout
+            @stderr = stderr
+          end
+        end
+
+        def on_output
+          return @host, @stdout
+        end
+
+        def on_error
+          return @host, @stderr
+        end
+
+      end
 
       include Chef::Knife::WinrmBase
 
       deps do
         require 'readline'
         require 'chef/search/query'
-        require 'em-winrm'
       end
 
       attr_writer :password
@@ -55,24 +81,23 @@ class Chef
         :description => "QUERY is a space separated list of servers",
         :default => false
 
-      def session
-        session_opts = {}
-        session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
-        @session ||= begin
-          s = EventMachine::WinRM::Session.new(session_opts)
+      def create_winrm_session(options={})
+          session = Chef::Knife::Winrm::Session.new(options)
+          @winrm_sessions ||= []
+          @winrm_sessions.push(session)
+          session
+      end
+
+      def relay_winrm_command(command)
+        @winrm_sessions.each do |s|
+          s.relay_command(command)
           s.on_output do |host, data|
-            print_data(host, data)
+             print_data(host, data)
           end
           s.on_error do |host, err|
-            print_data(host, err, :red)
+             print_data(host, err, :red)
           end
-          s.on_command_complete do |host|
-            host = host == :all ? 'All Servers' : host
-            Chef::Log.debug("command complete on #{host}")
-          end
-          s
         end
-
       end
 
       # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
@@ -155,11 +180,13 @@ class Chef
             end
           end
 
-          session.use(item, session_opts)
+          #session.use(item, session_opts)
+          session_opts[:host] = item
+          create_winrm_session(session_opts)
 
           @longest = item.length if item.length > @longest
         end
-        session
+        #session
       end
 
       def print_data(host, data, color = :cyan)
@@ -174,8 +201,7 @@ class Chef
       end
 
       def winrm_command(command, subsession=nil)
-        subsession ||= session
-        subsession.relay_command(command)
+        relay_winrm_command(command)
       end
 
       def get_password
