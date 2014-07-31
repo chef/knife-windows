@@ -44,9 +44,7 @@ class Chef
       option :returns,
        :long => "--returns CODES",
        :description => "A comma delimited list of return codes which indicate success",
-       :default => nil,
-       :proc => Proc.new { |codes|
-         Chef::Config[:knife][:returns] = codes.split(',').collect {|item| item.to_i} }
+       :default => "0"
 
       option :manual,
         :short => "-m",
@@ -54,6 +52,7 @@ class Chef
         :boolean => true,
         :description => "QUERY is a space separated list of servers",
         :default => false
+
 
       def session
         session_opts = {}
@@ -73,6 +72,12 @@ class Chef
           s
         end
 
+      end
+
+      def success_return_codes 
+        #Redundant if the CLI options parsing occurs
+        return [0] unless config[:returns] 
+        return config[:returns].split(',').collect {|item| item.to_i} 
       end
 
       # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
@@ -96,6 +101,7 @@ class Chef
       end
 
       def configure_session
+
         list = case config[:manual]
                when true
                  @name_args[0].split(" ")
@@ -247,7 +253,7 @@ class Chef
       def check_for_errors!(exit_codes)
 
         exit_codes.each do |host, value|
-          unless Chef::Config[:knife][:returns].include? value.to_i
+          unless success_return_codes.include? value.to_i
             @exit_code = 1
             ui.error "Failed to execute command on #{host} return code #{value}"
           end
@@ -256,6 +262,7 @@ class Chef
       end
 
       def run
+
         STDOUT.sync = STDERR.sync = true
 
         begin

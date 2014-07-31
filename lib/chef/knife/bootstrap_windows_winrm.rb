@@ -41,6 +41,7 @@ class Chef
         bootstrap
       end
 
+
       def run_command(command = '')
         winrm = Chef::Knife::Winrm.new
         winrm.name_args = [ server_name, command ]
@@ -54,7 +55,11 @@ class Chef
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
         winrm.config[:suppress_auth_failure] = true
-        winrm.config[:returns] = nil
+       
+        #If you turn off the return flag, then winrm.run won't atually check and 
+        #return the error
+        #codes.  Otherwise, it ignores the return value of the server call.  
+        winrm.config[:returns] = "0"
         winrm.run
       end
 
