@@ -26,11 +26,21 @@ class Chef
 
       class Session
 
-        def initialize(options={})
-          #TODO parse options to call WinRMWebService correctly
-          endpoint = "http://" + options[:host] + ":" + options[:port] + "/wsman"
+        def initialize(options)
           @host = options[:host]
-          @winrm_session = WinRM::WinRMWebService.new(endpoint,  options[:transport], :user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only])
+
+          # TODO - if kerberos
+          @winrm_session = WinRM::WinRMWebService.new(endpoint(options),  options[:transport], :user => options[:user],
+                    :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi],
+                    :ca_trust_path => options[:ca_trust_path])
+        end
+
+        def endpoint(options)
+          if(options[:transport] == ":ssl")
+            return "https://" + options[:host] + ":" + options[:port] + "/wsman"
+          else
+            return "http://" + options[:host] + ":" + options[:port] + "/wsman"
+          end
         end
 
         def relay_command(command)
@@ -187,13 +197,11 @@ class Chef
             end
           end
 
-          #session.use(item, session_opts)
           session_opts[:host] = item
           create_winrm_session(session_opts)
 
           @longest = item.length if item.length > @longest
         end
-        #session
       end
 
       def print_data(host, data, color = :cyan)
