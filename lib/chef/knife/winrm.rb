@@ -19,13 +19,14 @@
 require 'chef/knife'
 require 'chef/knife/winrm_base'
 require 'winrm'
+require 'pry'
 
 class Chef
   class Knife
     class Winrm < Knife
 
       class Session
-
+        attr_reader :host, :output, :error, :exit_codes
         def initialize(options)
           @host = options[:host]
 
@@ -44,21 +45,18 @@ class Chef
         end
 
         def relay_command(command)
-          @winrm_session.cmd(command) do |stdout, stderr|
-            @stdout = stdout
-            @stderr = stderr
+          @winrm_session.cmd(command) do |stdout, stderr, exitcode|
+            @output = stdout
+            @error = stderr
+            @exit_codes = exitcode
           end
         end
 
-        def on_output
-          return @host, @stdout
+        def close
+          # Not needed
         end
 
-        def on_error
-          return @host, @stderr
-        end
-
-      end
+     end
 
       include Chef::Knife::WinrmBase
 
@@ -95,18 +93,28 @@ class Chef
           session = Chef::Knife::Winrm::Session.new(options)
           @winrm_sessions ||= []
           @winrm_sessions.push(session)
-          session
+      end
+
+      def print_data(host, data, color = :cyan)
+        if data =~ /\n/
+          data.split(/\n/).each { |d| print_data(host, d, color) }
+        else
+          print ui.color(host, color)
+          puts "\t#{data}"
+        end
       end
 
       def relay_winrm_command(command)
         @winrm_sessions.each do |s|
           s.relay_command(command)
-          s.on_output do |host, data|
-             print_data(host, data)
-          end
-          s.on_error do |host, err|
-             print_data(host, err, :red)
-          end
+          print_data(s.host, s.output)
+          print_data(s.host, s.error, :red)
+        end
+      end
+
+      def close_winrm_session
+        @winrm_sessions.each do |session|
+          session.close
         end
       end
 
@@ -199,24 +207,7 @@ class Chef
 
           session_opts[:host] = item
           create_winrm_session(session_opts)
-
-          @longest = item.length if item.length > @longest
         end
-      end
-
-      def print_data(host, data, color = :cyan)
-        if data =~ /\n/
-          data.split(/\n/).each { |d| print_data(host, d, color) }
-        else
-          padding = @longest - host.length
-          print ui.color(host, color)
-          padding.downto(0) { print " " }
-          puts data.chomp
-        end
-      end
-
-      def winrm_command(command, subsession=nil)
-        relay_winrm_command(command)
       end
 
       def get_password
@@ -249,44 +240,19 @@ class Chef
       end
 
       def interactive
-        puts "Connected to #{ui.list(session.servers.collect { |s| ui.color(s.host, :cyan) }, :inline, " and ")}"
-        puts
-        puts "To run a command on a list of servers, do:"
-        puts "  on SERVER1 SERVER2 SERVER3; COMMAND"
-        puts "  Example: on latte foamy; echo foobar"
-        puts
-        puts "To exit interactive mode, use 'quit!'"
-        puts
-        while 1
-          command = read_line
-          case command
-          when 'quit!'
-            puts 'Bye!'
-            session.close
-            break
-          when /^on (.+?); (.+)$/
-            raw_list = $1.split(" ")
-            server_list = Array.new
-            session.servers.each do |session_server|
-              server_list << session_server if raw_list.include?(session_server.host)
-            end
-            command = $2
-            winrm_command(command, session.on(*server_list))
-          else
-            winrm_command(command)
-          end
-        end
+        puts "Deprecated. Not supported in this version of knife windows."
+        exit(1)
       end
 
-      def check_for_errors!(exit_codes)
-
-        exit_codes.each do |host, value|
-          unless Chef::Config[:knife][:returns].include? value.to_i
-            @exit_code = 1
-            ui.error "Failed to execute command on #{host} return code #{value}"
+      def check_for_errors!
+        @winrm_sessions.each do |session|
+          session.exit_codes.each do |host, value|
+            unless Chef::Config[:knife][:returns].include? value.to_i
+              @exit_code = 1
+              ui.error "Failed to execute command on #{host} return code #{value}"
+            end
           end
         end
-
       end
 
       def run
@@ -301,13 +267,13 @@ class Chef
           when "interactive"
             interactive
           else
-            winrm_command(@name_args[1..-1].join(" "))
+            relay_winrm_command(@name_args[1..-1].join(" "))
 
             if config[:returns]
-              check_for_errors! session.exit_codes
+              check_for_errors!
             end
 
-            session.close
+            close_winrm_session
 
             # Knife seems to ignore the return value of this method,
             # so we exit to force the process exit code for this
