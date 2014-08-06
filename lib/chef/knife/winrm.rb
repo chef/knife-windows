@@ -19,7 +19,6 @@
 require 'chef/knife'
 require 'chef/knife/winrm_base'
 require 'winrm'
-require 'pry'
 
 class Chef
   class Knife
