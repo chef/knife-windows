@@ -29,10 +29,15 @@ class Chef
         def initialize(options)
           @host = options[:host]
 
-          # TODO - if kerberos
-          @winrm_session = WinRM::WinRMWebService.new(endpoint(options),  options[:transport], :user => options[:user],
+          if options[:transport] == :kerberos
+            @winrm_session = WinRM::WinRMWebService.new(endpoint(options),  options[:transport], :user => options[:user],
+                    :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi],
+                    :service => options[:service], :realm => options[:realm], :keytab => options[:keytab])
+          else
+            @winrm_session = WinRM::WinRMWebService.new(endpoint(options),  options[:transport], :user => options[:user],
                     :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi],
                     :ca_trust_path => options[:ca_trust_path])
+          end
         end
 
         def endpoint(options)
