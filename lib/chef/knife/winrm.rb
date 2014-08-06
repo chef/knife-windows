@@ -109,6 +109,7 @@ class Chef
       end
 
       def relay_winrm_command(command)
+        Chef::Log.debug(command)
         @winrm_sessions.each do |s|
           s.relay_command(command)
           print_data(s.host, s.output)
