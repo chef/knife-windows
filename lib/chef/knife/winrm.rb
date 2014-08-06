@@ -104,7 +104,7 @@ class Chef
           data.split(/\n/).each { |d| print_data(host, d, color) }
         else
           print ui.color(host, color)
-          puts "\t#{data}"
+          puts " #{data}"
         end
       end
 
