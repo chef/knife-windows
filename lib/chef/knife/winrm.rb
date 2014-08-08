@@ -28,24 +28,14 @@ class Chef
         attr_reader :host, :output, :error, :exit_codes
         def initialize(options)
           @host = options[:host]
+          url = "#{options[:host]}:#{options[:port]}/wsman"
+          endpoint =  options[:transport] == ":ssl" ? "https://#{url}" : "http://#{url}"
+          opts = Hash.new
+          opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi]}
 
-          if options[:transport] == :kerberos
-            @winrm_session = WinRM::WinRMWebService.new(endpoint(options),  options[:transport], :user => options[:user],
-                    :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi],
-                    :service => options[:service], :realm => options[:realm], :keytab => options[:keytab])
-          else
-            @winrm_session = WinRM::WinRMWebService.new(endpoint(options),  options[:transport], :user => options[:user],
-                    :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi],
-                    :ca_trust_path => options[:ca_trust_path])
-          end
-        end
+          options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
 
-        def endpoint(options)
-          if(options[:transport] == ":ssl")
-            return "https://" + options[:host] + ":" + options[:port] + "/wsman"
-          else
-            return "http://" + options[:host] + ":" + options[:port] + "/wsman"
-          end
+          @winrm_session = WinRM::WinRMWebService.new(endpoint, options[:transport], opts)
         end
 
         def relay_command(command)
@@ -55,12 +45,7 @@ class Chef
             @exit_codes = exitcode
           end
         end
-
-        def close
-          # Not needed
-        end
-
-     end
+      end
 
       include Chef::Knife::WinrmBase
 
@@ -114,12 +99,6 @@ class Chef
           s.relay_command(command)
           print_data(s.host, s.output)
           print_data(s.host, s.error, :red)
-        end
-      end
-
-      def close_winrm_session
-        @winrm_sessions.each do |session|
-          session.close
         end
       end
 
@@ -277,8 +256,6 @@ class Chef
             if config[:returns]
               check_for_errors!
             end
-
-            close_winrm_session
 
             # Knife seems to ignore the return value of this method,
             # so we exit to force the process exit code for this
