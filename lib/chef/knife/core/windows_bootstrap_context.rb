@@ -149,7 +149,7 @@ WGET_PS
         end
 
         def install_chef
-          install_chef = 'msiexec /qn /log "%CHEF_CLIENT_MSI_LOG_PATH%" /i "%LOCAL_DESTINATION_MSI_PATH%"'
+          install_chef = 'msiexec /qn /log "%CHEF_CLIENT_MSI_LOG_PATH%" /i "%LOCAL_DESTINATION_MSI_PATH%" ADDLOCAL="ChefClientFeature,ChefServiceFeature"'
         end
 
         def bootstrap_directory
