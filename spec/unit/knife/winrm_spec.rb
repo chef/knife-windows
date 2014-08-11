@@ -92,13 +92,13 @@ describe Chef::Knife::Winrm do
         end
 
         it "should return with 0 if the command succeeds" do
-          allow(@winrm).to receive(:winrm_command).and_return(0)
+          allow(@winrm).to receive(:relay_winrm_command).and_return(0)
           exit_code = @winrm.run
           expect(exit_code).to be_zero
         end
 
         it "should exit the process with 0 if the command fails and returns config is not set" do
-          allow(@winrm).to receive(:winrm_command).and_return(1)
+          allow(@winrm).to receive(:relay_winrm_command).and_return(1)
           exit_code = @winrm.run
           expect(exit_code).to be_zero
         end
@@ -107,9 +107,9 @@ describe Chef::Knife::Winrm do
           command_status = 1
           @winrm.config[:returns] = [0,53]
           Chef::Config[:knife][:returns] = [0,53]
-          allow(@winrm).to receive(:winrm_command).and_return(command_status)
-          session_mock = EventMachine::WinRM::Session.new
-          allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+          allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+          session_mock = Chef::Knife::Winrm::Session.new({})
+          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
           allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
@@ -117,9 +117,9 @@ describe Chef::Knife::Winrm do
         it "should exit the process with a zero status if the command returns an expected non-zero status" do
           command_status = 53
           Chef::Config[:knife][:returns] = [0,53]
-          allow(@winrm).to receive(:winrm_command).and_return(command_status)
-          session_mock = EventMachine::WinRM::Session.new
-          allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+          allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+          session_mock = Chef::Knife::Winrm::Session.new({})
+          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
           allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
           exit_code = @winrm.run
           expect(exit_code).to be_zero
@@ -128,27 +128,27 @@ describe Chef::Knife::Winrm do
         it "should exit the process with a zero status if the command returns an expected non-zero status" do
           command_status = 53
           Chef::Config[:knife][:returns] = [0,53]
-          allow(@winrm).to receive(:winrm_command).and_return(command_status)
-          session_mock = EventMachine::WinRM::Session.new
-          allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+          allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+          session_mock = Chef::Knife::Winrm::Session.new({})
+          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
           allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
           exit_code = @winrm.run
           expect(exit_code).to be_zero
         end
 
         it "should exit the process with 100 if command execution raises an exception other than 401" do
-          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '500')
+          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '500')
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
         it "should exit the process with 100 if command execution raises a 401" do
-          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
+          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
         it "should exit the process with 0 if command execution raises a 401 and suppress_auth_failure is set to true" do
           @winrm.config[:suppress_auth_failure] = true
-          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
+          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
           exit_code = @winrm.run_with_pretty_exceptions
           expect(exit_code).to eq(401)
         end
@@ -156,14 +156,14 @@ describe Chef::Knife::Winrm do
         context "validate sspinegotiate transport option" do
           before do
             Chef::Config[:knife] = {:winrm_transport => :plaintext}
-            allow(@winrm).to receive(:winrm_command).and_return(0)
+            allow(@winrm).to receive(:relay_winrm_command).and_return(0)
           end
 
           it "should have winrm opts transport set to sspinegotiate for windows" do
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
 
-            expect(@winrm.session).to receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
             exit_code = @winrm.run
           end
 
@@ -177,7 +177,7 @@ describe Chef::Knife::Winrm do
           it "should not have winrm opts transport set to sspinegotiate for unix" do
             allow(Chef::Platform).to receive(:windows?).and_return(false)
 
-            expect(@winrm.session).to receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:plaintext, :disable_sspi=>true})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
             exit_code = @winrm.run
           end
         end
