@@ -224,8 +224,33 @@ class Chef
       end
 
       def interactive
-        puts "Deprecated. Not supported in this version of knife windows."
-        exit(1)
+        puts "Deprecated functionality. This will not be supported in future knife-windows releases"
+        puts "Connected to #{ui.list(session.servers.collect { |s| ui.color(s.host, :cyan) }, :inline, " and ")}"
+        puts
+        puts "To run a command on a list of servers, do:"
+        puts " on SERVER1 SERVER2 SERVER3; COMMAND"
+        puts " Example: on latte foamy; echo foobar"
+        puts
+        puts "To exit interactive mode, use 'quit!'"
+        puts
+        while 1
+          command = read_line
+          case command
+          when 'quit!'
+            puts 'Bye!'
+            break
+          when /^on (.+?); (.+)$/
+            raw_list = $1.split(" ")
+            server_list = Array.new
+            @winrm_sessions.each do |session_server|
+              server_list << session_server if raw_list.include?(session_server.host)
+            end
+            command = $2
+            relay_winrm_command(command, server_list)
+          else
+            relay_winrm_command(command)
+          end
+        end
       end
 
       def check_for_errors!
