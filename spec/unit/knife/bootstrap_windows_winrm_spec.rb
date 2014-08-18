@@ -18,6 +18,7 @@
 
 require 'spec_helper'
 
+Chef::Knife::Winrm.load_deps
 
 describe Chef::Knife::BootstrapWindowsWinrm do
   before(:all) do
@@ -36,7 +37,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   let (:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-d', 'windows-chef-client-msi',  '-x', 'Administrator', 'localhost']) }
 
-  let(:initial_fail_count) { 4 }  
+  let(:initial_fail_count) { 4 }
   it 'should retry if a 401 is received from WinRM' do
     call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '401'}}
     call_result_sequence.push(0)
@@ -80,15 +81,15 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     winrm_mock = Chef::Knife::Winrm.new
     allow(Chef::Knife::Winrm).to receive(:new).and_return(winrm_mock)
     allow(winrm_mock).to receive(:configure_session)
-    allow(winrm_mock).to receive(:winrm_command)
-    session_mock = EventMachine::WinRM::Session.new
-    allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+    allow(@winrm).to receive(:relay_winrm_command)
+    session_mock = Chef::Knife::Winrm::Session.new({})
+    allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
     allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
-   
+
     #Skip over templating stuff and checking with the remote end
     allow(bootstrap).to receive(:create_bootstrap_bat_command)
     allow(bootstrap).to receive(:wait_for_remote_response)
-    
+
     expect { bootstrap.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
   end
 
@@ -100,7 +101,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
     allow(bootstrap).to receive(:run_command).and_return(run_command_result)
     expect(bootstrap).to receive(:run_command).exactly(1).times
-    bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]    
+    bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error RuntimeError
   end
 end
