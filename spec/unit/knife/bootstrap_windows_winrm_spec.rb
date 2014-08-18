@@ -81,11 +81,11 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     winrm_mock = Chef::Knife::Winrm.new
     allow(Chef::Knife::Winrm).to receive(:new).and_return(winrm_mock)
     allow(winrm_mock).to receive(:configure_session)
-    allow(@winrm).to receive(:relay_winrm_command)
+    allow(winrm_mock).to receive(:relay_winrm_command)
     session_mock = Chef::Knife::Winrm::Session.new({})
-    allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
+    winrm_mock.instance_variable_set(:@winrm_sessions,[session_mock])
     allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
-
+    allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
     #Skip over templating stuff and checking with the remote end
     allow(bootstrap).to receive(:create_bootstrap_bat_command)
     allow(bootstrap).to receive(:wait_for_remote_response)
