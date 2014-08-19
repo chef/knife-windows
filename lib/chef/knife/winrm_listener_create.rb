@@ -48,19 +48,26 @@ class Chef
         :long => "--thumbprint THUMBPRINT",
         :description => "Thumbprint of the certificate"
 
+      option :basic_auth,
+        :long => "--[no-]basic-auth",
+        :description => "Disable basic authentication on the WinRM service.",
+        :boolean => true,
+        :default => true
+
       def run
         STDOUT.sync = STDERR.sync = true
         file_path = config[:cert_path]
 
         begin
-          exec "cmd.exec winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\'#{config[:hostname]}\';CertificateThumbprint=\'#{config[:thumbprint]}\';Port=\'#{config[:port]}\'}"
+          puts %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:thumbprint]}";Port="#{config[:port]}"}}
+
+          puts %x{winrm set winrm/config/service/auth @{Basic="#{config[:basic_auth]}"}} unless config[:basic_auth]
+
           ui.info "Winrm listener created"
         rescue => e
           puts "ERROR: + #{e}"
         end
       end
-
     end
   end
 end
-

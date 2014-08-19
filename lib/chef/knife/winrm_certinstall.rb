@@ -41,13 +41,12 @@ class Chef
         file_path = config[:cert_path]
 
         begin
-          exec "powershell.exe certutil -p \'#{config[:cert_passphrase]}\' -importPFX \'#{config[:cert_path]}\' AT_KEYEXCHANGE"
+          puts %x{powershell.exe certutil -p "#{config[:cert_passphrase]}" -importPFX "#{config[:cert_path]}" AT_KEYEXCHANGE}
           ui.info "Certificate installed to certificate store."
         rescue => e
           puts "ERROR: + #{e}"
         end
       end
-
     end
   end
 end
