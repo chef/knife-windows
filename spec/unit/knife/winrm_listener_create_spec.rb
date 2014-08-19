@@ -17,11 +17,11 @@
 #
 
 require 'spec_helper'
-require 'chef/knife/listener_create'
+require 'chef/knife/winrm_listener_create'
 
-describe Chef::Knife::ListenerCreate do
+describe Chef::Knife::WinrmListenerCreate do
   before(:all) do
-    @listener = Chef::Knife::ListenerCreate.new
+    @listener = Chef::Knife::WinrmListenerCreate.new
   end
 
   it "creates winrm listener" do
