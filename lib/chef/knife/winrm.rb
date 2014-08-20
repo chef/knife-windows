@@ -15,9 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+ 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
+require 'chef/knife/winrm_server_certgen'
+require 'chef/knife/winrm_certinstall'
+require 'chef/knife/winrm_listener_create'
 
 class Chef
   class Knife
@@ -58,7 +61,10 @@ class Chef
 
       attr_writer :password
 
-      banner "knife winrm QUERY COMMAND (options)"
+      banner "#{WinrmServerCertgen.banner}\n" +
+                 "#{WinrmCertinstall.banner}\n" +
+                 "#{WinrmListenerCreate.banner}\n" +
+                 "knife winrm QUERY COMMAND (options)"
 
       option :attribute,
         :short => "-a ATTR",
@@ -78,8 +84,7 @@ class Chef
         :description => "QUERY is a space separated list of servers",
         :default => false
 
-
-        def create_winrm_session(options={})
+       def create_winrm_session(options={})
          session = Chef::Knife::Winrm::Session.new(options)
          @winrm_sessions ||= []
          @winrm_sessions.push(session)
