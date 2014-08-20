@@ -28,7 +28,7 @@ describe Chef::Knife::WinrmServerCertgen do
   it "generates RSA key pair" do
     @certgen.config[:key_length] = 2048
     key = @certgen.generate_keypair
-    key.should be_instance_of OpenSSL::PKey::RSA
+    expect(key).to be_instance_of OpenSSL::PKey::RSA
   end
 
   it "generates X509 certificate" do
@@ -36,27 +36,26 @@ describe Chef::Knife::WinrmServerCertgen do
     @certgen.config[:cert_validity] = "24"
     key = @certgen.generate_keypair
     certificate = @certgen.generate_certificate key
-    certificate.should be_instance_of OpenSSL::X509::Certificate
+    expect(certificate).to be_instance_of OpenSSL::X509::Certificate
   end
 
   it "writes certificate to file" do
-    File.should_receive(:open).exactly(3).times
+    expect(File).to receive(:open).exactly(3).times
     cert = double(OpenSSL::X509::Certificate.new)
     key = double(OpenSSL::PKey::RSA.new)
     @certgen.config[:cert_passphrase] = "password"
-    OpenSSL::PKCS12.should_receive(:create).with("password", "winrmcert", key, cert)
+    expect(OpenSSL::PKCS12).to receive(:create).with("password", "winrmcert", key, cert)
     @certgen.write_certificate_to_file cert, "test", key
   end
 
   it "creates certificate" do
     @certgen.config[:output_file] = 'winrmcert'
-    @certgen.should_receive(:generate_keypair)
-    @certgen.should_receive(:generate_certificate)
-    @certgen.should_receive(:write_certificate_to_file)
-    @certgen.ui.should_receive(:info).with("Generated Certificates:\n PKCS12 FORMAT: winrmcert.pfx\n BASE64 ENCODED: winrmcert.der\n REQUIRED FOR CLIENT: winrmcert.pem")
+    expect(@certgen).to receive(:generate_keypair)
+    expect(@certgen).to receive(:generate_certificate)
+    expect(@certgen).to receive(:write_certificate_to_file)
+    expect(@certgen.ui).to receive(:info).with("Generated Certificates:\n PKCS12 FORMAT: winrmcert.pfx\n BASE64 ENCODED: winrmcert.der\n REQUIRED FOR CLIENT: winrmcert.pem")
     @certgen.thumbprint = "TEST_THUMBPRINT"
-    @certgen.ui.should_receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
+    expect(@certgen.ui).to receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
     @certgen.run
   end
-
-end  
+end
