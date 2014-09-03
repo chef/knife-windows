@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ["README.rdoc", "LICENSE" ]
   s.authors     = ["Seth Chisamore"]
   s.email       = ["schisamo@opscode.com"]
+  s.license     = "Apache-2.0"
   s.homepage    = "https://github.com/opscode/knife-windows"
   s.summary     = %q{Plugin that adds functionality to Chef's Knife CLI for configuring/interacting with nodes running Microsoft Windows}
   s.description = s.summary
