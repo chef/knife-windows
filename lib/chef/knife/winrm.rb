@@ -18,9 +18,9 @@
  
 require 'chef/knife'
 require 'chef/knife/winrm_base'
-require 'chef/knife/winrm_server_certgen'
-require 'chef/knife/winrm_certinstall'
-require 'chef/knife/winrm_listener_create'
+require 'chef/knife/win_cert_generate'
+require 'chef/knife/win_cert_install'
+require 'chef/knife/win_listener_create'
 
 class Chef
   class Knife
@@ -61,9 +61,9 @@ class Chef
 
       attr_writer :password
 
-      banner "#{WinrmServerCertgen.banner}\n" +
-                 "#{WinrmCertinstall.banner}\n" +
-                 "#{WinrmListenerCreate.banner}\n" +
+      banner "#{WinCertGenerate.banner}\n" +
+                 "#{WinCertInstall.banner}\n" +
+                 "#{WinListenerCreate.banner}\n" +
                  "knife winrm QUERY COMMAND (options)"
 
       option :attribute,

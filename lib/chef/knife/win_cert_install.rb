@@ -17,13 +17,12 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
-require 'openssl'
 
 class Chef
   class Knife
-    class WinrmListenerCreate < Knife
+    class WinCertInstall < Knife
 
-      banner "knife winrm listener create (options)"
+      banner "knife win cert install (options)"
 
       option :cert_path,
         :short => "-c CERT_PATH",
@@ -31,39 +30,25 @@ class Chef
         :description => "Path of the certificate path. Default is './winrmcert.pfx'",
         :default => "./winrmcert.pfx"
 
-      option :port,
-        :short => "-p PORT",
-        :long => "--port PORT",
-        :description => "Specify port. Default is 5986",
-        :default => "5986"
+      option :cert_passphrase,
+        :short => "-cp PASSWORD",
+        :long => "--cert-passphrase PASSWORD",
+        :description => "Password for certificate."
 
-      option :hostname,
-        :short => "-h HOSTNAME",
-        :long => "--hostname HOSTNAME",
-        :description => "Hostname on the listener. Default is *",
-        :default => "*"
-          
-      option :thumbprint,
-        :short => "-t THUMBPRINT",
-        :long => "--thumbprint THUMBPRINT",
-        :description => "Thumbprint of the certificate"
-
-      option :basic_auth,
-        :long => "--[no-]basic-auth",
-        :description => "Disable basic authentication on the WinRM service.",
-        :boolean => true,
-        :default => true
+      def get_cert_passphrase
+        print "Enter given certificate's passphrase (empty for no passphrase):"
+        passphrase = STDIN.gets
+        passphrase.strip
+      end
 
       def run
         STDOUT.sync = STDERR.sync = true
         file_path = config[:cert_path]
+        config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
 
         begin
-          puts %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:thumbprint]}";Port="#{config[:port]}"}}
-
-          puts %x{winrm set winrm/config/service/auth @{Basic="#{config[:basic_auth]}"}} unless config[:basic_auth]
-
-          ui.info "Winrm listener created"
+          puts %x{powershell.exe certutil -p "#{config[:cert_passphrase]}" -importPFX "#{config[:cert_path]}" AT_KEYEXCHANGE}
+          ui.info "Certificate installed to certificate store."
         rescue => e
           puts "ERROR: + #{e}"
         end

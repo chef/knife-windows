@@ -22,11 +22,11 @@ require 'socket'
 
 class Chef
   class Knife
-    class WinrmServerCertgen < Knife
+    class WinCertGenerate < Knife
 
       attr_accessor :thumbprint, :hostname
 
-      banner "knife winrm server certgen (options)"
+      banner "knife win cert generate (options)"
 
       option :domain,
         :short => "-d DOMAIN",
@@ -54,11 +54,23 @@ class Chef
       option :cert_passphrase,
         :short => "-cp PASSWORD",
         :long => "--cert-passphrase PASSWORD",
-        :description => "Default is winrmcertgen",
-        :default => "winrmcertgen"
+        :description => "Password for certificate."
 
       def generate_keypair
         OpenSSL::PKey::RSA.new(config[:key_length].to_i)
+      end
+
+      def prompt_for_passphrase
+        passphrase = ""
+        begin
+          print "Passphrases do not match.  Try again.\n" unless passphrase.empty?
+          print "Enter certificate passphrase (empty for no passphrase):"
+          passphrase = STDIN.gets
+          return passphrase.strip if passphrase == "\n"
+          print "Enter same passphrase again:"
+          confirm_passphrase = STDIN.gets
+        end until passphrase == confirm_passphrase
+        passphrase.strip
       end
 
       def generate_certificate rsa_key
@@ -90,11 +102,12 @@ class Chef
 
       def write_certificate_to_file cert, file_path, rsa_key
         File.open(file_path + ".pem", "wb") { |f| f.print cert.to_pem }
+        config[:cert_passphrase] = prompt_for_passphrase unless config[:cert_passphrase]
         pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "winrmcert", rsa_key, cert)
         File.open(file_path + ".pfx", "wb") { |f| f.print pfx.to_der }
         File.open(file_path + ".der", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
       end
-        
+
       def run
         STDOUT.sync = STDERR.sync = true
         file_path = "winrmcert"
