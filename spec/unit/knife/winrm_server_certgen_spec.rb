@@ -17,12 +17,12 @@
 #
 
 require 'spec_helper'
-require 'chef/knife/winrm_server_certgen'
+require 'chef/knife/win_cert_generate'
 require 'openssl'
 
-describe Chef::Knife::WinrmServerCertgen do
+describe Chef::Knife::WinCertGenerate do
   before(:all) do
-    @certgen = Chef::Knife::WinrmServerCertgen.new
+    @certgen = Chef::Knife::WinCertGenerate.new
   end
 
   it "generates RSA key pair" do

@@ -17,11 +17,11 @@
 #
 
 require 'spec_helper'
-require 'chef/knife/winrm_listener_create'
+require 'chef/knife/win_listener_create'
 
-describe Chef::Knife::WinrmListenerCreate, :windows_only do
+describe Chef::Knife::WinListenerCreate, :windows_only do
   before(:all) do
-    @listener = Chef::Knife::WinrmListenerCreate.new
+    @listener = Chef::Knife::WinListenerCreate.new
   end
 
   it "creates winrm listener" do
@@ -43,5 +43,20 @@ describe Chef::Knife::WinrmListenerCreate, :windows_only do
     expect(@listener).to receive(:`).with("winrm set winrm/config/service/auth @{Basic=\"false\"}").ordered
     expect(@listener.ui).to receive(:info).with("Winrm listener created")
     @listener.run
-  end  
+  end
+
+  it "creates winrm listener with cert install option" do
+    @listener.config[:hostname] = "host"
+    @listener.config[:thumbprint] = "CERT-THUMBPRINT"
+    @listener.config[:port] = "5986"
+    @listener.config[:basic_auth] = true
+    @listener.config[:cert_install] = true
+    @listener.config[:cert_path] = "test-path"
+    allow(@listener).to receive(:get_cert_passphrase).and_return("your-secret!")
+    expect(@listener).to receive(:`).with("powershell.exe certutil -p \"your-secret!\" -importPFX \"test-path\" AT_KEYEXCHANGE")    
+    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
+    expect(@listener.ui).to receive(:info).with("Certificate installed to certificate store.")
+    expect(@listener.ui).to receive(:info).with("Winrm listener created")
+    @listener.run
+  end 
 end
