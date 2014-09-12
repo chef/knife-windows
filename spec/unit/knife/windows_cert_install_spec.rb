@@ -17,11 +17,11 @@
 #
 
 require 'spec_helper'
-require 'chef/knife/win_cert_install'
+require 'chef/knife/windows_cert_install'
 
-describe Chef::Knife::WinCertInstall do
+describe Chef::Knife::WindowsCertInstall do
   before(:all) do
-    @certinstall = Chef::Knife::WinCertInstall.new
+    @certinstall = Chef::Knife::WindowsCertInstall.new
   end
 
   it "installs certificate" do
