@@ -22,11 +22,11 @@ require 'socket'
 
 class Chef
   class Knife
-    class WinCertGenerate < Knife
+    class WindowsCertGenerate < Knife
 
       attr_accessor :thumbprint, :hostname
 
-      banner "knife win cert generate (options)"
+      banner "knife windows cert generate (options)"
 
       option :domain,
         :short => "-d DOMAIN",

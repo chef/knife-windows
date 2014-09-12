@@ -21,9 +21,9 @@ require 'openssl'
 
 class Chef
   class Knife
-    class WinListenerCreate < Knife
+    class WindowsListenerCreate < Knife
 
-      banner "knife win listener create (options)"
+      banner "knife windows listener create (options)"
 
       option :cert_path,
         :short => "-c CERT_PATH",
