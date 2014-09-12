@@ -17,11 +17,11 @@
 #
 
 require 'spec_helper'
-require 'chef/knife/win_listener_create'
+require 'chef/knife/windows_listener_create'
 
-describe Chef::Knife::WinListenerCreate, :windows_only do
+describe Chef::Knife::WindowsListenerCreate, :windows_only do
   before(:all) do
-    @listener = Chef::Knife::WinListenerCreate.new
+    @listener = Chef::Knife::WindowsListenerCreate.new
   end
 
   it "creates winrm listener" do

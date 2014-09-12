@@ -20,9 +20,9 @@ require 'chef/knife/winrm_base'
 
 class Chef
   class Knife
-    class WinCertInstall < Knife
+    class WindowsCertInstall < Knife
 
-      banner "knife win cert install (options)"
+      banner "knife windows cert install (options)"
 
       option :cert_path,
         :short => "-c CERT_PATH",
