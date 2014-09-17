@@ -23,12 +23,37 @@ class Chef
   class Knife
     class Winrm < Knife
 
+      class Session
+        attr_reader :host, :output, :error, :exit_codes
+        def initialize(options)
+          @host = options[:host]
+          url = "#{options[:host]}:#{options[:port]}/wsman"
+          endpoint = options[:transport] == ":ssl" ? "https://#{url}" : "http://#{url}"
+          opts = Hash.new
+          opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi]}
+
+          options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
+          Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
+          Chef::Log.debug("Endpoint: #{endpoint}")
+          Chef::Log.debug("Transport: #{options[:transport]}")
+          @winrm_session = WinRM::WinRMWebService.new(endpoint, options[:transport], opts)
+        end
+
+        def relay_command(command)
+          @winrm_session.cmd(command) do |stdout, stderr, exitcode|
+            @output = stdout
+            @error = stderr
+            @exit_codes = exitcode
+          end
+        end
+      end
+
       include Chef::Knife::WinrmBase
 
       deps do
         require 'readline'
         require 'chef/search/query'
-        require 'em-winrm'
+        require 'winrm'
       end
 
       attr_writer :password
@@ -54,30 +79,34 @@ class Chef
         :default => false
 
 
-      def session
-        session_opts = {}
-        session_opts[:logger] = Chef::Log.logger if Chef::Log.level == :debug
-        @session ||= begin
-          s = EventMachine::WinRM::Session.new(session_opts)
-          s.on_output do |host, data|
-            print_data(host, data)
-          end
-          s.on_error do |host, err|
-            print_data(host, err, :red)
-          end
-          s.on_command_complete do |host|
-            host = host == :all ? 'All Servers' : host
-            Chef::Log.debug("command complete on #{host}")
-          end
-          s
-        end
+        def create_winrm_session(options={})
+         session = Chef::Knife::Winrm::Session.new(options)
+         @winrm_sessions ||= []
+         @winrm_sessions.push(session)
+       end
 
-      end
+       def print_data(host, data, color = :cyan)
+         if data =~ /\n/
+           data.split(/\n/).each { |d| print_data(host, d, color) }
+         else
+           print ui.color(host, color)
+           puts " #{data}"
+         end
+       end
 
-      def success_return_codes 
+       def relay_winrm_command(command)
+         Chef::Log.debug(command)
+         @winrm_sessions.each do |s|
+           s.relay_command(command)
+           print_data(s.host, s.output)
+           print_data(s.host, s.error, :red)
+         end
+       end
+
+      def success_return_codes
         #Redundant if the CLI options parsing occurs
-        return [0] unless config[:returns] 
-        return config[:returns].split(',').collect {|item| item.to_i} 
+        return [0] unless config[:returns]
+        return config[:returns].split(',').collect {|item| item.to_i}
       end
 
       # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
@@ -168,27 +197,9 @@ class Chef
             end
           end
 
-          session.use(item, session_opts)
-
-          @longest = item.length if item.length > @longest
+          session_opts[:host] = item
+          create_winrm_session(session_opts)
         end
-        session
-      end
-
-      def print_data(host, data, color = :cyan)
-        if data =~ /\n/
-          data.split(/\n/).each { |d| print_data(host, d, color) }
-        else
-          padding = @longest - host.length
-          print ui.color(host, color)
-          padding.downto(0) { print " " }
-          puts data.chomp
-        end
-      end
-
-      def winrm_command(command, subsession=nil)
-        subsession ||= session
-        subsession.relay_command(command)
       end
 
       def get_password
@@ -221,6 +232,7 @@ class Chef
       end
 
       def interactive
+        puts "WARN: Deprecated functionality. This will not be supported in future knife-windows releases."
         puts "Connected to #{ui.list(session.servers.collect { |s| ui.color(s.host, :cyan) }, :inline, " and ")}"
         puts
         puts "To run a command on a list of servers, do:"
@@ -234,32 +246,31 @@ class Chef
           case command
           when 'quit!'
             puts 'Bye!'
-            session.close
             break
           when /^on (.+?); (.+)$/
             raw_list = $1.split(" ")
             server_list = Array.new
-            session.servers.each do |session_server|
+            @winrm_sessions.each do |session_server|
               server_list << session_server if raw_list.include?(session_server.host)
             end
             command = $2
-            winrm_command(command, session.on(*server_list))
+            relay_winrm_command(command, server_list)
           else
-            winrm_command(command)
+            relay_winrm_command(command)
           end
         end
       end
 
-      def check_for_errors!(exit_codes)
-
-        exit_codes.each do |host, value|
-          unless success_return_codes.include? value.to_i
-            @exit_code = 1
-            ui.error "Failed to execute command on #{host} return code #{value}"
+      def check_for_errors!
+        @winrm_sessions.each do |session|
+          session.exit_codes.each do |host, value|
+            unless success_return_codes.include? value.to_i
+              @exit_code = 1
+              ui.error "Failed to execute command on #{host} return code #{value}"
+              end
+            end
           end
         end
-
-      end
 
       def run
 
@@ -274,13 +285,11 @@ class Chef
           when "interactive"
             interactive
           else
-            winrm_command(@name_args[1..-1].join(" "))
+            relay_winrm_command(@name_args[1..-1].join(" "))
 
             if config[:returns]
-              check_for_errors! session.exit_codes
+              check_for_errors!
             end
-
-            session.close
 
             # Knife seems to ignore the return value of this method,
             # so we exit to force the process exit code for this
