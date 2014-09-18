@@ -6,8 +6,6 @@ Gem::Specification.new do |s|
   s.name        = "knife-windows"
   s.version     = Knife::Windows::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.has_rdoc = true
-  s.extra_rdoc_files = ["README.rdoc", "LICENSE" ]
   s.authors     = ["Seth Chisamore"]
   s.email       = ["schisamo@opscode.com"]
   s.license     = "Apache-2.0"
@@ -16,8 +14,8 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.required_ruby_version	= ">= 1.9.1"
-  s.add_dependency "winrm-s", "~> 0.1"
-  s.add_dependency "em-winrm", "~> 0.5", ">= 0.5.4"
+  s.add_dependency "winrm-s", "0.2.0.rc.0"
+  s.add_dependency "em-winrm", "0.6.0.rc.0"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
