@@ -1,10 +1,14 @@
 # knife-windows Change Log
 
 ## Unreleased changes
+None.
 
-None
+## Latest release: 0.8.0
+* Update winrm-s dependency along with em-winrm and winrm dependencies
+* Return failure codes from knife winrm even when `returns` is not set
+* Support Windows negotiate authentication protocol when running knife on Windows
 
-## Last Release: 0.6.0 (05/08/2014)
+## Release: 0.6.0 (05/08/2014)
 
 * [KNIFE-386](https://tickets.opscode.com/browse/KNIFE-386) Wait for a valid command response before bootstrapping over WinRM
 * [KNIFE-394](https://tickets.opscode.com/browse/KNIFE-394) Update em-winrm dependency

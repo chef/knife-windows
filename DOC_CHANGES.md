@@ -6,37 +6,32 @@ Example Doc Change:
 Description of the required change.
 -->
 
-# knife-windows 0.6.0 doc changes:
+# knife-windows 0.8.0 doc changes
 
-### `--auth-timeout` option for bootstrap
-The `knife windows bootstrap` command has a new `--auth-timeout` option that
-takes a number of minutes as an argument. After the command has detected that
-the node to be bootstrapped has opened a port for the desired transport (e.g.
-WinRM), the command then tries to successfully execute a remote test command
-on the system to verify authentication and will retry for the number of minutes specified in the
-`--auth-timeout` option if an authentication error is received. This is
-particularly useful for nodes hosted by cloud providers that may open up ports before user
-identities that can be authenticated are configured on the system, or if the
-authentication subsystem's readiness lags that of transport readiness.
+### Negotiate / NTLM authentication support
+If `knife` is executed from a Windows system, it is no longer necessary to make
+additional configuration of the WinRM listener on the remote node to enable
+successful authentication from the workstation. It is sufficient to have a WinRM
+listener on the remote node configured according to the operating system's `winrm
+quickconfig` command default configuration because `knife-windows` now
+supports the Windows negotiate protocol including NTLM authentication, which
+matches the authentication requirements for the default WinRM listener configuration.
 
-If the `--auth-timeout` option is not specified, the default retry period is
-25 minutes.
+If `knife` is executed on a non-Windows system, certificate authentication or Kerberos
+should be used instead via the `kerberos_service` and related options of the subcommands. 
 
-This value is currently only honored when bootstrapping using the WinRM
-transport and is ignored when bootstrapping via ssh.
+**NOTE**: In order to use NTLM / Negotiate to authenticate as the user
+  specified by the `--winrm-user` (`-x`) option, you must include the user's
+  Windows domain when specifying the user name using the format `domain\user`
+  where the backslash ('`\`') character separates the user from the domain. If
+  an account local to the node is being used to access, `.` may be used as the domain:
 
-### New configuration option for `knife winrm`: `:suppress_auth_failure`
-The option `:suppress_auth_failure` may be configured in `knife.rb` to alter
-the behavior of the `knife winrm` subcommand's behavior when authentication
-fails:
+    knife bootstrap windows winrm web1.cloudapp.net -r 'server::web' -x 'proddomain\webuser' -P 'super_secret_password'
+    knife bootstrap windows winrm db1.cloudapp.net -r 'server::db' -x '.\localadmin' -P 'super_secret_password'
 
-* When this option is not specified (the default case) or is configured as `false`, the `knife winrm`
-subcommand will return a process exit code of `100` if the command is able to
-connect to the WinRM transport on the remote system but fails to authenticate.
-* When this option is set to `true`, the exit status in the authentication
-failure case is `0`. 
+For development and testing purposes, unencrypted traffic with Basic authentication can make it easier to test connectivity:
 
-The default behavior is retained for compatibility reasons. The ability to
-override it via the `:suppress_auth_failure` option is useful for automation that uses the `knife winrm` subcommand
-and needs to implement customized retry behavior when authentication fails.
+    winrm set winrm/config/service @{AllowUnencrypted="true"}
+    winrm set winrm/config/service/auth @{Basic="true"}
+
 
