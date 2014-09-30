@@ -47,8 +47,14 @@ class Chef
         config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
 
         begin
-          puts %x{powershell.exe certutil -p "#{config[:cert_passphrase]}" -importPFX "#{config[:cert_path]}" AT_KEYEXCHANGE}
-          ui.info "Certificate installed to certificate store."
+          ui.info "Adding certificate to the Certificate Store..."
+          result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{config[:cert_path]}' AT_KEYEXCHANGE"}
+          if $?.exitstatus == 0
+            ui.info "Certificate added to Certificate Store"
+          else
+            ui.info "Error adding the certificate. Use -VV option for details"
+          end
+          Chef::Log.debug "#{result}"
         rescue => e
           puts "ERROR: + #{e}"
         end

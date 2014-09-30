@@ -61,10 +61,7 @@ class Chef
 
       attr_writer :password
 
-      banner "#{WindowsCertGenerate.banner}\n" +
-                 "#{WindowsCertInstall.banner}\n" +
-                 "#{WindowsListenerCreate.banner}\n" +
-                 "knife winrm QUERY COMMAND (options)"
+      banner "knife winrm QUERY COMMAND (options)"
 
       option :attribute,
         :short => "-a ATTR",

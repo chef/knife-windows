@@ -25,11 +25,10 @@ class Chef
 
       banner "knife windows listener create (options)"
 
-      option :cert_path,
+      option :cert_install,
         :short => "-c CERT_PATH",
-        :long => "--cert-path CERT_PATH",
-        :description => "Path of the certificate path. Default is './winrmcert.pfx'",
-        :default => "./winrmcert.pfx"
+        :long => "--cert-install CERT_PATH",
+        :description => "Adds specified certificate to the Certificate Store."
 
       option :port,
         :short => "-p PORT",
@@ -42,11 +41,11 @@ class Chef
         :long => "--hostname HOSTNAME",
         :description => "Hostname on the listener. Default is *",
         :default => "*"
-          
+
       option :thumbprint,
         :short => "-t THUMBPRINT",
         :long => "--thumbprint THUMBPRINT",
-        :description => "Thumbprint of the certificate"
+        :description => "Thumbprint of the certificate. Required only if --cert-install option is not used."
 
       option :basic_auth,
         :long => "--[no-]basic-auth",
@@ -58,12 +57,6 @@ class Chef
         :short => "-cp PASSWORD",
         :long => "--cert-passphrase PASSWORD",
         :description => "Password for certificate."
-
-      option :cert_install,
-        :long => "--cert-install",
-        :description => "Install certificate to store of the certificate.",
-        :boolean => true,
-        :default => false
 
       def get_cert_passphrase
         print "Enter given certificate's passphrase (empty for no passphrase):"
@@ -78,15 +71,34 @@ class Chef
         begin
           if config[:cert_install]
             config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
-            puts %x{powershell.exe certutil -p "#{config[:cert_passphrase]}" -importPFX "#{config[:cert_path]}" AT_KEYEXCHANGE}
-            ui.info "Certificate installed to certificate store."
+            result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil  -importPFX '#{config[:cert_install]}' AT_KEYEXCHANGE"}
+            if $?.exitstatus
+              ui.info "Certificate installed to Certificate Store"
+              result = %x{powershell.exe -Command " echo (Get-PfxCertificate #{config[:cert_install]}).thumbprint "}
+              ui.info "Certificate Thumbprint: #{result}"
+              config[:thumbprint] = result.strip
+            else
+              ui.error "Error installing certificate to Certificate Store"
+              ui.error result
+              exit 1
+            end
           end
 
-          puts %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:thumbprint]}";Port="#{config[:port]}"}}
+          unless config[:thumbprint]
+            ui.error "Please specify the --thumprint"
+            exit 1
+          end
 
-          puts %x{winrm set winrm/config/service/auth @{Basic="#{config[:basic_auth]}"}} unless config[:basic_auth]
+          result = %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:thumbprint]}";Port="#{config[:port]}"}}
+          Chef::Log.debug result
+          if ($?.exitstatus)
+            ui.info "WinRM listener created"
+          else
+            ui.error "Error creating WinRM listener. use -VV for more details."
+          end
+          result = %x{winrm set winrm/config/service/auth @{Basic="#{config[:basic_auth]}"}} unless config[:basic_auth]
+          Chef::Log.debug result
 
-          ui.info "Winrm listener created"
         rescue => e
           puts "ERROR: + #{e}"
         end
