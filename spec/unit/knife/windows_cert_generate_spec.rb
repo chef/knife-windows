@@ -53,7 +53,10 @@ describe Chef::Knife::WindowsCertGenerate do
     expect(@certgen).to receive(:generate_keypair)
     expect(@certgen).to receive(:generate_certificate)
     expect(@certgen).to receive(:write_certificate_to_file)
-    expect(@certgen.ui).to receive(:info).with("Generated Certificates:\n PKCS12 FORMAT: winrmcert.pfx\n BASE64 ENCODED: winrmcert.der\n REQUIRED FOR CLIENT: winrmcert.pem")
+    expect(@certgen.ui).to receive(:info).with("Generated Certificates:")
+    expect(@certgen.ui).to receive(:info).with(" PKCS12 FORMAT (needed on the server machine): winrmcert.pfx")
+    expect(@certgen.ui).to receive(:info).with(" BASE64 ENCODED (maybe needed for other use, eg- by Azure): winrmcert.der")
+    expect(@certgen.ui).to receive(:info).with(" PEM FORMAT (required by the client to connect to the server): winrmcert.pem")
     @certgen.thumbprint = "TEST_THUMBPRINT"
     expect(@certgen.ui).to receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
     @certgen.run

@@ -27,8 +27,7 @@ class Chef
       option :cert_path,
         :short => "-c CERT_PATH",
         :long => "--cert-path CERT_PATH",
-        :description => "Path of the certificate path. Default is './winrmcert.pfx'",
-        :default => "./winrmcert.pfx"
+        :description => "Path of the certificate"
 
       option :cert_passphrase,
         :short => "-cp PASSWORD",
@@ -43,6 +42,10 @@ class Chef
 
       def run
         STDOUT.sync = STDERR.sync = true
+        unless config[:cert_path]
+          ui.error "Please specify the certificate path using --cert-path option!"
+          exit 1
+        end
         file_path = config[:cert_path]
         config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
 
