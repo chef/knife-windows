@@ -30,7 +30,7 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     @listener.config[:port] = "5986"
     @listener.config[:basic_auth] = true
     expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
-    expect(@listener.ui).to receive(:info).with("Winrm listener created")
+    expect(@listener.ui).to receive(:info).with("WinRM listener created")
     @listener.run
   end
 
@@ -39,9 +39,9 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     @listener.config[:thumbprint] = "CERT-THUMBPRINT"
     @listener.config[:port] = "5986"
     @listener.config[:basic_auth] = false
-    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}").ordered 
+    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}").ordered
     expect(@listener).to receive(:`).with("winrm set winrm/config/service/auth @{Basic=\"false\"}").ordered
-    expect(@listener.ui).to receive(:info).with("Winrm listener created")
+    expect(@listener.ui).to receive(:info).with("WinRM listener created")
     @listener.run
   end
 
@@ -53,10 +53,10 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     @listener.config[:cert_install] = true
     @listener.config[:cert_path] = "test-path"
     allow(@listener).to receive(:get_cert_passphrase).and_return("your-secret!")
-    expect(@listener).to receive(:`).with("powershell.exe certutil -p \"your-secret!\" -importPFX \"test-path\" AT_KEYEXCHANGE")    
-    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
-    expect(@listener.ui).to receive(:info).with("Certificate installed to certificate store.")
-    expect(@listener.ui).to receive(:info).with("Winrm listener created")
+    expect(@listener).to receive(:`).with("powershell.exe -Command \" 'your-secret!' | certutil  -importPFX 'true' AT_KEYEXCHANGE\"")
+    expect(@listener).to receive(:`).with("powershell.exe -Command \" echo (Get-PfxCertificate true).thumbprint \"")
+    expect(@listener.ui).to receive(:info).with("Certificate installed to Certificate Store")
+    expect(@listener.ui).to receive(:info).with("Certificate Thumbprint: ")
     @listener.run
-  end 
+  end
 end
