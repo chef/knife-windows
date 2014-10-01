@@ -18,6 +18,9 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
+require 'chef/knife/windows_cert_generate'
+require 'chef/knife/windows_cert_install'
+require 'chef/knife/windows_listener_create'
 
 class Chef
   class Knife
@@ -74,10 +77,10 @@ class Chef
 
       end
 
-      def success_return_codes 
+      def success_return_codes
         #Redundant if the CLI options parsing occurs
-        return [0] unless config[:returns] 
-        return config[:returns].split(',').collect {|item| item.to_i} 
+        return [0] unless config[:returns]
+        return config[:returns].split(',').collect {|item| item.to_i}
       end
 
       # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
