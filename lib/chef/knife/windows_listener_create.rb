@@ -28,7 +28,7 @@ class Chef
       option :cert_install,
         :short => "-c CERT_PATH",
         :long => "--cert-install CERT_PATH",
-        :description => "Adds specified certificate to the Certificate Store."
+        :description => "Adds specified certificate to the Certificate Store before creating listener."
 
       option :port,
         :short => "-p PORT",
