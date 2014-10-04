@@ -149,7 +149,9 @@ WGET_PS
         end
 
         def install_chef
-          install_chef = 'msiexec /qn /log "%CHEF_CLIENT_MSI_LOG_PATH%" /i "%LOCAL_DESTINATION_MSI_PATH%"'
+          # The normal install command uses regular double quotes in
+          # the install command, so request such a string from install_command
+          install_chef = install_command('"') + "\n" + fallback_install_task_command
         end
 
         def bootstrap_directory
@@ -170,6 +172,54 @@ WGET_PS
         # echo
         def escape_and_echo(file_contents)
           file_contents.gsub(/^(.*)$/, 'echo.\1').gsub(/([(<|>)^])/, '^\1')
+        end
+
+        private
+
+        def install_command(executor_quote)
+          "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote}"
+        end
+
+        def fallback_install_task_command
+          # This command will be executed by schtasks.exe in the batch
+          # code below. To handle tasks that contain arguments that
+          # need to be double quoted, schtasks allows the use of single
+          # quotes that will later be converted to double quotes
+          command = install_command('\'')
+<<-EOH
+          @set MSIERRORCODE=!ERRORLEVEL!
+          @if ERRORLEVEL 1 (
+              @echo WARNING: Failed to install Chef Client MSI package in remote context with status code !MSIERRORCODE!.
+              @echo WARNING: This may be due to a defect in operating system update KB2918614: http://support.microsoft.com/kb/2918614
+              @set OLDLOGLOCATION="%CHEF_CLIENT_MSI_LOG_PATH%-fail.log"
+              @move "%CHEF_CLIENT_MSI_LOG_PATH%" "!OLDLOGLOCATION!" > NUL
+              @echo WARNING: Saving installation log of failure at !OLDLOGLOCATION!
+              @echo WARNING: Retrying installation with local context...
+              @schtasks /create /f  /sc once /st 00:00:00 /tn chefclientbootstraptask /ru SYSTEM /rl HIGHEST /tr \"cmd /c #{command} & sleep 2 & waitfor /s %computername% /si chefclientinstalldone\"
+
+              @if ERRORLEVEL 1 (
+                  @echo ERROR: Failed to create Chef Client installation scheduled task with status code !ERRORLEVEL! > "&2"
+              ) else (
+                  @echo Successfully created scheduled task to install Chef Client.
+                  @schtasks /run /tn chefclientbootstraptask
+                  @if ERRORLEVEL 1 (
+                      @echo ERROR: Failed to execut Chef Client installation scheduled task with status code !ERRORLEVEL!. > "&2"
+                  ) else (
+                      @echo Successfully started Chef Client installation scheduled task.
+                      @echo Waiting for installation to complete -- this may take a few minutes...
+                      waitfor chefclientinstalldone /t 600
+                      if ERRORLEVEL 1 (
+                          @echo ERROR: Timed out waiting for Chef Client package to install
+                      ) else (
+                          @echo Finished waiting for Chef Client package to install.
+                      )
+                      @schtasks /delete /f /tn chefclientbootstraptask > NUL
+                  )
+              )
+          ) else (
+              @echo Successfully installed Chef Client package.
+          )
+EOH
         end
       end
     end
