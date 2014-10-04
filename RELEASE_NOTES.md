@@ -11,8 +11,7 @@ This release of knife-windows enables the Windows negotiate protocol to be
 used with the `winrm` and `bootstrap windows winrm` subcommands and also
 contains bug fixes and dependency updates.
 
-A thank you goes to contributor **Josh Mahowald** for contributing a fix for
-[KNIFE-450](https://tickets.opscode.com/browse/KNIFE-450).
+A thank you goes to contributor **Josh Mahowald** for contributing a fix to return nonzero exit codes.
 
 Issues with `knife-windows` should be reported in the ticketing system at
 https://github.com/opscode/knife-windows/issues. Learn more about how you can
@@ -37,18 +36,9 @@ https://rubygems.org/gems/knife-windows
 https://github.com/opscode/knife-windows
 
 ## Issues fixed in knife-windows 0.8.0
-* [KNIFE-386](https://tickets.opscode.com/browse/KNIFE-386) Wait for a valid command response before bootstrapping over WinRM
-* [KNIFE-394](https://tickets.opscode.com/browse/KNIFE-394) Update em-winrm dependency
-* [KNIFE-450](https://tickets.opscode.com/browse/KNIFE-450) Set knife winrm command exit status on exception and command failure
+* [knife-windows #98](https://github.com/opscode/knife-windows/issues/96) Get winrm command exit code if it is not expected
+* [knife-windows #96](https://github.com/opscode/knife-windows/issues/96) Fix break from OS patch KB2918614
+* Update winrm-s dependency along with em-winrm and winrm dependencies
+* Return failure codes from knife winrm even when `returns` is not set
+* Support Windows negotiate authentication protocol when running knife on Windows
 
-## knife-windows breaking changes
-
-### Error status being returned from `winrm` and `bootstrap windows winrm` remote commands
-
-Previously, `knife winrm` would always return an exit status of 0 if it was able to
-execute a command on the remote node, regardless whether the command that it
-invoked on the remote node returned a status of 0. It now returns a non-zero
-exit code if the command's exit code was non-zero. This may cause failures in
-scripts that use the `knife winrm` or `knife bootstrap windows winrm` commands
-and check to see if the exit status of the command is successful (0). Such
-scripts should be altered to ignore the exit status if the failure is truly non-fatal.
