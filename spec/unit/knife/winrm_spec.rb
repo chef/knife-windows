@@ -97,6 +97,22 @@ describe Chef::Knife::Winrm do
           expect(exit_code).to be_zero
         end
 
+        it "should exit the process with exact exit status if the command fails and returns config is set to 0" do
+          command_status = 510
+          @winrm.config[:returns] = "0"
+          Chef::Config[:knife][:returns] = [0]
+          allow(@winrm).to receive(:winrm_command).and_return(command_status)
+          session_mock = EventMachine::WinRM::Session.new
+          allow(EventMachine::WinRM::Session).to receive(:new).and_return(session_mock)
+          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          begin
+            @winrm.run
+            expect(0).to eq(510)
+          rescue Exception => e
+            expect(e.status).to eq(command_status)
+          end
+        end
+
         it "should exit the process with non-zero status if the command fails and returns config is set to 0" do
           command_status = 1
           @winrm.config[:returns] = "0,53"
