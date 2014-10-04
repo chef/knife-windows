@@ -253,8 +253,9 @@ class Chef
       def check_for_errors!(exit_codes)
 
         exit_codes.each do |host, value|
+		  Chef::Log.debug("Exit code found: #{value}")
           unless success_return_codes.include? value.to_i
-            @exit_code = 1
+            @exit_code = value.to_i
             ui.error "Failed to execute command on #{host} return code #{value}"
           end
         end
