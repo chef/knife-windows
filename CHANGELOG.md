@@ -4,6 +4,7 @@
 None.
 
 ## Latest release: 0.8.0
+* [knife-windows #98](https://github.com/opscode/knife-windows/issues/96) Get winrm command exit code if it is not expected
 * [knife-windows #96](https://github.com/opscode/knife-windows/issues/96) Fix break from OS patch KB2918614
 * Update winrm-s dependency along with em-winrm and winrm dependencies
 * Return failure codes from knife winrm even when `returns` is not set
