@@ -97,7 +97,7 @@ describe Chef::Knife::Winrm do
           expect(exit_code).to be_zero
         end
 
-       it "should exit the process with exact exit status if the command fails and returns config is set to 0" do
+        it "should exit the process with exact exit status if the command fails and returns config is set to 0" do
           command_status = 510
           @winrm.config[:returns] = "0"
           Chef::Config[:knife][:returns] = [0]
@@ -111,7 +111,7 @@ describe Chef::Knife::Winrm do
           rescue Exception => e
             expect(e.status).to eq(command_status)
           end
-       end
+        end
 
         it "should exit the process with non-zero status if the command fails and returns config is set to 0" do
           command_status = 1
