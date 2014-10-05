@@ -14,8 +14,10 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.required_ruby_version	= ">= 1.9.1"
-  s.add_dependency "winrm-s", "0.2.0.rc.0"
-  s.add_dependency "em-winrm", "0.6.0.rc.0"
+  s.add_dependency "winrm-s", "~> 0.2"
+  s.add_dependency "em-winrm", "~> 0.6"
+
+  s.add_development_dependency 'pry'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
