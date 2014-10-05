@@ -180,9 +180,8 @@ class Chef
           data.split(/\n/).each { |d| print_data(host, d, color) }
         else
           padding = @longest - host.length
-          print ui.color(host, color)
-          padding.downto(0) { print " " }
-          puts data.chomp
+          str = ui.color(host, color) + (" " * (padding + 1)) + data
+          ui.msg(str)
         end
       end
 
