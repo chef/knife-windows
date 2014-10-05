@@ -55,10 +55,10 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     bootstrap.send(:wait_for_remote_response, 2)
   end
 
-  it 'should have a wait timeout of 25 minutes by default' do
+  it 'should have a wait timeout of 2 minutes by default' do
     allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError)
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
-    expect(bootstrap).to receive(:wait_for_remote_response).with(25)
+    expect(bootstrap).to receive(:wait_for_remote_response).with(2)
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error(SystemExit)
@@ -93,8 +93,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
 
-  it 'should stop retrying if more than 25 minutes has elapsed' do
-    times = [ Time.new(2014, 4, 1, 22, 25), Time.new(2014, 4, 1, 22, 51), Time.new(2014, 4, 1, 22, 52) ]
+  it 'should stop retrying if more than 2 minutes has elapsed' do
+    times = [ Time.new(2014, 4, 1, 22, 25), Time.new(2014, 4, 1, 22, 51), Time.new(2014, 4, 1, 22, 28) ]
     allow(Time).to receive(:now).and_return(*times)
     run_command_result = lambda {raise WinRM::WinRMHTTPTransportError, '401'}
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
