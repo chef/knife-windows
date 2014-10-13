@@ -182,7 +182,10 @@ class Chef
             session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
-            if Chef::Platform.windows? and session_opts[:transport] == :plaintext
+
+            # RegEx /[.\\]|^\w+\\w+/ matches user name like: '.\<user_name>' or '<domain_name>\<user_name>'
+            # It's decides use of winrm-s
+            if Chef::Platform.windows? and session_opts[:transport] == :plaintext and config[:winrm_user] =~ /[.\\]|^\w+\\w+/
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
