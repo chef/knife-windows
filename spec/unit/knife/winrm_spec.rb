@@ -56,7 +56,7 @@ describe Chef::Knife::Winrm do
         @node_bar.automatic_attrs[:fqdn] = nil
         allow(Chef::Search::Query).to receive(:new).and_return(@query)
       end
-    
+
       it "should raise a specific error (KNIFE-222)" do
         expect(@knife.ui).to receive(:fatal).with(/does not have the required attribute/)
         expect(@knife).to receive(:exit).with(10)
@@ -70,7 +70,7 @@ describe Chef::Knife::Winrm do
         allow(@query).to receive(:search).and_return([[@node_foo, @node_bar]])
         allow(Chef::Search::Query).to receive(:new).and_return(@query)
       end
-    
+
       it "should use nested attributes (KNIFE-276)" do
         @knife.config[:attribute] = "ec2.public_hostname"
         allow(@knife).to receive(:session_from_list)
@@ -170,18 +170,29 @@ describe Chef::Knife::Winrm do
           end
 
           it "should have winrm opts transport set to sspinegotiate for windows" do
+            @winrm.config[:winrm_user] = "domain\\testeuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-
-            expect(@winrm.session).to receive(:use).with("localhost", {:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testeuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
             exit_code = @winrm.run
           end
 
           it "should have winrm monkey patched for windows" do
+            @winrm.config[:winrm_user] = "domain\\testeuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             expect(@winrm).to receive(:require).with('winrm-s')
 
             exit_code = @winrm.run
+          end
+
+          context "when domain name not given" do
+            it "should skip winrm monkey patched for windows" do
+              @winrm.config[:winrm_user] = "testeuser"
+              allow(Chef::Platform).to receive(:windows?).and_return(true)
+              expect(@winrm).to_not receive(:require).with('winrm-s')
+
+              exit_code = @winrm.run
+            end
           end
 
           it "should not have winrm opts transport set to sspinegotiate for unix" do
@@ -195,4 +206,4 @@ describe Chef::Knife::Winrm do
       end
     end
   end
-end  
+end
