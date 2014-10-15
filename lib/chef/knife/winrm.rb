@@ -142,9 +142,10 @@ class Chef
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
 
           ## If you have a \\ in your name you need to use NTLM domain authentication
-          domain_name = session_opts[:user].split("\\").length.eql?(2)
+          username_components = session_opts[:user].split("\\")
+          is_ntlm_auth = username_components.length.eql?(2)
 
-          if domain_name
+          if is_ntlm_auth
             session_opts[:basic_auth_only] = false
           else
             session_opts[:basic_auth_only] = true
@@ -155,7 +156,7 @@ class Chef
             session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
-            if Chef::Platform.windows? and session_opts[:transport] == :plaintext and domain_name and !session_opts[:user].split("\\").include?(".")
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && is_ntlm_auth && username_components[0] != "."
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
