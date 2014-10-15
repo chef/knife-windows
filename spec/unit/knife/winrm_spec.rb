@@ -104,7 +104,7 @@ describe Chef::Knife::Winrm do
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
           session_mock = Chef::Knife::Winrm::Session.new({})
           allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          allow(session_mock).to receive(:exit_code).and_return(command_status)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
 
@@ -115,7 +115,7 @@ describe Chef::Knife::Winrm do
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
           session_mock = Chef::Knife::Winrm::Session.new({})
           allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          allow(session_mock).to receive(:exit_code).and_return(command_status)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
 

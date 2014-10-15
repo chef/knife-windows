@@ -24,7 +24,7 @@ class Chef
     class Winrm < Knife
 
       class Session
-        attr_reader :host, :output, :error, :exit_codes
+        attr_reader :host, :output, :error, :exit_code
         def initialize(options)
           @host = options[:host]
           url = "#{options[:host]}:#{options[:port]}/wsman"
@@ -40,11 +40,11 @@ class Chef
         end
 
         def relay_command(command)
-          @winrm_session.cmd(command) do |stdout, stderr, exitcode|
+          session_result = @winrm_session.cmd(command) do |stdout, stderr|
             @output = stdout
             @error = stderr
-            @exit_codes = exitcode
           end
+          @exit_code = session_result[:exitcode]
         end
       end
 
@@ -265,14 +265,13 @@ class Chef
 
       def check_for_errors!
         @winrm_sessions.each do |session|
-          session.exit_codes.each do |host, value|
-            unless success_return_codes.include? value.to_i
-              @exit_code = value.to_i
-              ui.error "Failed to execute command on #{host} return code #{value}"
-              end
-            end
+          session_exit_code = session.exit_code
+          unless success_return_codes.include? session_exit_code.to_i
+            @exit_code = session_exit_code.to_i
+            ui.error "Failed to execute command on #{session.host} return code #{session_exit_code}"
           end
         end
+      end
 
       def run
 
