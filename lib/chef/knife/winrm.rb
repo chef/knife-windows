@@ -74,10 +74,10 @@ class Chef
 
       end
 
-      def success_return_codes 
+      def success_return_codes
         #Redundant if the CLI options parsing occurs
-        return [0] unless config[:returns] 
-        return config[:returns].split(',').collect {|item| item.to_i} 
+        return [0] unless config[:returns]
+        return config[:returns].split(',').collect {|item| item.to_i}
       end
 
       # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
@@ -142,7 +142,11 @@ class Chef
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
 
           ## If you have a \\ in your name you need to use NTLM domain authentication
-          if session_opts[:user].split("\\").length.eql?(2)
+          username_components = session_opts[:user].split("\\")
+          username_contains_domain = username_components.length.eql?(2)
+
+          if username_contains_domain
+            # We cannot use basic_auth for domain authentication
             session_opts[:basic_auth_only] = false
           else
             session_opts[:basic_auth_only] = true
@@ -153,7 +157,9 @@ class Chef
             session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
-            if Chef::Platform.windows? and session_opts[:transport] == :plaintext
+
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain && username_components[0] != "."
+              ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
@@ -164,7 +170,6 @@ class Chef
             if session_opts[:user] and
                 (not session_opts[:password])
               session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
-
             end
           end
 
