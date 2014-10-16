@@ -190,6 +190,16 @@ describe Chef::Knife::Winrm do
             end
           end
 
+          context "when local domain name given"  do
+            it "should skip winrm monkey patched for windows" do
+              @winrm.config[:winrm_user] = ".\\testuser"
+              allow(Chef::Platform).to receive(:windows?).and_return(true)
+              expect(@winrm).to_not receive(:require).with('winrm-s')
+
+              exit_code = @winrm.run
+            end
+          end
+
           it "should not have winrm opts transport set to sspinegotiate for unix" do
             allow(Chef::Platform).to receive(:windows?).and_return(false)
 
