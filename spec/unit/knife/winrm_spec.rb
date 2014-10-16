@@ -104,7 +104,7 @@ describe Chef::Knife::Winrm do
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
           session_mock = Chef::Knife::Winrm::Session.new({})
           allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          allow(session_mock).to receive(:exit_code).and_return(command_status)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
 
@@ -115,7 +115,7 @@ describe Chef::Knife::Winrm do
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
           session_mock = Chef::Knife::Winrm::Session.new({})
           allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          allow(session_mock).to receive(:exit_code).and_return(command_status)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
 
@@ -165,18 +165,39 @@ describe Chef::Knife::Winrm do
           end
 
           it "should have winrm opts transport set to sspinegotiate for windows" do
+            @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>true, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
             exit_code = @winrm.run
           end
 
           it "should have winrm monkey patched for windows" do
+            @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             expect(@winrm).to receive(:require).with('winrm-s')
 
             exit_code = @winrm.run
+          end
+
+          context "when domain name not given" do
+            it "should skip winrm monkey patched for windows" do
+              @winrm.config[:winrm_user] = "testuser"
+              allow(Chef::Platform).to receive(:windows?).and_return(true)
+              expect(@winrm).to_not receive(:require).with('winrm-s')
+
+              exit_code = @winrm.run
+            end
+          end
+
+          context "when local domain name given"  do
+            it "should skip winrm monkey patched for windows" do
+              @winrm.config[:winrm_user] = ".\\testuser"
+              allow(Chef::Platform).to receive(:windows?).and_return(true)
+              expect(@winrm).to_not receive(:require).with('winrm-s')
+
+              exit_code = @winrm.run
+            end
           end
 
           it "should not have winrm opts transport set to sspinegotiate for unix" do
