@@ -143,9 +143,9 @@ class Chef
 
           ## If you have a \\ in your name you need to use NTLM domain authentication
           username_components = session_opts[:user].split("\\")
-          is_username_contains_domain = username_components.length.eql?(2)
+          username_contains_domain = username_components.length.eql?(2)
 
-          if is_username_contains_domain
+          if username_contains_domain
             # We cannot use basic_auth for domain authentication
             session_opts[:basic_auth_only] = false
           else
@@ -158,7 +158,7 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
 
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && is_username_contains_domain && username_components[0] != "."
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain && username_components[0] != "."
               ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
               # windows - force only encrypted communication
               require 'winrm-s'
