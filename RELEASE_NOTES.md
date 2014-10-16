@@ -6,39 +6,57 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
-# knife-windows 0.8.0 release notes:
-This release of knife-windows enables the Windows negotiate protocol to be
-used with the `winrm` and `bootstrap windows winrm` subcommands and also
-contains bug fixes and dependency updates.
+# knife-windows 0.8.2.rc.0 release notes:
+This release of knife-windows addresses a regression in knife-windows 0.8.0
+from previous releases where `knife winrm` and `knife bootstrap windows`
+commands fail due to inability to authenticate:
+[knife-windows #108](https://github.com/opscode/knife-windows/issues/108). 
 
-A thank you goes to contributor **Josh Mahowald** for contributing a fix to return nonzero exit codes.
+You can install the fix for this issue by upgrading to this new version using
+the `gem` command:
 
-Issues with `knife-windows` should be reported in the ticketing system at
-https://github.com/opscode/knife-windows/issues. Learn more about how you can
-contribute features and bug fixes to `knife-windows` in the [Chef Contributions document](http://docs.opscode.com/community_contributions.html).
+    gem install knife-windows --pre
 
-## Features added in knife-windows 0.8.0
+A thank you goes to **Richard Lavey** for reporting [knife-windows #108](https://github.com/opscode/knife-windows/issues/108).
 
-### NTLM / Negotiate authentication for `winrm` and `bootstrap`
-If `knife` is being used on a Windows workstation, it is no longer necessary
-to use Kerberos or to use certificate authentication to authenticate securely
-with a remote node in bootstrap or command execution scenarios. The `knife winrm` and `knife
-windows bootstrap` commands now support the use of NTLM to authenticate to remote
-nodes with the default WinRM listener configuration set by the operating
-system's `winrm quickconfig` command.
+## Impact of [knife-windows #108](https://github.com/opscode/knife-windows/issues/108)
 
-When specifying the user name on the command-line or configuration, the format `domain\username` must be used for
-the negotiate protocol to be invoked. If the account is local to the node,
-'`.`' may be used for the domain. See the README.md for further detail.
+[knife-windows #108](https://github.com/opscode/knife-windows/issues/108) will affect a given user if all of the following are true:
+
+* You are running `knife-windows` subcommands on a Windows workstation
+* The remote node you're interacting with via `knife-windows` has a WinRM
+  configuration with the `WSMan:\localhost\Service\AllowUnencrypted` (in
+  PowerShell's WinRM settings drive provider)
+  
+In this situation, you will receive an authentication error message from
+the `knife winrm` or `knife bootstrap windows` command such as
+`Error: Unencrypted communication not supported`. To resolve this error,
+simply install this version of the gem as described earlier.
+
+If you are running the `knife` commands from a non-Windows operating system,
+[knife-windows #108](https://github.com/opscode/knife-windows/issues/108) does
+not affect you, so you don't need to upgrade just for this issue.
+
+## Reporting issues and contributing
+
+`knife-windows` issues like the one addressed in this release should be
+reported in the ticketing system at https://github.com/opscode/knife-windows/issues. You can learn more about how to contribute features and bug fixes to `knife-windows` in the [Chef Contributions document](http://docs.opscode.com/community_contributions.html).
+
+## Features added in knife-windows 0.8.2
+None.
+
+## Issues fixed in knife-windows 0.8.2
+[knife-windows #108](https://github.com/opscode/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption
+
+The fix in this release will cause a behavior change from the 0.8.0 release:
+
+* As described in the [documentation changes](https://github.com/opscode/knife-windows/blob/0.8.0/DOC_CHANGES.md) for the 0.8.0 release of the `knife-windows`, the negotiate authentication
+  protocol will only be used in this 0.8.2 release if a domain is specified (you can specify '.' as
+  the domain if you want to use the local workstation as the domain). Due to a
+  defect in the 0.8.0 release, the negotiate protocol was being used even when
+  the domain was not specified.
 
 ## knife-windows on RubyGems and Github
 https://rubygems.org/gems/knife-windows
 https://github.com/opscode/knife-windows
-
-## Issues fixed in knife-windows 0.8.0
-* [knife-windows #98](https://github.com/opscode/knife-windows/issues/96) Get winrm command exit code if it is not expected
-* [knife-windows #96](https://github.com/opscode/knife-windows/issues/96) Fix break from OS patch KB2918614
-* Update winrm-s dependency along with em-winrm and winrm dependencies
-* Return failure codes from knife winrm even when `returns` is not set
-* Support Windows negotiate authentication protocol when running knife on Windows
 

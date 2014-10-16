@@ -3,8 +3,11 @@
 ## Unreleased changes
 None.
 
+## Latest release: 0.8.2
+* [knife-windows #108](https://github.com/opscode/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption
+
 ## Latest release: 0.8.0
-* [knife-windows #98](https://github.com/opscode/knife-windows/issues/96) Get winrm command exit code if it is not expected
+* [knife-windows #98](https://github.com/opscode/knife-windows/issues/98) Get winrm command exit code if it is not expected
 * [knife-windows #96](https://github.com/opscode/knife-windows/issues/96) Fix break from OS patch KB2918614
 * Remove the 'instance data' method of creating EC2 servers
 * Update winrm-s dependency along with em-winrm and winrm dependencies
