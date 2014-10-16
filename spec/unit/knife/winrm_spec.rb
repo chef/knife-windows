@@ -173,7 +173,7 @@ describe Chef::Knife::Winrm do
             @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
+            expect(@winrm.session).to receive(:use).with("localhost", {:user=>"domain\\testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false})
             exit_code = @winrm.run
           end
 
