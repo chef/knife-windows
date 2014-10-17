@@ -142,8 +142,7 @@ class Chef
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
 
           ## If you have a \\ in your name you need to use NTLM domain authentication
-          username_components = session_opts[:user].split("\\")
-          username_contains_domain = username_components.length.eql?(2)
+          username_contains_domain = session_opts[:user].split("\\").length.eql?(2)
 
           if username_contains_domain
             # We cannot use basic_auth for domain authentication
@@ -158,7 +157,7 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
 
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain && username_components[0] != "."
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain
               ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
               # windows - force only encrypted communication
               require 'winrm-s'
