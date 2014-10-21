@@ -199,7 +199,7 @@ describe Chef::Knife::Winrm do
             it "should skip winrm monkey patched for windows" do
               @winrm.config[:winrm_user] = ".\\testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
-              expect(@winrm).to_not receive(:require).with('winrm-s')
+              expect(@winrm).to receive(:require).with('winrm-s')
 
               exit_code = @winrm.run
             end
