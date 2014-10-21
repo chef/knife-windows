@@ -172,7 +172,7 @@ describe Chef::Knife::Winrm do
             exit_code = @winrm.run
           end
 
-          it "should have winrm monkey patched for windows" do
+          it "should use the winrm monkey patch for windows" do
             @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             expect(@winrm).to receive(:require).with('winrm-s')
@@ -181,7 +181,7 @@ describe Chef::Knife::Winrm do
           end
 
           context "when domain name not given" do
-            it "should skip winrm monkey patched for windows" do
+            it "should skip winrm monkey patch for windows" do
               @winrm.config[:winrm_user] = "testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
               expect(@winrm).to_not receive(:require).with('winrm-s')
@@ -191,7 +191,7 @@ describe Chef::Knife::Winrm do
           end
 
           context "when local domain name given"  do
-            it "should skip winrm monkey patched for windows" do
+            it "should use the winrm monkey patch for windows" do
               @winrm.config[:winrm_user] = ".\\testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
               expect(@winrm).to receive(:require).with('winrm-s')
