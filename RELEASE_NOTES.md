@@ -6,7 +6,7 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
-# knife-windows 0.8.2.rc.0 release notes:
+# knife-windows 0.8.2 release notes:
 This release of knife-windows addresses a regression in knife-windows 0.8.0
 from previous releases where `knife winrm` and `knife bootstrap windows`
 commands fail due to inability to authenticate:
