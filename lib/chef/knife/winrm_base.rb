@@ -91,6 +91,12 @@ class Chef
             :description => "The Certificate Authority (CA) trust file used for SSL transport",
             :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
 
+          option :winrm_ssl_verify_mode,
+            :long => "--winrm-ssl-verify-mode SSL_VERIFY_MODE",
+            :description => "The WinRM peer verification mode. Valid choices are [verify_peer, verify_none]",
+            :default => :verify_peer,
+            :proc => Proc.new { |verify_mode| verify_mode.to_sym }
+
         end
       end
 

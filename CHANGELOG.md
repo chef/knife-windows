@@ -1,7 +1,9 @@
 # knife-windows Change Log
 
 ## Unreleased changes
+
 * [knife-windows #139](https://github.com/opscode/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
+* [knife-windows #126](https://github.com/opscode/knife-windows/pull/126) Allow disabling of SSL peer verification in knife-windows for testing
 
 ## Latest release: 0.8.2
 * [knife-windows #108](https://github.com/opscode/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption
