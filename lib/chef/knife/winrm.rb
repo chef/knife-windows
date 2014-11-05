@@ -186,8 +186,7 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
 
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain
-              ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && config[:use_encryption]
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
@@ -195,6 +194,7 @@ class Chef
             else
               session_opts[:disable_sspi] = true
             end
+
             if session_opts[:user] and
                 (not session_opts[:password])
               session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password

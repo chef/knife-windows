@@ -164,37 +164,51 @@ describe Chef::Knife::Winrm do
             allow(@winrm).to receive(:relay_winrm_command).and_return(0)
           end
 
-          it "should have winrm opts transport set to sspinegotiate for windows" do
-            @winrm.config[:winrm_user] = "domain\\testuser"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
-            exit_code = @winrm.run
+          context "when --use-encryption set" do
+            before { @winrm.config[:use_encryption] = true }
+            it "should have winrm opts transport set to sspinegotiate for windows" do
+              @winrm.config[:winrm_user] = "domain\\testuser"
+              allow(Chef::Platform).to receive(:windows?).and_return(true)
+              allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
+              expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
+              exit_code = @winrm.run
+            end
+
+            it "should use the winrm monkey patch for windows" do
+              @winrm.config[:winrm_user] = "domain\\testuser"
+              allow(Chef::Platform).to receive(:windows?).and_return(true)
+              expect(@winrm).to receive(:require).with('winrm-s')
+
+              exit_code = @winrm.run
+            end
+          
+            context "when domain name not given" do
+              it "should use winrm monkey patch for windows" do
+                @winrm.config[:winrm_user] = "testuser"
+                allow(Chef::Platform).to receive(:windows?).and_return(true)
+                expect(@winrm).to receive(:require).with('winrm-s')
+
+                exit_code = @winrm.run
+              end
+            end
+
+            context "when local domain name given"  do
+              it "should use the winrm monkey patch for windows" do
+                @winrm.config[:winrm_user] = ".\\testuser"
+                allow(Chef::Platform).to receive(:windows?).and_return(true)
+                expect(@winrm).to receive(:require).with('winrm-s')
+
+                exit_code = @winrm.run
+              end
+            end
           end
 
-          it "should use the winrm monkey patch for windows" do
-            @winrm.config[:winrm_user] = "domain\\testuser"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(@winrm).to receive(:require).with('winrm-s')
-
-            exit_code = @winrm.run
-          end
-
-          context "when domain name not given" do
+          context "when --use-encryption not set (i.e default)" do
+            before { @winrm.config[:use_encryption] = false }
             it "should skip winrm monkey patch for windows" do
               @winrm.config[:winrm_user] = "testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
               expect(@winrm).to_not receive(:require).with('winrm-s')
-
-              exit_code = @winrm.run
-            end
-          end
-
-          context "when local domain name given"  do
-            it "should use the winrm monkey patch for windows" do
-              @winrm.config[:winrm_user] = ".\\testuser"
-              allow(Chef::Platform).to receive(:windows?).and_return(true)
-              expect(@winrm).to receive(:require).with('winrm-s')
 
               exit_code = @winrm.run
             end
