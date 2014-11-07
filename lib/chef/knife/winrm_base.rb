@@ -93,7 +93,7 @@ class Chef
 
           option :use_encryption,
             :long => "--use-encryption",
-            :description => "It does encrypted winrm communication. Supported on windows chef workstation",
+            :description => "It does encrypted winrm communication. Useful when winrm config AllowUnencrypted=false set on server. Supported on windows chef workstation. Default is false.",
             :boolean => true,
             :default => false
         end
