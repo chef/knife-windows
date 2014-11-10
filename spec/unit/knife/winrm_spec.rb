@@ -164,8 +164,8 @@ describe Chef::Knife::Winrm do
             allow(@winrm).to receive(:relay_winrm_command).and_return(0)
           end
 
-          context "when --use-encryption set" do
-            before { @winrm.config[:use_encryption] = true }
+          context "when --encrypt-winrm-transport set" do
+            before { @winrm.config[:encrypt_winrm_transport] = true }
             it "should have winrm opts transport set to sspinegotiate for windows" do
               @winrm.config[:winrm_user] = "domain\\testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
@@ -203,12 +203,24 @@ describe Chef::Knife::Winrm do
             end
           end
 
-          context "when --use-encryption not set (i.e default)" do
-            before { @winrm.config[:use_encryption] = false }
+          context "when --encrypt-winrm-transport not set (i.e default)" do
+            before { @winrm.config[:encrypt_winrm_transport] = false }
             it "should skip winrm monkey patch for windows" do
               @winrm.config[:winrm_user] = "testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
               expect(@winrm).to_not receive(:require).with('winrm-s')
+
+              exit_code = @winrm.run
+            end
+          end
+
+          context "when --encrypt-winrm-transport set on Linux Chef Workstation" do
+            before { @winrm.config[:encrypt_winrm_transport] = true }
+            it "should raise error" do
+              @winrm.config[:winrm_user] = "testuser"
+              allow(Chef::Platform).to receive(:windows?).and_return(false)
+              expect(@winrm).to_not receive(:require).with('winrm-s')
+              expect(@winrm.ui).to receive(:error)
 
               exit_code = @winrm.run
             end

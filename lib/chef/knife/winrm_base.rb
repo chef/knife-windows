@@ -91,9 +91,9 @@ class Chef
             :description => "The Certificate Authority (CA) trust file used for SSL transport",
             :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
 
-          option :use_encryption,
-            :long => "--use-encryption",
-            :description => "It does encrypted winrm communication. Useful when winrm config AllowUnencrypted=false set on server. Supported on windows chef workstation. Default is false.",
+          option :encrypt_winrm_transport,
+            :long => "--encrypt-winrm-transport",
+            :description => "It does encrypted winrm communication. Useful when winrm config AllowUnencrypted=false set on server. Supported on Windows Chef workstation. Default is false.",
             :boolean => true,
             :default => false
         end

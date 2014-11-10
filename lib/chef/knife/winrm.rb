@@ -186,7 +186,7 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
 
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && config[:use_encryption]
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && config[:encrypt_winrm_transport]
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
@@ -275,9 +275,15 @@ class Chef
         end
       end
 
+      def validate!
+        ui.error "The '--encrypt-winrm-transport' option only supported from Windows Chef Workstation." if config[:encrypt_winrm_transport] && !Chef::Platform.windows?
+      end
+
       def run
 
         STDOUT.sync = STDERR.sync = true
+
+        validate!
 
         begin
           @longest = 0
@@ -319,4 +325,3 @@ class Chef
     end
   end
 end
-
