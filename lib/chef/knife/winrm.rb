@@ -186,7 +186,7 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
 
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && config[:encrypt_winrm_transport]
+            if Chef::Platform.windows? && config[:encrypt_winrm_transport]
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate

@@ -93,7 +93,7 @@ class Chef
 
           option :encrypt_winrm_transport,
             :long => "--encrypt-winrm-transport",
-            :description => "It does encrypted winrm communication. Useful when winrm config AllowUnencrypted=false set on server. Supported on Windows Chef workstation. Default is false.",
+            :description => "The --encrypt-winrm-transport option is only supported when this tool is invoked from a Windows-based system. Default is false.",
             :boolean => true,
             :default => false
         end
