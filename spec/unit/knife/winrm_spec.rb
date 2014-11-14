@@ -164,8 +164,8 @@ describe Chef::Knife::Winrm do
             allow(@winrm).to receive(:relay_winrm_command).and_return(0)
           end
 
-          context "when --use-negotiate-authentication set" do
-            before { @winrm.config[:use_negotiate_authentication] = true }
+          context "when --winrm-allow-unencrypted not specified (i.e default)" do
+            before { @winrm.config[:winrm_allow_unencrypted] = true }
             it "should have winrm opts transport set to sspinegotiate for windows" do
               @winrm.config[:winrm_user] = "domain\\testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
@@ -203,8 +203,8 @@ describe Chef::Knife::Winrm do
             end
           end
 
-          context "when --use-negotiate-authentication not set (i.e default)" do
-            before { @winrm.config[:use_negotiate_authentication] = false }
+          context "when --winrm-allow-unencrypted specified" do
+            before { @winrm.config[:winrm_allow_unencrypted] = false }
             it "should skip winrm monkey patch for windows" do
               @winrm.config[:winrm_user] = "testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
@@ -214,8 +214,8 @@ describe Chef::Knife::Winrm do
             end
           end
 
-          context "when --use-negotiate-authentication set on Linux Chef Workstation" do
-            before { @winrm.config[:use_negotiate_authentication] = true }
+          context "when --winrm-allow-unencrypted specified on Linux Chef Workstation" do
+            before { @winrm.config[:winrm_allow_unencrypted] = false }
             it "should raise error" do
               @winrm.config[:winrm_user] = "testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(false)

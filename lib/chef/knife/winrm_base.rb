@@ -91,11 +91,11 @@ class Chef
             :description => "The Certificate Authority (CA) trust file used for SSL transport",
             :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
 
-          option :use_negotiate_authentication,
-            :long => "--use-negotiate-authentication",
-            :description => "Use negotiate protocol for authentication. It requires 'AllowUnencrypted' set to 'false' on the remote server. The --use-negotiate-authentication option is only supported when this tool is invoked from a Windows-based system. Default is false.",
+          option :winrm_allow_unencrypted,
+            :long => "--winrm-allow-unencrypted",
+            :description => "Use unencrypted communication for WinRM. It requires 'AllowUnencrypted' set to 'true' on the remote server. The '--winrm-allow-unencrypted' option is only supported when this tool is invoked from a Windows-based system. Default is true.",
             :boolean => true,
-            :default => false
+            :default => true
         end
       end
 

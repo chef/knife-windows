@@ -186,8 +186,9 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
 
-            if Chef::Platform.windows? && config[:use_negotiate_authentication]
-              # windows - force only encrypted communication
+            # :winrm_allow_unencrypted default is 'true'. It becomes 'false' when user specifies.
+            # And by default on windows support only encrypted communication
+            if Chef::Platform.windows? && config[:winrm_allow_unencrypted]
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
               session_opts[:disable_sspi] = false
@@ -276,7 +277,7 @@ class Chef
       end
 
       def validate!
-        ui.error "The '--encrypt-winrm-transport' option only supported from Windows Chef Workstation." if config[:use_negotiate_authentication] && !Chef::Platform.windows?
+        ui.error "The '--winrm-allow-unencrypted' option only supported from Windows Chef Workstation." if ! config[:winrm_allow_unencrypted] && !Chef::Platform.windows?
       end
 
       def run
@@ -313,7 +314,7 @@ class Chef
               # Display errors if the caller hasn't opted to retry
               ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
               ui.info "Response: #{e.message}"
-              ui.info "Hint: Please check winrm configuration winrm/config/service AllowUnencrypted flag on remote server OR try '--use-negotiate-authentication' option."
+              ui.info "Hint: Please check winrm configuration winrm/config/service AllowUnencrypted flag on remote server OR try '--winrm-allow-unencrypted' option."
               raise e
             end
             @exit_code = 401
