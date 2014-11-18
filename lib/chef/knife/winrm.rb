@@ -28,7 +28,7 @@ class Chef
         def initialize(options)
           @host = options[:host]
           url = "#{options[:host]}:#{options[:port]}/wsman"
-          endpoint = options[:transport] == ":ssl" ? "https://#{url}" : "http://#{url}"
+          endpoint = options[:transport] == :ssl ? "https://#{url}" : "http://#{url}"
           opts = Hash.new
           opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi]}
 
