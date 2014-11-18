@@ -129,15 +129,15 @@ goto install
 @rem If there is somehow a name collision, remove pre-existing log
 @if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
 
-@echo Attempting to download client package using cscript...
-cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
+@echo Attempting to download client package using PowerShell if available...
+@set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%" "%LOCAL_DESTINATION_MSI_PATH%"
+@echo !powershell_download!
+@call !powershell_download!
 
-@rem Work around issues found in Windows Server 2012 around job objects not respecting WSMAN memory quotas
-@rem that cause the MSI download process to exceed the quota even when it is increased by administrators.
-@rem Retry the download using a more memory-efficient mechanism that only works if PowerShell is available.
 @set DOWNLOAD_ERROR_STATUS=!ERRORLEVEL!
+
 @if ERRORLEVEL 1 (
-    @echo Failed cscript download with status code !DOWNLOAD_ERROR_STATUS! > "&2"
+    @echo Failed PowerShell download with status code !DOWNLOAD_ERROR_STATUS! > "&2"
     @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2
 ) else (
     @rem Sometimes the error level is not set even when the download failed,
@@ -146,21 +146,20 @@ cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL
         echo Failed download: download completed, but downloaded file not found > "&2"
         set DOWNLOAD_ERROR_STATUS=2
     ) else (
-        echo Download via cscript succeeded.
+        echo Download via PowerShell succeeded.
     )
 )
 
 @if NOT %DOWNLOAD_ERROR_STATUS%==0 (
     @echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
-    @echo Warning: Retrying download with PowerShell if available...
+    @echo Warning: Retrying download with cscript ...
 
     @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
 
-    @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%" "%LOCAL_DESTINATION_MSI_PATH%"
-    @echo !powershell_download!
-    @call !powershell_download!
+    cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
+
     @if NOT ERRORLEVEL 1 (
-        echo Download via PowerShell succeeded.
+        echo Download via cscript succeeded.
     ) else (
         echo Failed to download "%REMOTE_SOURCE_MSI_URL%" with status code !ERRORLEVEL!. > "&2"
         echo Exiting without bootstrapping due to download failure. > "&2"
