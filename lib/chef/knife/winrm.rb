@@ -186,15 +186,16 @@ class Chef
           else
             session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
 
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain
-              ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
-              # windows - force only encrypted communication
+            # :winrm_allow_unencrypted default is 'true'. It becomes 'false' when user specifies.
+            # And by default on windows support only encrypted communication
+            if Chef::Platform.windows? && config[:winrm_allow_unencrypted]
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
               session_opts[:disable_sspi] = false
             else
               session_opts[:disable_sspi] = true
             end
+
             if session_opts[:user] and
                 (not session_opts[:password])
               session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
@@ -275,9 +276,15 @@ class Chef
         end
       end
 
+      def validate!
+        ui.error "The '--winrm-allow-unencrypted' option only supported from Windows Chef Workstation." if ! config[:winrm_allow_unencrypted] && !Chef::Platform.windows?
+      end
+
       def run
 
         STDOUT.sync = STDERR.sync = true
+
+        validate!
 
         begin
           @longest = 0
@@ -307,6 +314,7 @@ class Chef
               # Display errors if the caller hasn't opted to retry
               ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
               ui.info "Response: #{e.message}"
+              ui.info "Hint: Please check winrm configuration winrm/config/service AllowUnencrypted flag on remote server OR try '--winrm-allow-unencrypted' option."
               raise e
             end
             @exit_code = 401
@@ -319,4 +327,3 @@ class Chef
     end
   end
 end
-
