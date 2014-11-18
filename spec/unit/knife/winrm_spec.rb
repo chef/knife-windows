@@ -141,6 +141,13 @@ describe Chef::Knife::Winrm do
           expect(exit_code).to be_zero
         end
 
+        it "endpoints includes 'https' for SSL transport" do
+          Chef::Config[:knife] = {:winrm_transport => "ssl"}
+          allow(@winrm).to receive(:relay_winrm_command).and_return(0)
+          expect(WinRM::WinRMWebService).to receive(:new).with("https://localhost:/wsman",:ssl,{:user=>"testuser", :pass=>"testpassword", :basic_auth_only=>true, :disable_sspi=>true, :ca_trust_path=>nil})
+          @winrm.run
+       end
+
         it "should exit the process with 100 if command execution raises an exception other than 401" do
           allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '500')
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
