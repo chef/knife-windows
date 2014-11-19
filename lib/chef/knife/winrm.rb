@@ -177,7 +177,6 @@ class Chef
           session_opts[:no_ssl_peer_verification] = no_ssl_peer_verification?(session_opts[:ca_trust_path])
           warn_no_ssl_peer_verification if session_opts[:no_ssl_peer_verification]
 
-          ## If you have a \\ in your name you need to use NTLM domain authentication
           username_contains_domain = session_opts[:user].split("\\").length.eql?(2)
 
           if username_contains_domain
@@ -192,9 +191,7 @@ class Chef
             session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = locate_config_value(:winrm_transport).to_sym
-
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain
-              ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && negotiate_auth?
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
@@ -272,6 +269,21 @@ class Chef
         end
       end
 
+      # returns true if winrm_authentication_protocol is 'negotiate'
+      def negotiate_auth?
+        (Chef::Config[:knife][:winrm_authentication_protocol] || config[:winrm_authentication_protocol]) == "negotiate"
+      end
+
+      def validate!
+        winrm_auth_protocol = (Chef::Config[:knife][:winrm_authentication_protocol] || config[:winrm_authentication_protocol])
+        if winrm_auth_protocol && ! %w{basic negotiate kerberos}.include?(winrm_auth_protocol)
+          ui.error "Invalid value for --winrm-authentication-protocol option. Use valid protocol values i.e [basic, negotiate, kerberos]"
+          exit 1
+        end
+
+        ui.error "The '--winrm-authentication-protocol = negotiate' only supported when this tool is invoked from a Windows-based system." if !Chef::Platform.windows? && negotiate_auth?
+      end
+
       def check_for_errors!
         @winrm_sessions.each do |session|
           session_exit_code = session.exit_code
@@ -285,6 +297,8 @@ class Chef
       def run
 
         STDOUT.sync = STDERR.sync = true
+
+        validate!
 
         begin
           @longest = 0
@@ -314,6 +328,7 @@ class Chef
               # Display errors if the caller hasn't opted to retry
               ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{locate_config_value(:winrm_user)}"
               ui.info "Response: #{e.message}"
+              ui.info "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server."
               raise e
             end
             @exit_code = 401

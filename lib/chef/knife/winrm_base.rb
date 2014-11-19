@@ -97,6 +97,10 @@ class Chef
             :default => :verify_peer,
             :proc => Proc.new { |verify_mode| verify_mode.to_sym }
 
+          option :winrm_authentication_protocol,
+            :long => "--winrm-authentication-protocol AUTHENTICATION_PROTOCOL",
+            :description => "The authentication protocol used during WinRM communication. The supported protocols are [basic, negotiate, kerberos]. This option is only supported when this tool is invoked from a Windows-based system",
+            :proc => Proc.new { |protocol| Chef::Config[:knife][:winrm_authentication_protocol] = protocol }
         end
       end
 
