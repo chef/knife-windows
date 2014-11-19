@@ -161,6 +161,7 @@ describe Chef::Knife::Winrm do
         context "validate sspinegotiate transport option" do
           before do
             Chef::Config[:knife] = {:winrm_transport => :plaintext}
+            Chef::Config[:knife][:winrm_authentication_protocol] = "negotiate"
             allow(@winrm).to receive(:relay_winrm_command).and_return(0)
           end
 
@@ -180,26 +181,6 @@ describe Chef::Knife::Winrm do
             exit_code = @winrm.run
           end
 
-          context "when domain name not given" do
-            it "should skip winrm monkey patch for windows" do
-              @winrm.config[:winrm_user] = "testuser"
-              allow(Chef::Platform).to receive(:windows?).and_return(true)
-              expect(@winrm).to_not receive(:require).with('winrm-s')
-
-              exit_code = @winrm.run
-            end
-          end
-
-          context "when local domain name given"  do
-            it "should use the winrm monkey patch for windows" do
-              @winrm.config[:winrm_user] = ".\\testuser"
-              allow(Chef::Platform).to receive(:windows?).and_return(true)
-              expect(@winrm).to receive(:require).with('winrm-s')
-
-              exit_code = @winrm.run
-            end
-          end
-
           it "should not have winrm opts transport set to sspinegotiate for unix" do
             allow(Chef::Platform).to receive(:windows?).and_return(false)
 
@@ -208,6 +189,46 @@ describe Chef::Knife::Winrm do
           end
         end
 
+        context "when winrm_authentication_protocol specified" do
+          before do
+            Chef::Config[:knife] = {:winrm_transport => :plaintext}
+            allow(@winrm).to receive(:relay_winrm_command).and_return(0)
+          end
+
+          it "raise an error if value is other than [basic, negotiate, kerberos]" do
+            Chef::Config[:knife][:winrm_authentication_protocol] = "invalid"
+            @winrm.config[:winrm_user] = "domain\\testuser"
+            allow(Chef::Platform).to receive(:windows?).and_return(true)
+            expect(@winrm.ui).to receive(:error)
+            expect(@winrm).to receive(:exit)
+            exit_code = @winrm.run
+          end
+
+          it "skip winrm monkey patch for 'basic' authentication" do
+            Chef::Config[:knife][:winrm_authentication_protocol] = "basic"
+            @winrm.config[:winrm_user] = "domain\\testuser"
+            allow(Chef::Platform).to receive(:windows?).and_return(true)
+            expect(@winrm).to_not receive(:require).with('winrm-s')
+            exit_code = @winrm.run
+          end
+
+          it "skip winrm monkey patch for 'kerberos' authentication" do
+            Chef::Config[:knife][:winrm_authentication_protocol] = "kerberos"
+            @winrm.config[:winrm_user] = "domain\\testuser"
+            allow(Chef::Platform).to receive(:windows?).and_return(true)
+            expect(@winrm).to_not receive(:require).with('winrm-s')
+            exit_code = @winrm.run
+          end
+
+          it "raise error on linux for 'negotiate' authentication" do
+            Chef::Config[:knife][:winrm_authentication_protocol] = "negotiate"
+            @winrm.config[:winrm_user] = "domain\\testuser"
+            allow(Chef::Platform).to receive(:windows?).and_return(false)
+            expect(@winrm).to_not receive(:require).with('winrm-s')
+            expect(@winrm.ui).to receive(:error)
+            exit_code = @winrm.run
+          end
+        end
       end
     end
   end
