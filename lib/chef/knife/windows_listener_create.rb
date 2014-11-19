@@ -42,9 +42,9 @@ class Chef
         :description => "Hostname on the listener. Default is *",
         :default => "*"
 
-      option :thumbprint,
+      option :winrm_thumbprint,
         :short => "-t THUMBPRINT",
-        :long => "--thumbprint THUMBPRINT",
+        :long => "--winrm-thumbprint THUMBPRINT",
         :description => "Thumbprint of the certificate. Required only if --cert-install option is not used."
 
       option :basic_auth,
@@ -53,9 +53,9 @@ class Chef
         :boolean => true,
         :default => true
 
-      option :cert_passphrase,
+      option :winrm_cert_passphrase,
         :short => "-cp PASSWORD",
-        :long => "--cert-passphrase PASSWORD",
+        :long => "--winrm-cert-passphrase PASSWORD",
         :description => "Password for certificate."
 
       def get_cert_passphrase
@@ -66,17 +66,17 @@ class Chef
 
       def run
         STDOUT.sync = STDERR.sync = true
-        file_path = config[:cert_path]
+        file_path = config[:winrm_cert_path]
 
         begin
           if config[:cert_install]
-            config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
-            result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil  -importPFX '#{config[:cert_install]}' AT_KEYEXCHANGE"}
+            config[:winrm_cert_passphrase] = get_cert_passphrase unless config[:winrm_cert_passphrase]
+            result = %x{powershell.exe -Command " '#{config[:winrm_cert_passphrase]}' | certutil  -importPFX '#{config[:cert_install]}' AT_KEYEXCHANGE"}
             if $?.exitstatus
               ui.info "Certificate installed to Certificate Store"
               result = %x{powershell.exe -Command " echo (Get-PfxCertificate #{config[:cert_install]}).thumbprint "}
               ui.info "Certificate Thumbprint: #{result}"
-              config[:thumbprint] = result.strip
+              config[:winrm_thumbprint] = result.strip
             else
               ui.error "Error installing certificate to Certificate Store"
               ui.error result
@@ -84,12 +84,12 @@ class Chef
             end
           end
 
-          unless config[:thumbprint]
+          unless config[:winrm_thumbprint]
             ui.error "Please specify the --thumprint"
             exit 1
           end
 
-          result = %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:thumbprint]}";Port="#{config[:port]}"}}
+          result = %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:winrm_thumbprint]}";Port="#{config[:port]}"}}
           Chef::Log.debug result
           if ($?.exitstatus)
             ui.info "WinRM listener created"
