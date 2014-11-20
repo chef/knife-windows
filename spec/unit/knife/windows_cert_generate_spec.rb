@@ -43,7 +43,7 @@ describe Chef::Knife::WindowsCertGenerate do
     expect(File).to receive(:open).exactly(3).times
     cert = double(OpenSSL::X509::Certificate.new)
     key = double(OpenSSL::PKey::RSA.new)
-    @certgen.config[:cert_passphrase] = "password"
+    @certgen.config[:winrm_cert_passphrase] = "password"
     expect(OpenSSL::PKCS12).to receive(:create).with("password", "winrmcert", key, cert)
     @certgen.write_certificate_to_file cert, "test", key
   end
