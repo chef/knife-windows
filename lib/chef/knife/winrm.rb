@@ -196,9 +196,15 @@ class Chef
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
               session_opts[:disable_sspi] = false
+              Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
+            elsif session_opts[:transport] == :ssl && negotiate_auth?
+              session_opts[:basic_auth_only] = false
+              session_opts[:disable_sspi] = true
+              Chef::Log.debug("Trying WinRM communication with negotiate authentication and :ssl transport")
             else
               session_opts[:disable_sspi] = true
             end
+
             if session_opts[:user] and
                 (not session_opts[:password])
               session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
@@ -281,7 +287,9 @@ class Chef
           exit 1
         end
 
-        ui.error "The '--winrm-authentication-protocol = negotiate' only supported when this tool is invoked from a Windows-based system." if !Chef::Platform.windows? && negotiate_auth?
+        if !Chef::Platform.windows? && negotiate_auth? && (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]) == "plaintext"
+          ui.error "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
+        end
       end
 
       def check_for_errors!
