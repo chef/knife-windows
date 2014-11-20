@@ -22,7 +22,7 @@ class Chef
   class Knife
     class WindowsCertInstall < Knife
 
-      banner "knife windows cert install (options)"
+      banner "knife windows cert install CERT [CERT] (options)"
 
       option :winrm_cert_path,
         :short => "-c CERT_PATH",
@@ -42,10 +42,11 @@ class Chef
 
       def run
         STDOUT.sync = STDERR.sync = true
-        unless config[:winrm_cert_path]
+        if config[:winrm_cert_path].nil? && @name_args.empty?
           ui.error "Please specify the certificate path using --winrm-cert-path option!"
           exit 1
         end
+        config[:winrm_cert_path] ||= @name_args.first if @name_args     
         file_path = config[:winrm_cert_path]
         config[:winrm_cert_passphrase] = get_cert_passphrase unless config[:winrm_cert_passphrase]
 
