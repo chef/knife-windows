@@ -308,6 +308,7 @@ describe Chef::Knife::Winrm do
 
           it "raise error on linux for 'negotiate' authentication" do
             Chef::Config[:knife][:winrm_authentication_protocol] = "negotiate"
+            Chef::Config[:knife][:winrm_transport] = "plaintext"
             @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(false)
             expect(@winrm).to_not receive(:require).with('winrm-s')
