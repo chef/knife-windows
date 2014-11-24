@@ -161,13 +161,13 @@ class Chef
         list.each do |item|
           Chef::Log.debug("Adding #{item}")
           session_opts = {}
-          session_opts[:user] = config[:winrm_user] = Chef::Config[:knife][:winrm_user] || config[:winrm_user]
-          session_opts[:password] = config[:winrm_password] = Chef::Config[:knife][:winrm_password] || config[:winrm_password]
-          session_opts[:port] = Chef::Config[:knife][:winrm_port] || config[:winrm_port]
-          session_opts[:keytab] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
-          session_opts[:realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
-          session_opts[:service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
-          session_opts[:ca_trust_path] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
+          session_opts[:user] = locate_config_value(:winrm_user)
+          session_opts[:password] = locate_config_value(:winrm_password)
+          session_opts[:port] = locate_config_value(:winrm_port)
+          session_opts[:keytab] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
+          session_opts[:realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
+          session_opts[:service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
+          session_opts[:ca_trust_path] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
 
           ## If you have a \\ in your name you need to use NTLM domain authentication
@@ -184,7 +184,7 @@ class Chef
             session_opts[:transport] = :kerberos
             session_opts[:basic_auth_only] = false
           else
-            session_opts[:transport] = (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]).to_sym
+            session_opts[:transport] = locate_config_value(:winrm_transport).to_sym
 
             if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain
               ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
@@ -305,7 +305,7 @@ class Chef
           when /401/
             if ! config[:suppress_auth_failure]
               # Display errors if the caller hasn't opted to retry
-              ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{config[:winrm_user]}"
+              ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{locate_config_value(:winrm_user)}"
               ui.info "Response: #{e.message}"
               raise e
             end

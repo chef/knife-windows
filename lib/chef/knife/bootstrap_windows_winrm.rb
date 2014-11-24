@@ -48,10 +48,10 @@ class Chef
         winrm.config[:winrm_user] = locate_config_value(:winrm_user)
         winrm.config[:winrm_password] = locate_config_value(:winrm_password)
         winrm.config[:winrm_transport] = locate_config_value(:winrm_transport)
-        winrm.config[:kerberos_keytab_file] = Chef::Config[:knife][:kerberos_keytab_file] if Chef::Config[:knife][:kerberos_keytab_file]
-        winrm.config[:kerberos_realm] = Chef::Config[:knife][:kerberos_realm] if Chef::Config[:knife][:kerberos_realm]
-        winrm.config[:kerberos_service] = Chef::Config[:knife][:kerberos_service] if Chef::Config[:knife][:kerberos_service]
-        winrm.config[:ca_trust_file] = Chef::Config[:knife][:ca_trust_file] if Chef::Config[:knife][:ca_trust_file]
+        winrm.config[:kerberos_keytab_file] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
+        winrm.config[:kerberos_realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
+        winrm.config[:kerberos_service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
+        winrm.config[:ca_trust_file] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
         winrm.config[:suppress_auth_failure] = true
