@@ -118,8 +118,8 @@ class Chef
           cert = generate_certificate rsa_key
           write_certificate_to_file cert, file_path, rsa_key
           ui.info "Generated Certificates:"
-          ui.info " PKCS12 FORMAT (needed on the server machine): #{file_path}.pfx"
-          ui.info " BASE64 ENCODED (used for creating SSL listener through cloud provider api): #{file_path}.der"
+          ui.info " PKCS12 FORMAT (needed on the server machine, contains private key): #{file_path}.pfx"
+          ui.info " BASE64 ENCODED (used for creating SSL listener through cloud provider api, contains private key): #{file_path}.der"
           ui.info " PEM FORMAT (required by the client to connect to the server): #{file_path}.pem"
           ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e
