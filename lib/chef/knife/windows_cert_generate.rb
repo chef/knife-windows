@@ -51,9 +51,9 @@ class Chef
         :description => "Default is 24 months",
         :default => "24"
 
-      option :winrm_cert_passphrase,
+      option :cert_passphrase,
         :short => "-cp PASSWORD",
-        :long => "--winrm-cert-passphrase PASSWORD",
+        :long => "--cert-passphrase PASSWORD",
         :description => "Password for certificate."
 
       def generate_keypair
@@ -102,8 +102,8 @@ class Chef
 
       def write_certificate_to_file cert, file_path, rsa_key
         File.open(file_path + ".pem", "wb") { |f| f.print cert.to_pem }
-        config[:winrm_cert_passphrase] = prompt_for_passphrase unless config[:winrm_cert_passphrase]
-        pfx = OpenSSL::PKCS12.create("#{config[:winrm_cert_passphrase]}", "winrmcert", rsa_key, cert)
+        config[:cert_passphrase] = prompt_for_passphrase unless config[:cert_passphrase]
+        pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "winrmcert", rsa_key, cert)
         File.open(file_path + ".pfx", "wb") { |f| f.print pfx.to_der }
         File.open(file_path + ".der", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
       end
