@@ -29,9 +29,9 @@ class Chef
         :long => "--winrm-cert-path CERT_PATH",
         :description => "Path of the certificate"
 
-      option :winrm_cert_passphrase,
+      option :cert_passphrase,
         :short => "-cp PASSWORD",
-        :long => "--winrm-cert-passphrase PASSWORD",
+        :long => "--cert-passphrase PASSWORD",
         :description => "Password for certificate."
 
       def get_cert_passphrase
@@ -48,11 +48,11 @@ class Chef
         end
         config[:winrm_cert_path] ||= @name_args.first if @name_args     
         file_path = config[:winrm_cert_path]
-        config[:winrm_cert_passphrase] = get_cert_passphrase unless config[:winrm_cert_passphrase]
+        config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
 
         begin
           ui.info "Adding certificate to the Certificate Store..."
-          result = %x{powershell.exe -Command " '#{config[:winrm_cert_passphrase]}' | certutil -importPFX '#{config[:winrm_cert_path]}' AT_KEYEXCHANGE"}
+          result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{config[:winrm_cert_path]}' AT_KEYEXCHANGE"}
           if $?.exitstatus == 0
             ui.info "Certificate added to Certificate Store"
           else
