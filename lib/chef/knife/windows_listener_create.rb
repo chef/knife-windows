@@ -65,8 +65,7 @@ class Chef
       end
 
       def run
-        STDOUT.sync = STDERR.sync = true
-        file_path = config[:winrm_cert_path]
+        STDOUT.sync = STDERR.sync = true        
 
         begin
           if config[:cert_install]
