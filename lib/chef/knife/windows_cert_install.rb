@@ -22,12 +22,7 @@ class Chef
   class Knife
     class WindowsCertInstall < Knife
 
-      banner "knife windows cert install CERT [CERT] (options)"
-
-      option :winrm_cert_path,
-        :short => "-c CERT_PATH",
-        :long => "--winrm-cert-path CERT_PATH",
-        :description => "Path of the certificate"
+      banner "knife windows cert install CERT [CERT] (options)"      
 
       option :cert_passphrase,
         :short => "-cp PASSWORD",
@@ -42,17 +37,16 @@ class Chef
 
       def run
         STDOUT.sync = STDERR.sync = true
-        if config[:winrm_cert_path].nil? && @name_args.empty?
-          ui.error "Please specify the certificate path using --winrm-cert-path option!"
+        if @name_args.empty?
+          ui.error "Please specify the certificate path. e.g-  'knife windows cert install <path>"
           exit 1
-        end
-        config[:winrm_cert_path] ||= @name_args.first if @name_args     
-        file_path = config[:winrm_cert_path]
+        end            
+        file_path = @name_args.first
         config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
 
         begin
           ui.info "Adding certificate to the Certificate Store..."
-          result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{config[:winrm_cert_path]}' AT_KEYEXCHANGE"}
+          result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{file_path}' AT_KEYEXCHANGE"}
           if $?.exitstatus == 0
             ui.info "Certificate added to Certificate Store"
           else
