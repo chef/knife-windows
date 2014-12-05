@@ -51,7 +51,6 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     @listener.config[:port] = "5986"
     @listener.config[:basic_auth] = true
     @listener.config[:cert_install] = true
-    @listener.config[:winrm_cert_path] = "test-path"
     allow(@listener).to receive(:get_cert_passphrase).and_return("your-secret!")
     expect(@listener).to receive(:`).with("powershell.exe -Command \" 'your-secret!' | certutil  -importPFX 'true' AT_KEYEXCHANGE\"")
     expect(@listener).to receive(:`).with("powershell.exe -Command \" echo (Get-PfxCertificate true).thumbprint \"")
