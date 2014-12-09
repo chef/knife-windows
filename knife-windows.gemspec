@@ -17,6 +17,9 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-s", "~> 0.2"
   s.add_dependency "em-winrm", "~> 0.6"
 
+  if RUBY_VERSION.start_with?('1.')
+    s.add_development_dependency 'chef', '< 12'
+  end
   s.add_development_dependency 'pry'
 
   s.files         = `git ls-files`.split("\n")

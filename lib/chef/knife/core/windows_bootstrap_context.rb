@@ -33,7 +33,12 @@ class Chef
           @config       = config
           @run_list     = run_list
           @chef_config  = chef_config
-          super(config, run_list, chef_config)
+
+          begin
+            super(config, run_list, chef_config)
+          rescue ArgumentError
+            super(config, run_list, chef_config, nil)
+          end
         end
 
         def validation_key
@@ -82,6 +87,28 @@ CONFIG
         def start_chef
           start_chef = "SET \"PATH=%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
           start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json -E #{bootstrap_environment}\n"
+        end
+
+        def latest_current_windows_chef_version_query
+          installer_version_string = nil
+          if @config[:prerelease]
+            installer_version_string = "&prerelease=true"
+          else
+            chef_version_string = if knife_config[:bootstrap_version]
+              knife_config[:bootstrap_version]
+            else
+              Chef::VERSION.split(".").first
+            end
+
+            installer_version_string = "&v=#{chef_version_string}"
+
+            # If bootstrapping a pre-release version add the prerelease query string
+            if chef_version_string.split(".").length > 3
+              installer_version_string << "&prerelease=true"
+            end
+          end
+
+          installer_version_string
         end
 
         def win_wget
