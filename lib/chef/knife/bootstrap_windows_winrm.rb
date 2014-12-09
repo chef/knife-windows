@@ -38,6 +38,7 @@ class Chef
       banner "knife bootstrap windows winrm FQDN (options)"
 
       def run
+        
         bootstrap
       end
 

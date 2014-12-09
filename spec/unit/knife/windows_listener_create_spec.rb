@@ -56,6 +56,7 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     expect(@listener).to receive(:`).with("powershell.exe -Command \" echo (Get-PfxCertificate true).thumbprint \"")
     expect(@listener.ui).to receive(:info).with("Certificate installed to Certificate Store")
     expect(@listener.ui).to receive(:info).with("Certificate Thumbprint: ")
+    allow(@listener).to receive(:puts)
     @listener.run
   end
 end

@@ -102,6 +102,7 @@ describe Chef::Knife::Winrm do
           @winrm.config[:returns] = "0"
           Chef::Config[:knife][:returns] = [0]
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+          allow(@winrm.ui).to receive(:error)
           session_mock = Chef::Knife::Winrm::Session.new({})
           allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
           allow(session_mock).to receive(:exit_code).and_return(command_status)
@@ -113,6 +114,7 @@ describe Chef::Knife::Winrm do
           @winrm.config[:returns] = "0,53"
           Chef::Config[:knife][:returns] = [0,53]
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+          allow(@winrm.ui).to receive(:error)
           session_mock = Chef::Knife::Winrm::Session.new({})
           allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
           allow(session_mock).to receive(:exit_code).and_return(command_status)
@@ -143,11 +145,14 @@ describe Chef::Knife::Winrm do
 
         it "should exit the process with 100 if command execution raises an exception other than 401" do
           allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '500')
+          allow(@winrm.ui).to receive(:error)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
         it "should exit the process with 100 if command execution raises a 401" do
           allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
+          allow(@winrm.ui).to receive(:info)
+          allow(@winrm.ui).to receive(:error)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
@@ -168,6 +173,7 @@ describe Chef::Knife::Winrm do
             @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
+            allow(@winrm.ui).to receive(:warn)
             expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>nil, :operation_timeout=>1800, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
             exit_code = @winrm.run
           end
@@ -175,6 +181,7 @@ describe Chef::Knife::Winrm do
           it "should use the winrm monkey patch for windows" do
             @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
+            allow(@winrm.ui).to receive(:warn)
             expect(@winrm).to receive(:require).with('winrm-s')
 
             exit_code = @winrm.run
@@ -194,6 +201,7 @@ describe Chef::Knife::Winrm do
             it "should use the winrm monkey patch for windows" do
               @winrm.config[:winrm_user] = ".\\testuser"
               allow(Chef::Platform).to receive(:windows?).and_return(true)
+              allow(@winrm.ui).to receive(:warn)
               expect(@winrm).to receive(:require).with('winrm-s')
 
               exit_code = @winrm.run
