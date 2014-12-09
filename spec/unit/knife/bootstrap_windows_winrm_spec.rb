@@ -42,6 +42,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '401'}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
+    allow(bootstrap).to receive(:print)
+    allow(bootstrap.ui).to receive(:info)
 
     expect(bootstrap).to receive(:run_command).exactly(call_result_sequence.length).times
     bootstrap.send(:wait_for_remote_response, 2)
@@ -51,6 +53,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '500'}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
+    allow(bootstrap).to receive(:print)
+    allow(bootstrap.ui).to receive(:info)
 
     expect(bootstrap).to receive(:run_command).exactly(call_result_sequence.length).times
     bootstrap.send(:wait_for_remote_response, 2)
@@ -61,6 +65,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
+    allow(bootstrap.ui).to receive(:info)
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error(SystemExit)
   end
@@ -69,6 +74,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '500'}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
+    allow(bootstrap).to receive(:print)
+    allow(bootstrap.ui).to receive(:info)
 
     expect(bootstrap).to receive(:run_command).exactly(call_result_sequence.length).times
     bootstrap.send(:wait_for_remote_response, 2)
@@ -82,6 +89,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(Chef::Knife::Winrm).to receive(:new).and_return(winrm_mock)
     allow(winrm_mock).to receive(:configure_session)
     allow(winrm_mock).to receive(:relay_winrm_command)
+    allow(winrm_mock.ui).to receive(:error)
     session_mock = Chef::Knife::Winrm::Session.new({})
     winrm_mock.instance_variable_set(:@winrm_sessions,[session_mock])
     allow(session_mock).to receive(:exit_code).and_return(command_status)
@@ -89,6 +97,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     #Skip over templating stuff and checking with the remote end
     allow(bootstrap).to receive(:create_bootstrap_bat_command)
     allow(bootstrap).to receive(:wait_for_remote_response)
+    allow(bootstrap.ui).to receive(:info)
 
     expect { bootstrap.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
   end
@@ -100,6 +109,9 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     run_command_result = lambda {raise WinRM::WinRMHTTPTransportError, '401'}
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
     allow(bootstrap).to receive(:run_command).and_return(run_command_result)
+    allow(bootstrap).to receive(:print)
+    allow(bootstrap.ui).to receive(:info)
+    allow(bootstrap.ui).to receive(:error)
     expect(bootstrap).to receive(:run_command).exactly(1).times
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error RuntimeError

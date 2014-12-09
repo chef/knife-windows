@@ -29,11 +29,12 @@ class Chef
       #
       class WindowsBootstrapContext < BootstrapContext
 
-        def initialize(config, run_list, chef_config)
+        def initialize(config, run_list, chef_config, secret)
           @config       = config
           @run_list     = run_list
           @chef_config  = chef_config
-          super(config, run_list, chef_config)
+          @secret       = secret
+          super(config, run_list, chef_config, secret)
         end
 
         def validation_key

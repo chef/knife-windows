@@ -134,7 +134,7 @@ class Chef
         if config[:encrypted_data_bag_secret_file]
           config[:encrypted_data_bag_secret] = Chef::EncryptedDataBagItem.load_secret(config[:encrypted_data_bag_secret_file])
         end
-        context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
+        context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config, config[:encrypted_data_bag_secret])
         Erubis::Eruby.new(template).evaluate(context)
       end
 
