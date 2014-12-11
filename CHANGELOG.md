@@ -1,7 +1,7 @@
 # knife-windows Change Log
 
 ## Unreleased changes
-None.
+* [knife-windows #138](https://github.com/opscode/knife-windows/issues/138) Specs broken on Chef 12 due to removal of read_template method from base class in Chef
 
 ## Latest release: 0.8.2
 * [knife-windows #108](https://github.com/opscode/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption

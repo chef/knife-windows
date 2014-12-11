@@ -29,11 +29,19 @@ class Chef
       #
       class WindowsBootstrapContext < BootstrapContext
 
-        def initialize(config, run_list, chef_config)
+        def initialize(config, run_list, chef_config, secret=nil)
           @config       = config
           @run_list     = run_list
           @chef_config  = chef_config
-          super(config, run_list, chef_config)
+
+          # Compatibility with Chef 12 and Chef 11 versions
+          begin
+            # The Chef 12 base class has 4 parameters for initialize
+            super(config, run_list, chef_config, secret)
+          rescue ArgumentError
+            # The Chef 11 base class only has 3 parameters for initialize
+            super(config, run_list, chef_config)
+          end
         end
 
         def validation_key
