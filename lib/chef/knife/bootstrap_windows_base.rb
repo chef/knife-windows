@@ -98,7 +98,7 @@ class Chef
             :long => "--auth-timeout MINUTES",
             :description => "The maximum time in minutes to wait to for authentication over the transport to the node to succeed. The default value is 2 minutes.",
             :default => 2
-            end
+        end
       end
 
       # TODO: This should go away when CHEF-2193 is fixed
