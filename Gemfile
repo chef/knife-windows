@@ -6,6 +6,5 @@ gemspec
 group :test do
   gem "rspec", '~> 3.0'
   gem "ruby-wmi"
-  gem "chef"
   gem 'rake'
 end
