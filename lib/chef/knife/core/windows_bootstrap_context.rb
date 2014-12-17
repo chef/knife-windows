@@ -51,6 +51,10 @@ class Chef
           escape_and_echo(@config[:encrypted_data_bag_secret])
         end
 
+        def trusted_certs
+          @trusted_certs ||= trusted_certs_content
+        end
+
         def config_content
           client_rb = <<-CONFIG
 log_level        :info
@@ -72,6 +76,36 @@ CONFIG
             client_rb << "# Using default node name (fqdn)\n"
           end
 
+          # We configure :verify_api_cert only when it's overridden on the CLI
+          # or when specified in the knife config.
+          if !@config[:node_verify_api_cert].nil? || knife_config.has_key?(:verify_api_cert)
+            value = @config[:node_verify_api_cert].nil? ? knife_config[:verify_api_cert] : @config[:node_verify_api_cert]
+            client_rb << %Q{verify_api_cert #{value}\n}
+          end
+
+          # We configure :ssl_verify_mode only when it's overridden on the CLI
+          # or when specified in the knife config.
+          if @config[:node_ssl_verify_mode] || knife_config.has_key?(:ssl_verify_mode)
+            value = case @config[:node_ssl_verify_mode]
+            when "peer"
+              :verify_peer
+            when "none"
+              :verify_none
+            when nil
+              knife_config[:ssl_verify_mode]
+            else
+              nil
+            end
+
+            if value
+              client_rb << %Q{ssl_verify_mode :#{value}\n}
+            end
+          end
+
+          if @config[:ssl_verify_mode]
+            client_rb << %Q{ssl_verify_mode :#{knife_config[:ssl_verify_mode]}\n}
+          end
+
           if knife_config[:bootstrap_proxy]
             client_rb << "\n"
             client_rb << %Q{http_proxy        "#{knife_config[:bootstrap_proxy]}"\n}
@@ -79,8 +113,16 @@ CONFIG
             client_rb << %Q{no_proxy          "#{knife_config[:bootstrap_no_proxy]}"\n} if knife_config[:bootstrap_no_proxy]
           end
 
+          if knife_config[:bootstrap_no_proxy]
+            client_rb << %Q{no_proxy       "#{knife_config[:bootstrap_no_proxy]}"\n}
+          end
+
           if @config[:encrypted_data_bag_secret]
             client_rb << %Q{encrypted_data_bag_secret "c:/chef/encrypted_data_bag_secret"\n}
+          end
+
+          unless trusted_certs.empty?
+            client_rb << %Q{trusted_certs_dir "C:/chef/trusted_certs"\n}
           end
 
           escape_and_echo(client_rb)
@@ -185,6 +227,17 @@ WGET_PS
 
         def install_command(executor_quote)
           "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote}"
+        end
+
+        def trusted_certs_content
+          content = ""
+          if @chef_config[:trusted_certs_dir]
+            Dir.glob(File.join(Chef::Util::PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
+              content << "cat > /C:/chef/trusted_certs/#{File.basename(cert)} <<'EOP'\n" +
+                         IO.read(File.expand_path(cert)) + "\nEOP\n"
+            end
+          end
+          content
         end
 
         def fallback_install_task_command
