@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "em-winrm", "~> 0.6"
 
   s.add_development_dependency 'pry'
+  s.add_development_dependency 'chef', '< 12'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
