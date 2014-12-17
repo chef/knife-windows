@@ -69,7 +69,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       knife.instance_variable_set("@template_file", template_file)
       knife.parse_options(options)
       # Avoid referencing a validation keyfile we won't find during #render_template
-      template_string = knife.read_template.gsub(/^.*[Vv]alidation_key.*$/, '')
+      template = IO.read(template_file).chomp
+      template_string = template.gsub(/^.*[Vv]alidation_key.*$/, '')
       knife.render_template(template_string)
     end
 
