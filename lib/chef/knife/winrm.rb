@@ -18,6 +18,9 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm_base'
+require 'chef/knife/windows_cert_generate'
+require 'chef/knife/windows_cert_install'
+require 'chef/knife/windows_listener_create'
 
 class Chef
   class Knife
@@ -78,8 +81,7 @@ class Chef
         :description => "QUERY is a space separated list of servers",
         :default => false
 
-
-        def create_winrm_session(options={})
+       def create_winrm_session(options={})
          session = Chef::Knife::Winrm::Session.new(options)
          @winrm_sessions ||= []
          @winrm_sessions.push(session)
