@@ -38,7 +38,6 @@ class Chef
       banner "knife bootstrap windows winrm FQDN (options)"
 
       def run
-        
         bootstrap
       end
 
@@ -56,10 +55,10 @@ class Chef
         winrm.config[:manual] = true
         winrm.config[:winrm_port] = locate_config_value(:winrm_port)
         winrm.config[:suppress_auth_failure] = true
-       
-        #If you turn off the return flag, then winrm.run won't atually check and 
+
+        #If you turn off the return flag, then winrm.run won't atually check and
         #return the error
-        #codes.  Otherwise, it ignores the return value of the server call.  
+        #codes.  Otherwise, it ignores the return value of the server call.
         winrm.config[:returns] = "0"
         winrm.run
       end
