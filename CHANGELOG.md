@@ -1,7 +1,7 @@
 # knife-windows Change Log
 
 ## Unreleased changes
-None.
+* [knife-windows #131](https://github.com/opscode/knife-windows/issues/108) Issue #131: Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems
 
 ## Latest release: 0.8.2
 * [knife-windows #108](https://github.com/opscode/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption
