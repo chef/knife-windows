@@ -7,7 +7,9 @@ Example Note:
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
 # knife-windows 0.8.3 release notes
-This release of knife-windows addresses a bug exposed by the Chef Client 12.0
+This release of knife-windows addresses Chef 12 compatibility issues.
+
+One such issue is a bug exposed by the Chef Client 12.0
 release where Windows nodes are bootstrapped with Chef Client 12 even though
 the Chef Client version of knife is 11, which is inconsistent with the
 bootstrap behavior of non-Windows systems with knife (such systems are correctly
@@ -32,6 +34,7 @@ None.
 
 ## Issues fixed in knife-windows 0.8.3
 [knife-windows #131](https://github.com/opscode/knife-windows/issues/131) Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems. 
+* [knife-windows #139](https://github.com/opscode/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
 
 ## knife-windows on RubyGems and Github
 https://rubygems.org/gems/knife-windows
