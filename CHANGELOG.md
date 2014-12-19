@@ -1,6 +1,9 @@
 # knife-windows Change Log
 
 ## Unreleased changes
+None.
+
+## Latest release: 0.8.3
 * [knife-windows #131](https://github.com/opscode/knife-windows/issues/108) Issue #131: Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems
 
 ## Latest release: 0.8.2
