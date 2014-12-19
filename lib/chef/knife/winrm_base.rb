@@ -114,7 +114,9 @@ class Chef
 
       def locate_config_value(key)
         key = key.to_sym
-        config[key] || Chef::Config[:knife][key]
+        value = config[key] || Chef::Config[:knife][key] || default_config[key]
+        Chef::Log.debug("Looking for key #{key} and found value #{value}")
+        value
       end
     end
   end

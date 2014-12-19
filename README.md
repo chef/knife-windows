@@ -44,6 +44,15 @@ Or force a chef run:
 
 This subcommand operates in a manner similar to [knife ssh](https://docs.chef.io/knife_ssh.html)...just leveraging the WinRM protocol for communication. It also include's `knife ssh`'s "[interactive session mode](https://docs.chef.io/knife_ssh.html#options)"
 
+### knife wsman test
+
+Connects to the remote WSMan/WinRM endpoint and verifies the remote node is listening.  This is the equivalent of running Test-Wsman from PowerShell.  Endpoints to test can be specified manually, or be driven by search and use many of the same connection options as knife winrm.
+
+    knife wsman test 192.168.1.10 -m
+or
+
+    knife wsman test platform:windows
+
 ### knife bootstrap windows winrm
 
 Performs a Chef Bootstrap (via the WinRM protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.
