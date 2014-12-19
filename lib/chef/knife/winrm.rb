@@ -26,14 +26,17 @@ class Chef
   class Knife
     class Winrm < Knife
 
+      @@ssl_warning_given = false
+
       class Session
         attr_reader :host, :output, :error, :exit_code
         def initialize(options)
           @host = options[:host]
           url = "#{options[:host]}:#{options[:port]}/wsman"
-          endpoint = options[:transport] == ":ssl" ? "https://#{url}" : "http://#{url}"
+          scheme = options[:transport] == :ssl ? 'https' : 'http'
+          endpoint = "#{scheme}://#{url}"
           opts = Hash.new
-          opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi]}
+          opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi], :no_ssl_peer_verification => options[:no_ssl_peer_verification]}
 
           options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
           Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
@@ -171,6 +174,8 @@ class Chef
           session_opts[:service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
           session_opts[:ca_trust_path] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
           session_opts[:operation_timeout] = 1800 # 30 min OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
+          session_opts[:no_ssl_peer_verification] = no_ssl_peer_verification?(session_opts[:ca_trust_path])
+          warn_no_ssl_peer_verification if session_opts[:no_ssl_peer_verification]
 
           ## If you have a \\ in your name you need to use NTLM domain authentication
           username_contains_domain = session_opts[:user].split("\\").length.eql?(2)
@@ -318,6 +323,31 @@ class Chef
         end
       end
 
+      private
+
+      def no_ssl_peer_verification?(ca_trust_path)
+        ca_trust_path.nil? && (config[:winrm_ssl_verify_mode] == :verify_none)
+      end
+
+      def warn_no_ssl_peer_verification
+        if ! @@ssl_warning_given
+          @@ssl_warning_given = true
+          ui.warn(<<-WARN)
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+SSL validation of HTTPS requests for the WinRM transport is disabled. HTTPS WinRM
+connections are still encrypted, but knife is not able to detect forged replies
+or spoofing attacks.
+
+To fix this issue add an entry like this to your knife configuration file:
+
+```
+  # Verify all WinRM HTTPS connections (default, recommended)
+  knife[:winrm_ssl_verify_mode] = :verify_peer
+```
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+WARN
+        end
+      end
     end
   end
 end

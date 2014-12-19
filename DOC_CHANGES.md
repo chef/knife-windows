@@ -6,18 +6,30 @@ Example Doc Change:
 Description of the required change.
 -->
 
-# knife-windows 0.8.2 doc changes
+# knife-windows 0.10.0 doc changes
 
-### Negotiate / NTLM authentication support
-If you are running `knife-windows` subcommands from a Windows workstation, you
-should not specify a username argument that includes a domain name (i.e. a
-name formatted like `domain\user`) unless the remote host has WinRM's
-`AllowUnencrypted` setting set to `$false` (the default setting on Windows if
-the `winrm quickconfig` command was used to enable WinRM). If you've modified
-the host to set this to `$true` instead of its default value and you run
-subcommands from a Windows workstation where the username specified to
-`knife-windows` contains a domain, the command will fail with an
-authentication error. To avoid this, omit the domain name (this will only work
-if the system is not joined to a domain, i.e. you were specifying the local
-workstation as the domain), or set `AllowUnencrypted` to `$false` which is a
-more secure setting.
+### New `:winrm_ssl_verify_mode` option
+When running the `winrm` and `bootstrap windows` subcommands with the
+`:winrm_transport` option set to `ssl` to communicate with a remote Windows system using
+the WinRM protocol via the SSL transport, you may disable `knife`'s verification of
+the remote system's SSL certificate. This is useful for testing or
+troubleshooting SSL connectivity before you've verified the certificate of the remote system's SSL WinRM listener.
+
+The option that controls whether the server is validated is the
+`knife[:winrm_verify_ssl_mode]` option, which has the same values as Chef's
+[`:ssl_verify_mode`](https://docs.getchef.com/config_rb_client.html#settings) option. By default, the option is set to `:verify_peer`,
+which means that SSL communication must be verified using a certificate file
+specified by the `:ca_trust_file` option. To avoid the need to have this file available
+during testing, you can specify the `knife[:winrm_ssl_verify_mode]` option in
+`knife.rb` OR specify it directly on the `knife` command line as
+`--winrm-ssl-verify-mode` and set its value to `:verify_none`, which will
+override the default behavior and skip the verification of the remote system
+-- there is no need to specify the `:ca_trust_file` option in this case.
+
+Here's an example that disables peer verification:
+
+    knife winrm -m 192.168.0.6 -x 'mydomain\myuser' -P $PASSWORDVAR -t ssl
+    --winrm-ssl-verify-mode verify_none -p 5986 ipconfig 
+
+This option should be used carefully since disabling the verification of the
+remote system's certificate can subject knife commands to spoofing attacks.
