@@ -51,8 +51,8 @@ class Chef
           escape_and_echo(@config[:encrypted_data_bag_secret])
         end
 
-        def trusted_certs
-          @trusted_certs ||= trusted_certs_content
+        def trusted_certs_script
+          @trusted_certs_script ||= trusted_certs_content
         end
 
         def config_content
@@ -121,7 +121,7 @@ CONFIG
             client_rb << %Q{encrypted_data_bag_secret "c:/chef/encrypted_data_bag_secret"\n}
           end
 
-          unless trusted_certs.empty?
+          unless trusted_certs_script.empty?
             client_rb << %Q{trusted_certs_dir "C:/chef/trusted_certs"\n}
           end
 
@@ -229,15 +229,34 @@ WGET_PS
           "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote}"
         end
 
+        # Returns a string for copying the trusted certificates on the workstation to the system being bootstrapped
+        # This string should contain both the commands necessary to both create the files, as well as their content
         def trusted_certs_content
           content = ""
           if @chef_config[:trusted_certs_dir]
-            Dir.glob(File.join(Chef::Util::PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
-              content << "cat > /C:/chef/trusted_certs/#{File.basename(cert)} <<'EOP'\n" +
-                         IO.read(File.expand_path(cert)) + "\nEOP\n"
+            Dir.glob(File.join(escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
+              content << "> #{bootstrap_directory}/trusted_certs/#{File.basename(cert)} (\n" +
+                         IO.read(File.expand_path(cert)) + "\n)\n"
             end
           end
           content
+        end
+
+        # FIXME: Switch the above call to escape_glob to Chef::Util::PathHelper.escape_glob after Chef-DK 0.3.6 is released, then remove this method.
+        # https://github.com/opscode/knife-windows/issues/148
+        def escape_glob(*parts)
+          path = cleanpath(join(*parts))
+          path.gsub(/[\\\{\}\[\]\*\?]/) { |x| "\\"+x }
+        end
+
+        # FIXME: Remove this as well
+        def self.join(*args)
+          args.flatten.inject do |joined_path, component|
+            # Joined path ends with /
+            joined_path = joined_path.sub(/[#{Regexp.escape(File::SEPARATOR)}#{Regexp.escape(path_separator)}]+$/, '')
+            component = component.sub(/^[#{Regexp.escape(File::SEPARATOR)}#{Regexp.escape(path_separator)}]+/, '')
+            joined_path += "#{path_separator}#{component}"
+          end
         end
 
         def fallback_install_task_command
