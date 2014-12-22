@@ -17,6 +17,7 @@
 #
 
 require 'chef/knife/core/bootstrap_context'
+require 'chef/util/path_helper'
 
 class Chef
   class Knife
@@ -250,7 +251,7 @@ WGET_PS
         end
 
         # FIXME: Remove this as well
-        def self.join(*args)
+        def join(*args)
           args.flatten.inject do |joined_path, component|
             # Joined path ends with /
             joined_path = joined_path.sub(/[#{Regexp.escape(File::SEPARATOR)}#{Regexp.escape(path_separator)}]+$/, '')
@@ -258,6 +259,15 @@ WGET_PS
             joined_path += "#{path_separator}#{component}"
           end
         end
+
+        def cleanpath(path)
+          path = Pathname.new(path).cleanpath.to_s
+          # ensure all forward slashes are backslashes
+          if Chef::Platform.windows?
+            path = path.gsub(File::SEPARATOR, path_separator)
+          end
+        path
+      end
 
         def fallback_install_task_command
           # This command will be executed by schtasks.exe in the batch
