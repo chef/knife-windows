@@ -249,6 +249,16 @@ WGET_PS
           path.gsub(/[\\\{\}\[\]\*\?]/) { |x| "\\"+x }
         end
 
+        # FIXME: Remove this as well
+        def self.join(*args)
+          args.flatten.inject do |joined_path, component|
+            # Joined path ends with /
+            joined_path = joined_path.sub(/[#{Regexp.escape(File::SEPARATOR)}#{Regexp.escape(path_separator)}]+$/, '')
+            component = component.sub(/^[#{Regexp.escape(File::SEPARATOR)}#{Regexp.escape(path_separator)}]+/, '')
+            joined_path += "#{path_separator}#{component}"
+          end
+        end
+
         def fallback_install_task_command
           # This command will be executed by schtasks.exe in the batch
           # code below. To handle tasks that contain arguments that
