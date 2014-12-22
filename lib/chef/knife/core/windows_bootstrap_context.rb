@@ -18,7 +18,6 @@
 
 require 'chef/knife/core/bootstrap_context'
 require 'chef/util/path_helper'
-require 'pry'
 
 class Chef
   class Knife
