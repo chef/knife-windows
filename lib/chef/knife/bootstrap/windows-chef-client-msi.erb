@@ -197,9 +197,9 @@ echo Validation key written.
 )
 <% end -%>
 
-<% unless trusted_certs.empty? -%>
-mkdir -p C:/chef/trusted_certs
-<%= trusted_certs %>
+<% unless trusted_certs_script.empty? -%>
+mkdir <%= bootstrap_directory %>\trusted_certs
+<%= trusted_certs_script %>
 <% end -%>
 
 <%# Generate Ohai Hints -%>
