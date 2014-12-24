@@ -15,10 +15,10 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version	= ">= 1.9.1"
   s.add_dependency "winrm-s", "~> 0.2"
+  s.add_dependency "ffi-yajl", "< 1.3", "~> 1.2"
 
   s.add_development_dependency 'pry'
   s.add_development_dependency 'chef', '< 12'
-  s.add_dependency "ffi-yajl", "< 1.3", "~> 1.2"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
