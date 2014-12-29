@@ -18,6 +18,10 @@
 
 require 'chef/knife/core/bootstrap_context'
 
+# Chef::Util::PathHelper in Chef 11 is a bit juvenile still
+require 'knife-windows/path_helper'
+# require 'chef/util/path_helper'
+
 class Chef
   class Knife
     module Core
@@ -28,6 +32,7 @@ class Chef
       # * @run_list - the run list for the node to boostrap
       #
       class WindowsBootstrapContext < BootstrapContext
+        PathHelper = ::Knife::Windows::PathHelper
 
         def initialize(config, run_list, chef_config)
           @config       = config
