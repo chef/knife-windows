@@ -17,7 +17,10 @@
 #
 
 require 'chef/knife/core/bootstrap_context'
-require 'chef/util/path_helper'
+
+# Chef::Util::PathHelper in Chef 11 is a bit juvenile still
+require 'knife-windows/path_helper'
+# require 'chef/util/path_helper'
 
 class Chef
   class Knife
@@ -29,6 +32,7 @@ class Chef
       # * @run_list - the run list for the node to boostrap
       #
       class WindowsBootstrapContext < BootstrapContext
+        PathHelper = ::Knife::Windows::PathHelper
 
         def initialize(config, run_list, chef_config, secret=nil)
           @config       = config
@@ -237,39 +241,13 @@ WGET_PS
         def trusted_certs_content
           content = ""
           if @chef_config[:trusted_certs_dir]
-            Dir.glob(File.join(Chef::Util::PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
-              content << "cat > /C:/chef/trusted_certs/#{File.basename(cert)} <<'EOP'\n" +
-                         IO.read(File.expand_path(cert)) + "\nEOP\n"
+            Dir.glob(File.join(PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
+              content << "> #{bootstrap_directory}/trusted_certs/#{File.basename(cert)} (\n" +
+                         IO.read(File.expand_path(cert)) + "\n)\n"
             end
           end
           content
         end
-
-        # FIXME: Switch the above call to escape_glob to Chef::Util::PathHelper.escape_glob after Chef-DK 0.3.6 is released, then remove this method.
-        # https://github.com/opscode/knife-windows/issues/148
-        def escape_glob(*parts)
-          path = cleanpath(join(*parts))
-          path.gsub(/[\\\{\}\[\]\*\?]/) { |x| "\\"+x }
-        end
-
-        # FIXME: Remove this as well
-        def join(*args)
-          args.flatten.inject do |joined_path, component|
-            # Joined path ends with /
-            joined_path = joined_path.sub(/[#{Regexp.escape(File::SEPARATOR)}#{Regexp.escape(path_separator)}]+$/, '')
-            component = component.sub(/^[#{Regexp.escape(File::SEPARATOR)}#{Regexp.escape(path_separator)}]+/, '')
-            joined_path += "#{path_separator}#{component}"
-          end
-        end
-
-        def cleanpath(path)
-          path = Pathname.new(path).cleanpath.to_s
-          # ensure all forward slashes are backslashes
-          if Chef::Platform.windows?
-            path = path.gsub(File::SEPARATOR, path_separator)
-          end
-        path
-      end
 
         def fallback_install_task_command
           # This command will be executed by schtasks.exe in the batch
