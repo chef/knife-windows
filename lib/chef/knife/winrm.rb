@@ -277,18 +277,41 @@ class Chef
 
       # returns true if winrm_authentication_protocol is 'negotiate'
       def negotiate_auth?
-        (Chef::Config[:knife][:winrm_authentication_protocol] || config[:winrm_authentication_protocol]) == "negotiate"
+        locate_config_value(:winrm_authentication_protocol) == "negotiate"
+      end
+
+      # default values for -
+      # winrm_authentication_protocol = 'negotiate' when winrm_transport = 'ssl'
+      # winrm_authentication_protocol = 'basic' when winrm_transport = 'plaintext'
+      def set_defaults
+        if locate_config_value(:winrm_authentication_protocol).nil?
+          transport = locate_config_value(:winrm_transport)
+          if transport == 'ssl'
+            Chef::Config[:knife][:winrm_authentication_protocol] = 'negotiate'
+          elsif transport == 'plaintext'
+            Chef::Config[:knife][:winrm_authentication_protocol] = 'basic'
+          end
+        end
       end
 
       def validate!
-        winrm_auth_protocol = (Chef::Config[:knife][:winrm_authentication_protocol] || config[:winrm_authentication_protocol])
+        winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
         if winrm_auth_protocol && ! %w{basic negotiate kerberos}.include?(winrm_auth_protocol)
           ui.error "Invalid value for --winrm-authentication-protocol option. Use valid protocol values i.e [basic, negotiate, kerberos]"
           exit 1
         end
 
-        if !Chef::Platform.windows? && negotiate_auth? && (Chef::Config[:knife][:winrm_transport] || config[:winrm_transport]) == "plaintext"
+        if !Chef::Platform.windows? && negotiate_auth? && locate_config_value(:winrm_transport) == "plaintext"
           ui.error "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
+          exit 1
+        end
+
+        if locate_config_value(:winrm_transport) == "plaintext" && winrm_auth_protocol == 'basic'
+          username_contains_domain = locate_config_value(:winrm_user).split("\\").length.eql?(2)
+          if username_contains_domain
+            ui.error "The --winrm-authentication-protocol option must be configured to 'negotiate' auth if a domain is specified."
+            exit 1
+          end
         end
       end
 
@@ -305,6 +328,8 @@ class Chef
       def run
 
         STDOUT.sync = STDERR.sync = true
+
+        set_defaults
 
         validate!
 
