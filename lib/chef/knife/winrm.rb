@@ -290,25 +290,30 @@ class Chef
           transport = locate_config_value(:winrm_transport)
           if transport == 'ssl'
             Chef::Config[:knife][:winrm_authentication_protocol] = 'negotiate'
+            ui.warn("--winrm-authentication-protocol option is not specified. Switching to Negotiate authentication")
           elsif transport == 'plaintext'
             Chef::Config[:knife][:winrm_authentication_protocol] = 'basic'
+            ui.warn("--winrm-authentication-protocol option is not specified. Switching to Basic authentication")
           end
         end
       end
 
       def validate!
         winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
-        if winrm_auth_protocol && ! %w{basic negotiate kerberos}.include?(winrm_auth_protocol)
-          ui.error "Invalid value for --winrm-authentication-protocol option. Use valid protocol values i.e [basic, negotiate, kerberos]"
+        if winrm_auth_protocol && ! WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
+          ui.error "Invalid value '#{winrm_auth_protocol}' for --winrm-authentication-protocol option."
+          ui.info "Valid values are #{WINRM_AUTH_PROTOCOL_LIST.join(",")}."
           exit 1
         end
 
-        if !Chef::Platform.windows? && negotiate_auth? && locate_config_value(:winrm_transport) == "plaintext"
+        winrm_transport = locate_config_value(:winrm_transport)
+
+        if !Chef::Platform.windows? && negotiate_auth? && winrm_transport == "plaintext"
           ui.error "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
           exit 1
         end
 
-        if locate_config_value(:winrm_transport) == "plaintext" && winrm_auth_protocol == 'basic'
+        if winrm_transport == "plaintext" && winrm_auth_protocol == 'basic'
           username_contains_domain = locate_config_value(:winrm_user).split("\\").length.eql?(2)
           if username_contains_domain
             ui.error "The --winrm-authentication-protocol option must be configured to 'negotiate' auth if a domain is specified."
