@@ -43,6 +43,7 @@ class Chef
           Chef::Log.debug("Endpoint: #{endpoint}")
           Chef::Log.debug("Transport: #{options[:transport]}")
           @winrm_session = WinRM::WinRMWebService.new(endpoint, options[:transport], opts)
+          @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
         end
 
         def relay_command(command)
