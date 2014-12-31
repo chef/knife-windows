@@ -282,12 +282,13 @@ class Chef
         locate_config_value(:winrm_authentication_protocol) == "negotiate"
       end
 
-      # default values for -
-      # winrm_authentication_protocol = 'negotiate' when winrm_transport = 'ssl'
-      # winrm_authentication_protocol = 'basic' when winrm_transport = 'plaintext'
       def set_defaults
+        transport = locate_config_value(:winrm_transport)
+
+        # default values for -
+        # winrm_authentication_protocol = 'negotiate' when winrm_transport = 'ssl'
+        # winrm_authentication_protocol = 'basic' when winrm_transport = 'plaintext'
         if locate_config_value(:winrm_authentication_protocol).nil?
-          transport = locate_config_value(:winrm_transport)
           if transport == 'ssl'
             Chef::Config[:knife][:winrm_authentication_protocol] = 'negotiate'
             ui.warn("--winrm-authentication-protocol option is not specified. Switching to Negotiate authentication")
@@ -295,6 +296,11 @@ class Chef
             Chef::Config[:knife][:winrm_authentication_protocol] = 'basic'
             ui.warn("--winrm-authentication-protocol option is not specified. Switching to Basic authentication")
           end
+        end
+
+        # set default winrm_port = 5986 for ssl transport
+        if transport = 'ssl' && locate_config_value(:winrm_port) == "5985"
+          Chef::Config[:knife][:winrm_port] = "5986"
         end
       end
 
