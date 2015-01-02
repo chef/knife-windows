@@ -81,6 +81,10 @@ describe Chef::Knife::Winrm do
 
     describe Chef::Knife::Winrm do
       context "when configuring the WinRM transport" do
+        before(:all) do
+          @winrm_session = Object.new
+          @winrm_session.define_singleton_method(:set_timeout){|timeout| ""}
+        end
         after(:each) do
           Chef::Config.configuration = @original_config
           Chef::Config[:knife] = @original_knife_config if @original_knife_config
@@ -89,7 +93,15 @@ describe Chef::Knife::Winrm do
         let(:winrm_command_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', 'echo helloworld'])        }
         it "should default to the http uri scheme" do
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything)
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          winrm_command_http.configure_chef
+          winrm_command_http.configure_session
+        end
+
+        it "set operation timeout" do
+          expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          expect(@winrm_session).to receive(:set_timeout).with(1800)
           winrm_command_http.configure_chef
           winrm_command_http.configure_session
         end
@@ -99,14 +111,14 @@ describe Chef::Knife::Winrm do
 
         it "should use the https uri scheme if the ssl transport is specified" do
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with('https://localhost:5985/wsman', anything, anything)
+          expect(WinRM::WinRMWebService).to receive(:new).with('https://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
           winrm_command_https.configure_chef
           winrm_command_https.configure_session
         end
 
         it "should default to validating the server when the ssl transport is used" do
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false))
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
           winrm_command_https.configure_chef
           winrm_command_https.configure_session
         end
@@ -114,7 +126,7 @@ describe Chef::Knife::Winrm do
         let(:winrm_command_verify_peer) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--winrm-ssl-verify-mode', 'verify_peer', 'echo helloworld'])}
         it "should validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is not configured to :verify_none" do
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false))
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
           winrm_command_verify_peer.configure_chef
           winrm_command_verify_peer.configure_session
         end
@@ -124,14 +136,14 @@ describe Chef::Knife::Winrm do
         it "should not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do
           expect(winrm_command_no_verify.ui).to receive(:warn).exactly(2).times
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true))
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
           winrm_command_no_verify.configure_chef
           winrm_command_no_verify.configure_session
         end
 
         it "should provide warning output when the :winrm_ssl_verify_mode set to :verify_none to disable server validation" do
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true))
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
           expect(winrm_command_no_verify).to receive(:warn_no_ssl_peer_verification)
 
           winrm_command_no_verify.configure_chef
@@ -142,7 +154,7 @@ describe Chef::Knife::Winrm do
 
         it "should validate the server when the ssl transport is used and the :ca_trust_file option is specified even if the :winrm_ssl_verify_mode option is set to :verify_none" do
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false))
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
           winrm_command_ca_trust.configure_chef
           winrm_command_ca_trust.configure_session
         end

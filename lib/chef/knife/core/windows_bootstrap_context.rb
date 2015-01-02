@@ -122,8 +122,10 @@ CONFIG
             client_rb << %Q{encrypted_data_bag_secret "c:/chef/encrypted_data_bag_secret"\n}
           end
 
-          unless trusted_certs_script.empty?
-            client_rb << %Q{trusted_certs_dir "C:/chef/trusted_certs"\n}
+          if(Gem.loaded_specs["chef"].version.version.to_f >= 12)
+            unless trusted_certs.empty?
+              client_rb << %Q{trusted_certs_dir "c:/chef/trusted_certs"\n}
+            end
           end
 
           escape_and_echo(client_rb)
@@ -235,9 +237,9 @@ WGET_PS
         def trusted_certs_content
           content = ""
           if @chef_config[:trusted_certs_dir]
-            Dir.glob(File.join(escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
-              content << "> #{bootstrap_directory}/trusted_certs/#{File.basename(cert)} (\n" +
-                         IO.read(File.expand_path(cert)) + "\n)\n"
+            Dir.glob(File.join(Chef::Util::PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
+              content << "cat > /C:/chef/trusted_certs/#{File.basename(cert)} <<'EOP'\n" +
+                         IO.read(File.expand_path(cert)) + "\nEOP\n"
             end
           end
           content
