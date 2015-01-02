@@ -236,7 +236,7 @@ WGET_PS
         # This string should contain both the commands necessary to both create the files, as well as their content
         def trusted_certs_content
           content = ""
-          if @chef_config[:trusted_certs_dir] && (Gem.loaded_specs["chef"].version.version.to_f >= 12)
+          if @chef_config[:trusted_certs_dir]
             Dir.glob(File.join(Chef::Util::PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
               content << "cat > /C:/chef/trusted_certs/#{File.basename(cert)} <<'EOP'\n" +
                          IO.read(File.expand_path(cert)) + "\nEOP\n"
