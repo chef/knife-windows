@@ -297,9 +297,12 @@ class Chef
         end
 
         # set default winrm_port = 5986 for ssl transport
-        if transport = 'ssl' && locate_config_value(:winrm_port) == "5985"
+        # set default winrm_port = 5985 for plaintext transport
+        if transport == 'ssl'
           Chef::Config[:knife][:winrm_port] = "5986"
-        end
+        elsif transport == 'plaintext'
+          Chef::Config[:knife][:winrm_port] = "5985"
+        end if locate_config_value(:winrm_port).nil?
       end
 
       def validate!
