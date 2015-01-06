@@ -54,8 +54,7 @@ class Chef
           option :winrm_port,
             :short => "-p PORT",
             :long => "--winrm-port PORT",
-            :description => "The WinRM port, by default this is 5985",
-            :default => "5985",
+            :description => "The WinRM port, by default this is '5985' for 'plaintext' and '5986' for 'ssl' winrm transport",
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
 
           option :identity_file,
