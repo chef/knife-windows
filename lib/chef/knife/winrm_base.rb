@@ -24,6 +24,9 @@ class Chef
   class Knife
     module WinrmBase
 
+      # It includes supported WinRM authentication protocol.
+      WINRM_AUTH_PROTOCOL_LIST ||= %w{basic negotiate kerberos}
+
       # :nodoc:
       # Would prefer to do this in a rational way, but can't be done b/c of
       # Mixlib::CLI's design :(
@@ -51,8 +54,7 @@ class Chef
           option :winrm_port,
             :short => "-p PORT",
             :long => "--winrm-port PORT",
-            :description => "The WinRM port, by default this is 5985",
-            :default => "5985",
+            :description => "The WinRM port, by default this is '5985' for 'plaintext' and '5986' for 'ssl' winrm transport",
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
 
           option :identity_file,
@@ -97,6 +99,10 @@ class Chef
             :default => :verify_peer,
             :proc => Proc.new { |verify_mode| verify_mode.to_sym }
 
+          option :winrm_authentication_protocol,
+            :long => "--winrm-authentication-protocol AUTHENTICATION_PROTOCOL",
+            :description => "The authentication protocol used during WinRM communication. The supported protocols are #{WINRM_AUTH_PROTOCOL_LIST.join(',')}",
+            :proc => Proc.new { |protocol| Chef::Config[:knife][:winrm_authentication_protocol] = protocol }
         end
       end
 

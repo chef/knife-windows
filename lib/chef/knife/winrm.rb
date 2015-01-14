@@ -178,7 +178,6 @@ class Chef
           session_opts[:no_ssl_peer_verification] = no_ssl_peer_verification?(session_opts[:ca_trust_path])
           warn_no_ssl_peer_verification if session_opts[:no_ssl_peer_verification]
 
-          ## If you have a \\ in your name you need to use NTLM domain authentication
           username_contains_domain = session_opts[:user].split("\\").length.eql?(2)
 
           if username_contains_domain
@@ -194,15 +193,20 @@ class Chef
           else
             session_opts[:transport] = locate_config_value(:winrm_transport).to_sym
 
-            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && username_contains_domain
-              ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
+            if Chef::Platform.windows? && session_opts[:transport] == :plaintext && negotiate_auth?
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
               session_opts[:disable_sspi] = false
+              Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
+            elsif session_opts[:transport] == :ssl && negotiate_auth?
+              session_opts[:basic_auth_only] = false
+              session_opts[:disable_sspi] = true
+              Chef::Log.debug("Trying WinRM communication with negotiate authentication and :ssl transport")
             else
               session_opts[:disable_sspi] = true
             end
+
             if session_opts[:user] and
                 (not session_opts[:password])
               session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
@@ -273,6 +277,60 @@ class Chef
         end
       end
 
+      # returns true if winrm_authentication_protocol is 'negotiate'
+      def negotiate_auth?
+        locate_config_value(:winrm_authentication_protocol) == "negotiate"
+      end
+
+      def set_defaults
+        transport = locate_config_value(:winrm_transport)
+
+        # default values for -
+        # winrm_authentication_protocol = 'negotiate' when winrm_transport = 'ssl'
+        # winrm_authentication_protocol = 'basic' when winrm_transport = 'plaintext'
+        if locate_config_value(:winrm_authentication_protocol).nil?
+          if transport == 'ssl'
+            Chef::Config[:knife][:winrm_authentication_protocol] = 'negotiate'
+            ui.warn("--winrm-authentication-protocol option is not specified. Switching to Negotiate authentication")
+          elsif transport == 'plaintext'
+            Chef::Config[:knife][:winrm_authentication_protocol] = 'basic'
+            ui.warn("--winrm-authentication-protocol option is not specified. Switching to Basic authentication")
+          end
+        end
+
+        # set default winrm_port = 5986 for ssl transport
+        # set default winrm_port = 5985 for plaintext transport
+        if transport == 'ssl'
+          Chef::Config[:knife][:winrm_port] = "5986"
+        elsif transport == 'plaintext'
+          Chef::Config[:knife][:winrm_port] = "5985"
+        end if locate_config_value(:winrm_port).nil?
+      end
+
+      def validate!
+        winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
+        if winrm_auth_protocol && ! WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
+          ui.error "Invalid value '#{winrm_auth_protocol}' for --winrm-authentication-protocol option."
+          ui.info "Valid values are #{WINRM_AUTH_PROTOCOL_LIST.join(",")}."
+          exit 1
+        end
+
+        winrm_transport = locate_config_value(:winrm_transport)
+
+        if !Chef::Platform.windows? && negotiate_auth? && winrm_transport == "plaintext"
+          ui.error "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
+          exit 1
+        end
+
+        if winrm_transport == "plaintext" && winrm_auth_protocol == 'basic'
+          username_contains_domain = locate_config_value(:winrm_user).split("\\").length.eql?(2)
+          if username_contains_domain
+            ui.error "The --winrm-authentication-protocol option must be configured to 'negotiate' auth if a domain is specified."
+            exit 1
+          end
+        end
+      end
+
       def check_for_errors!
         @winrm_sessions.each do |session|
           session_exit_code = session.exit_code
@@ -286,6 +344,10 @@ class Chef
       def run
 
         STDOUT.sync = STDERR.sync = true
+
+        set_defaults
+
+        validate!
 
         begin
           @longest = 0
@@ -315,6 +377,7 @@ class Chef
               # Display errors if the caller hasn't opted to retry
               ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{locate_config_value(:winrm_user)}"
               ui.info "Response: #{e.message}"
+              ui.info "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server."
               raise e
             end
             @exit_code = 401
