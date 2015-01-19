@@ -122,7 +122,7 @@ CONFIG
             client_rb << %Q{encrypted_data_bag_secret "c:/chef/encrypted_data_bag_secret"\n}
           end
 
-          if(Gem.loaded_specs["chef"].version.version.to_f >= 12)
+          if(Gem::Specification.find_by_name('chef').version.version.to_f >= 12)
             unless trusted_certs.empty?
               client_rb << %Q{trusted_certs_dir "c:/chef/trusted_certs"\n}
             end
