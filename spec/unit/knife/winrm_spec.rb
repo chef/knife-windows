@@ -158,7 +158,7 @@ describe Chef::Knife::Winrm do
         let(:winrm_command_no_verify) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--winrm-ssl-verify-mode', 'verify_none', 'echo helloworld'])}
 
         it "should not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do
-          expect(winrm_command_no_verify.ui).to receive(:warn).exactly(2).times
+          expect(winrm_command_no_verify.ui).to receive(:warn).exactly(1).times
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
           expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
           winrm_command_no_verify.configure_chef
