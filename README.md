@@ -60,6 +60,34 @@ An initial run_list for the node can also be passed to the subcommand. Example u
 
     knife bootstrap windows ssh ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver],role[production]' -x Administrator -i ~/.ssh/id_rsa
 
+### knife windows cert generate
+
+Generate a certificate(x509) containing a public / private key pair for WinRM 'SSL' communication.
+The certificate will be generated in three different formats *.pfx, *.der and *.pem.
+The PKCS12(i.e *.pfx) will be added to WinRM Server's Certificate Store.
+The *.der is base64 representaion of *.pfx which may be useful in cloud provider api.
+The *.pem contains public key and can be used at client side.
+This command also display's thumbprint of generated certificate.
+
+    knife windows cert generate --cert-passphrase "strong_passphrase" --domain "cloudapp.net" --output-file "C:\Users\Administrator\server_cert.pfx"
+    # This command will generate certificates at "C:\Users\Administrator\" location.
+
+### knife windows cert install
+
+This command should be run on Windows Platform. The command will add the specified certificate to its certificate store. The command should include valid PKCS12(i.e *.pfx) certificate file path.
+
+    knife windows cert install "C:\Users\Administrator\server_cert.pfx" --cert-passphrase "strong_passphrase"
+
+### knife windows listener create
+This command should be run on the Windows Platform. The command will create the winrm listener for SSL communication(i.e HTTPS).
+The command can also install certificate which is specified using --cert-install option and use installed certificate thumbprint to create winrm listener.
+
+    knife windows listener create --cert-passphrase "strong_passphrase" --hostname "*.cloudapp.net" --cert-install "C:\Users\Administrator\server_cert.pfx"
+
+The command also allows you to use existing certificates from local store to create winrm listener. Use --cert-thumbprint option to specify certificate thumbprint.
+
+    knife windows listener create --cert-passphrase "strong_passphrase" --hostname "*.cloudapp.net" --cert-thumbprint "bf0fef0bb41be40ceb66a3b38813ca489fe99746"
+
 ## BOOTSTRAP TEMPLATES:
 
 This gem provides the bootstrap template `windows-chef-client-msi`.
@@ -113,7 +141,7 @@ Currently, this plugin support Kerberos and Basic authentication schemes on
 all platform versions. The negotiate protocol which allows NTLM is fully
 supported when `knife windows bootstrap` is executed on a Windows system; if
 it is executed on a non-Windows system, certificate authentication or Kerberos
-should be used instead via the `:kerberos_service` and related options of the subcommands. 
+should be used instead via the `:kerberos_service` and related options of the subcommands.
 
 **NOTE**: In order to use NTLM / Negotiate to authenticate as the user
   specified by the `--winrm-user` (`-x`) option, you must include the user's
