@@ -94,7 +94,7 @@ class Chef
        def print_data(host, data, color = :cyan)
          if data =~ /\n/
            data.split(/\n/).each { |d| print_data(host, d, color) }
-         else
+         elsif !data.nil?
            print ui.color(host, color)
            puts " #{data}"
          end
