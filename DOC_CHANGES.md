@@ -5,7 +5,6 @@ Example Doc Change:
 ### Headline for the required change
 Description of the required change.
 -->
-
 # knife-windows 0.10.0 doc changes
 
 ### New `:winrm_ssl_verify_mode` option

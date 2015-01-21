@@ -85,29 +85,29 @@ class Chef
         :description => "QUERY is a space separated list of servers",
         :default => false
 
-       def create_winrm_session(options={})
-         session = Chef::Knife::Winrm::Session.new(options)
-         @winrm_sessions ||= []
-         @winrm_sessions.push(session)
-       end
+      def create_winrm_session(options={})
+        session = Chef::Knife::Winrm::Session.new(options)
+        @winrm_sessions ||= []
+        @winrm_sessions.push(session)
+      end
 
-       def print_data(host, data, color = :cyan)
-         if data =~ /\n/
-           data.split(/\n/).each { |d| print_data(host, d, color) }
-         else
-           print ui.color(host, color)
-           puts " #{data}"
-         end
-       end
+      def print_data(host, data, color = :cyan)
+        if data =~ /\n/
+          data.split(/\n/).each { |d| print_data(host, d, color) }
+        else
+          print ui.color(host, color)
+          puts " #{data}"
+        end
+      end
 
-       def relay_winrm_command(command)
-         Chef::Log.debug(command)
-         @winrm_sessions.each do |s|
-           s.relay_command(command)
-           print_data(s.host, s.output)
-           print_data(s.host, s.error, :red)
-         end
-       end
+      def relay_winrm_command(command)
+        Chef::Log.debug(command)
+        @winrm_sessions.each do |s|
+          s.relay_command(command)
+          print_data(s.host, s.output)
+          print_data(s.host, s.error, :red)
+        end
+      end
 
       def success_return_codes
         #Redundant if the CLI options parsing occurs
@@ -194,6 +194,7 @@ class Chef
             session_opts[:transport] = locate_config_value(:winrm_transport).to_sym
 
             if Chef::Platform.windows? && session_opts[:transport] == :plaintext && negotiate_auth?
+              ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
               # windows - force only encrypted communication
               require 'winrm-s'
               session_opts[:transport] = :sspinegotiate
@@ -216,7 +217,7 @@ class Chef
           session_opts[:host] = item
           create_winrm_session(session_opts)
         end
-      end
+        end
 
       def get_password
         @password ||= ui.ask("Enter your password: ") { |q| q.echo = false }
