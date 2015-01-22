@@ -62,15 +62,15 @@ An initial run_list for the node can also be passed to the subcommand. Example u
 
 ### knife windows cert generate
 
-Generate a certificate(x509) containing a public / private key pair for WinRM 'SSL' communication.
+Generates a certificate(x509) containing a public / private key pair for WinRM 'SSL' communication.
 The certificate will be generated in three different formats *.pfx, *.der and *.pem.
 The PKCS12(i.e *.pfx) will be added to WinRM Server's Certificate Store.
 The *.der is base64 representaion of *.pfx which may be useful in cloud provider api.
 The *.pem contains public key and can be used at client side.
-This command also display's thumbprint of generated certificate.
+This command also displays thumbprint of generated certificate.
 
     knife windows cert generate --cert-passphrase "strong_passphrase" --domain "cloudapp.net" --output-file "C:\Users\Administrator\server_cert.pfx"
-    # This command will generate certificates at "C:\Users\Administrator\" location.
+    # This command will generate certificates at "C:\Users\Administrator\" location with names server_cert.der, server_cert.pfx and server_cert.pem.
 
 ### knife windows cert install
 
