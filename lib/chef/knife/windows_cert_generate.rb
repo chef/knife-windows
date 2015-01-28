@@ -105,7 +105,7 @@ class Chef
         config[:cert_passphrase] = prompt_for_passphrase unless config[:cert_passphrase]
         pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "winrmcert", rsa_key, cert)
         File.open(file_path + ".pfx", "wb") { |f| f.print pfx.to_der }
-        File.open(file_path + ".der", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
+        File.open(file_path + ".b64", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
       end
 
       def run
@@ -119,7 +119,7 @@ class Chef
           write_certificate_to_file cert, file_path, rsa_key
           ui.info "Generated Certificates:"
           ui.info " PKCS12 FORMAT (needed on the server machine, contains private key): #{file_path}.pfx"
-          ui.info " BASE64 ENCODED (used for creating SSL listener through cloud provider api, contains private key): #{file_path}.der"
+          ui.info " BASE64 ENCODED (used for creating SSL listener through cloud provider api, contains private key): #{file_path}.b64"
           ui.info " PEM FORMAT (required by the client to connect to the server): #{file_path}.pem"
           ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e
