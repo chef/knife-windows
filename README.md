@@ -63,30 +63,35 @@ An initial run_list for the node can also be passed to the subcommand. Example u
 ### knife windows cert generate
 
 Generates a certificate(x509) containing a public / private key pair for WinRM 'SSL' communication.
-The certificate will be generated in three different formats *.pfx, *.der and *.pem.
+The certificate will be generated in three different formats *.pfx, *.b64 and *.pem.
 The PKCS12(i.e *.pfx) will be added to WinRM Server's Certificate Store.
-The *.der is base64 representaion of *.pfx which may be useful in cloud provider api.
+The *.b64 is base64 representaion of *.pfx which may be useful in cloud provider api.
 The *.pem contains public key and can be used at client side.
 This command also displays the thumbprint of the generated certificate.
 
-    knife windows cert generate --cert-passphrase "strong_passphrase" --domain "cloudapp.net" --output-file "~\server_cert.pfx"
-    # This command will generate certificates at user's home directory with names server_cert.der, server_cert.pfx and server_cert.pem.
+    knife windows cert generate --cert-passphrase "strong_passphrase" --domain "cloudapp.net" --output-file "~/server_cert.pfx"
+    # This command will generate certificates at user's home directory with names server_cert.b64, server_cert.pfx and server_cert.pem.
 
 ### knife windows cert install
 
 This command only functions on Windows. It adds the specified certificate to its certificate store. This command must include a valid PKCS12(i.e *.pfx) certificate file path.
 
-    knife windows cert install "~\server_cert.pfx" --cert-passphrase "strong_passphrase"
+    knife windows cert install "~/server_cert.pfx" --cert-passphrase "strong_passphrase"
 
 ### knife windows listener create
 This command only functions on Windows. It creates the winrm listener for SSL communication(i.e HTTPS).
 This command can also install certificate which is specified using --cert-install option and use the installed certificate thumbprint to create winrm listener.
+--hostname option is optional. Default value for hostname is *.
 
-    knife windows listener create --cert-passphrase "strong_passphrase" --hostname "*.cloudapp.net" --cert-install "~\server_cert.pfx"
+    knife windows listener create --cert-passphrase "strong_passphrase" --hostname "*.cloudapp.net" --cert-install "~/server_cert.pfx"
 
 The command also allows you to use existing certificates from local store to create winrm listener. Use --cert-thumbprint option to specify the certificate thumbprint.
 
     knife windows listener create --cert-passphrase "strong_passphrase" --hostname "*.cloudapp.net" --cert-thumbprint "bf0fef0bb41be40ceb66a3b38813ca489fe99746"
+
+You can get the thumbprint for existing certificates in local store using the following powershell command:
+
+    Get-ChildItem -path cert:\LocalMachine\My
 
 ## BOOTSTRAP TEMPLATES:
 
