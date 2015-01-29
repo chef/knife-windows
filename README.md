@@ -113,7 +113,7 @@ Currently, this plugin support Kerberos and Basic authentication schemes on
 all platform versions. The negotiate protocol which allows NTLM is fully
 supported when `knife windows bootstrap` is executed on a Windows system; if
 it is executed on a non-Windows system, certificate authentication or Kerberos
-should be used instead via the `:kerberos_service` and related options of the subcommands. 
+should be used instead via the `:kerberos_service` and related options of the subcommands.
 
 **NOTE**: In order to use NTLM / Negotiate to authenticate as the user
   specified by the `--winrm-user` (`-x`) option, you must include the user's
@@ -135,6 +135,10 @@ For development and testing purposes, unencrypted traffic with Basic authenticat
   You're running the winrm command from PowerShell and you need to put the key/value pair in single quotes. For example:
 
     winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'
+
+* Windows 2008r2 and earlier versions require an extra configuration for MaxTimeoutms to avoid WinRM::WinRMHTTPTransportError: Bad HTTP response error. It should be greater than 30000.
+
+    winrm set winrm/config @{MaxTimeoutms=300000}
 
 ## CONTRIBUTING:
 
