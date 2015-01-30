@@ -286,19 +286,6 @@ class Chef
       def set_defaults
         transport = locate_config_value(:winrm_transport)
 
-        # default values for -
-        # winrm_authentication_protocol = 'negotiate' when winrm_transport = 'ssl'
-        # winrm_authentication_protocol = 'basic' when winrm_transport = 'plaintext'
-        if locate_config_value(:winrm_authentication_protocol).nil?
-          if transport == 'ssl'
-            Chef::Config[:knife][:winrm_authentication_protocol] = 'negotiate'
-            ui.warn("--winrm-authentication-protocol option is not specified. Switching to Negotiate authentication")
-          elsif transport == 'plaintext'
-            Chef::Config[:knife][:winrm_authentication_protocol] = 'basic'
-            ui.warn("--winrm-authentication-protocol option is not specified. Switching to Basic authentication")
-          end
-        end
-
         # set default winrm_port = 5986 for ssl transport
         # set default winrm_port = 5985 for plaintext transport
         if transport == 'ssl'
@@ -319,7 +306,8 @@ class Chef
         winrm_transport = locate_config_value(:winrm_transport)
 
         if !Chef::Platform.windows? && negotiate_auth? && winrm_transport == "plaintext"
-          ui.error "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
+          ui.warn "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
+          ui.info "Try '--winrm-authentication-protocol = basic'"
           exit 1
         end
 
