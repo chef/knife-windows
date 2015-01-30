@@ -64,9 +64,9 @@ An initial run_list for the node can also be passed to the subcommand. Example u
 
 Generates a certificate(x509) containing a public / private key pair for WinRM 'SSL' communication.
 The certificate will be generated in three different formats *.pfx, *.b64 and *.pem.
-The PKCS12(i.e *.pfx) will be added to WinRM Server's Certificate Store.
-The *.b64 is base64 representaion of *.pfx which may be useful in cloud provider api.
-The *.pem contains public key and can be used at client side.
+The PKCS12(i.e *.pfx) contains both the public and private keys, usually used on the server. This will be added to WinRM Server's Certificate Store.
+The *.b64 is Base64 PKCS12 keypair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure.
+The *.pem is Base64 encoded public certificate only. Required by the client to connect to the server.
 This command also displays the thumbprint of the generated certificate.
 
     knife windows cert generate --cert-passphrase "strong_passphrase" --domain "cloudapp.net" --output-file "~/server_cert.pfx"
