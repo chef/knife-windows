@@ -118,9 +118,9 @@ class Chef
           cert = generate_certificate rsa_key
           write_certificate_to_file cert, file_path, rsa_key
           ui.info "Generated Certificates:"
-          ui.info " PKCS12 FORMAT (needed on the server machine, contains private key): #{file_path}.pfx"
-          ui.info " BASE64 ENCODED (used for creating SSL listener through cloud provider api, contains private key): #{file_path}.b64"
-          ui.info " PEM FORMAT (required by the client to connect to the server): #{file_path}.pem"
+          ui.info "- #{file_path}.pfx - PKCS12 format keypair. Contains both the public and private keys, usually used on the server."
+          ui.info "- #{file_path}.b64 - Base64 encoded PKCS12 keypair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure"
+          ui.info "- #{file_path}.pem - Base64 encoded public certificate only. Required by the client to connect to the server."
           ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e
           puts "ERROR: + #{e}"
