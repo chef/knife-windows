@@ -332,6 +332,25 @@ describe Chef::Knife::Winrm do
             exit_code = @winrm.run
           end
 
+          it "skip winrm monkey patch for 'ssl' transport and 'negotiate' authentication" do
+            Chef::Config[:knife][:winrm_authentication_protocol] = "negotiate"
+            Chef::Config[:knife][:winrm_transport] = "ssl"
+            @winrm.config[:winrm_user] = "domain\\testuser"
+            allow(Chef::Platform).to receive(:windows?).and_return(true)
+            expect(@winrm).to_not receive(:require).with('winrm-s')
+            exit_code = @winrm.run
+          end
+
+          it "disable sspi and skip winrm monkey patch for 'ssl' transport and 'basic' authentication" do
+            Chef::Config[:knife][:winrm_authentication_protocol] = "basic"
+            Chef::Config[:knife][:winrm_transport] = "ssl"
+            @winrm.config[:winrm_user] = "domain\\testuser"
+            allow(Chef::Platform).to receive(:windows?).and_return(true)
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>"5986", :operation_timeout=>1800, :no_ssl_peer_verification=>false, :basic_auth_only=>true, :transport=>:ssl, :disable_sspi=>true, :host=>"localhost"})
+            expect(@winrm).to_not receive(:require).with('winrm-s')
+            exit_code = @winrm.run
+          end
+
           it "raise error on linux for 'negotiate' authentication" do
             Chef::Config[:knife][:winrm_authentication_protocol] = "negotiate"
             Chef::Config[:knife][:winrm_transport] = "plaintext"
