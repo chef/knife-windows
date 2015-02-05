@@ -178,18 +178,14 @@ class Chef
           session_opts[:no_ssl_peer_verification] = no_ssl_peer_verification?(session_opts[:ca_trust_path])
           warn_no_ssl_peer_verification if session_opts[:no_ssl_peer_verification]
 
-          username_contains_domain = session_opts[:user].split("\\").length.eql?(2)
-
-          if username_contains_domain
-            # We cannot use basic_auth for domain authentication
-            session_opts[:basic_auth_only] = false
-          else
+          if locate_config_value(:winrm_authentication_protocol) == "basic"
             session_opts[:basic_auth_only] = true
+          else
+            session_opts[:basic_auth_only] = false
           end
 
           if config.keys.any? {|k| k.to_s =~ /kerberos/ }
             session_opts[:transport] = :kerberos
-            session_opts[:basic_auth_only] = false
           else
             session_opts[:transport] = locate_config_value(:winrm_transport).to_sym
 
@@ -201,7 +197,6 @@ class Chef
               session_opts[:disable_sspi] = false
               Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
             elsif session_opts[:transport] == :ssl && negotiate_auth?
-              session_opts[:basic_auth_only] = false
               session_opts[:disable_sspi] = true
               Chef::Log.debug("Trying WinRM communication with negotiate authentication and :ssl transport")
             else
@@ -321,14 +316,6 @@ class Chef
         if !Chef::Platform.windows? && negotiate_auth? && winrm_transport == "plaintext"
           ui.error "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
           exit 1
-        end
-
-        if winrm_transport == "plaintext" && winrm_auth_protocol == 'basic'
-          username_contains_domain = locate_config_value(:winrm_user).split("\\").length.eql?(2)
-          if username_contains_domain
-            ui.error "The --winrm-authentication-protocol option must be configured to 'negotiate' auth if a domain is specified."
-            exit 1
-          end
         end
       end
 
