@@ -47,11 +47,31 @@ class Chef
         end
 
         def relay_command(command)
-          session_result = @winrm_session.cmd(command) do |stdout, stderr|
-            @output = stdout
-            @error = stderr
-          end
+          remote_id = @winrm_session.open_shell
+          command_id = @winrm_session.run_command(remote_id, command)
+          Chef::Log.debug("#{@host}[#{remote_id}] => :run_command[#{command}]")
+          session_result = get_output(remote_id, command_id)
+          @winrm_session.cleanup_command(remote_id, command_id)
+          Chef::Log.debug("#{@host}[#{remote_id}] => :command_cleanup[#{command}]")
           @exit_code = session_result[:exitcode]
+          @winrm_session.close_shell(remote_id)
+          Chef::Log.debug("#{@host}[#{remote_id}] => :shell_close")
+        end
+
+        def get_output(remote_id, command_id)
+          @winrm_session.get_command_output(remote_id, command_id) do |out,error|
+            print_data(@host, out) if out
+            print_data(@host, error, :red) if error
+          end
+        end
+
+        def print_data(host, data, color = :cyan)
+          if data =~ /\n/
+            data.split(/\n/).each { |d| print_data(host, d, color) }
+          elsif !data.nil?
+            print Chef::Knife::Winrm.ui.color(host, color)
+            puts " #{data}"
+          end
         end
       end
 
@@ -91,21 +111,11 @@ class Chef
         @winrm_sessions.push(session)
       end
 
-      def print_data(host, data, color = :cyan)
-        if data =~ /\n/
-          data.split(/\n/).each { |d| print_data(host, d, color) }
-        elsif !data.nil?
-          print ui.color(host, color)
-          puts " #{data}"
-        end
-      end
 
       def relay_winrm_command(command)
         Chef::Log.debug(command)
         @winrm_sessions.each do |s|
           s.relay_command(command)
-          print_data(s.host, s.output)
-          print_data(s.host, s.error, :red)
         end
       end
 

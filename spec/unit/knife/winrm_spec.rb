@@ -366,3 +366,28 @@ describe Chef::Knife::Winrm do
     end
   end
 end
+
+describe Chef::Knife::Winrm::Session do
+  describe "#relay_command" do
+    before do
+      @service_mock = Object.new
+      @service_mock.define_singleton_method(:open_shell){}
+      @service_mock.define_singleton_method(:run_command){}
+      @service_mock.define_singleton_method(:cleanup_command){}
+      @service_mock.define_singleton_method(:get_command_output){|t,y| {}}
+      @service_mock.define_singleton_method(:close_shell){}
+      allow(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+      allow(WinRM::WinRMWebService).to receive(:new).and_return(@service_mock)
+      @session = Chef::Knife::Winrm::Session.new({transport: :plaintext})
+    end
+
+    it "run command and display commands output" do
+      expect(@service_mock).to receive(:open_shell).ordered
+      expect(@service_mock).to receive(:run_command).ordered
+      expect(@service_mock).to receive(:get_command_output).ordered.and_return({})
+      expect(@service_mock).to receive(:cleanup_command).ordered
+      expect(@service_mock).to receive(:close_shell).ordered
+      @session.relay_command("cmd.exe echo 'hi'")
+    end
+  end
+end
