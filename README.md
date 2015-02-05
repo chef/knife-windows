@@ -169,6 +169,10 @@ For development and testing purposes, unencrypted traffic with Basic authenticat
 
     winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'
 
+* Windows 2008r2 and earlier versions require an extra configuration for MaxTimeoutms to avoid WinRM::WinRMHTTPTransportError: Bad HTTP response error while bootstrapping. It should be atleast 300000.
+
+    winrm set winrm/config @{MaxTimeoutms=300000}
+
 ## CONTRIBUTING:
 
 Please file bugs against the KNIFE_WINDOWS project at https://github.com/opscode/knife-windows/issues.
