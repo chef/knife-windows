@@ -358,7 +358,7 @@ describe Chef::Knife::Winrm do
             allow(@winrm).to receive(:exit)
             allow(Chef::Platform).to receive(:windows?).and_return(false)
             expect(@winrm).to_not receive(:require).with('winrm-s')
-            expect(@winrm.ui).to receive(:error)
+            expect(@winrm.ui).to receive(:warn)
             exit_code = @winrm.run
           end
         end

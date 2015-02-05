@@ -101,7 +101,8 @@ class Chef
 
           option :winrm_authentication_protocol,
             :long => "--winrm-authentication-protocol AUTHENTICATION_PROTOCOL",
-            :description => "The authentication protocol used during WinRM communication. The supported protocols are #{WINRM_AUTH_PROTOCOL_LIST.join(',')}",
+            :description => "The authentication protocol used during WinRM communication. The supported protocols are #{WINRM_AUTH_PROTOCOL_LIST.join(',')}. Default is 'negotiate'.",
+            :default => "negotiate",
             :proc => Proc.new { |protocol| Chef::Config[:knife][:winrm_authentication_protocol] = protocol }
         end
       end
