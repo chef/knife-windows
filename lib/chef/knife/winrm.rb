@@ -202,7 +202,7 @@ class Chef
             if Chef::Platform.windows? && session_opts[:transport] == :plaintext && negotiate_auth?
               ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
               # windows - force only encrypted communication
-              require 'winrm-s'
+              load_windows_specific_gems
               session_opts[:transport] = :sspinegotiate
               session_opts[:disable_sspi] = false
               Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
@@ -224,6 +224,9 @@ class Chef
         end
         end
 
+      def load_windows_specific_gems
+        require 'winrm-s'
+      end
       def get_password
         @password ||= ui.ask("Enter your password: ") { |q| q.echo = false }
       end

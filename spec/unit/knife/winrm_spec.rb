@@ -104,6 +104,7 @@ describe Chef::Knife::Winrm do
         it "should default to negotiate when on a Windows host" do
           Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
           allow(Chef::Platform).to receive(:windows?).and_return(true)
+          expect(winrm_command_http).to receive(:load_windows_specific_gems)
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :sspinegotiate)).and_call_original
           expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
           winrm_command_http.set_defaults
