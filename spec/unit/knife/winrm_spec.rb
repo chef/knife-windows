@@ -101,6 +101,16 @@ describe Chef::Knife::Winrm do
           winrm_command_http.configure_session
         end
 
+        it "should default to negotiate when on a Windows host" do
+          Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
+          allow(Chef::Platform).to receive(:windows?).and_return(true)
+          expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :sspinegotiate)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          winrm_command_http.set_defaults
+          winrm_command_http.configure_chef
+          winrm_command_http.configure_session
+        end
+
         it "set operation timeout" do
           Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
           allow(Chef::Platform).to receive(:windows?).and_return(false)
@@ -166,7 +176,6 @@ describe Chef::Knife::Winrm do
 
         it "should not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do
           allow(Chef::Platform).to receive(:windows?).and_return(false)
-          #expect(winrm_command_no_verify.ui).to receive(:warn).exactly(2).times
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
           expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
           winrm_command_no_verify.configure_chef
