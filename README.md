@@ -28,7 +28,7 @@ This plugin provides the following Knife subcommands. Specific command options c
 
 ### knife winrm
 
-The `winrm` subcommand allows you to invoke commands in parallel on a subset of the nodes in your infrastructure. The `winrm` subcommand uses the same syntax as the [search subcommand](http://wiki.opscode.com/display/chef/Search); you could could find the uptime of all your web servers using the command:
+The `winrm` subcommand allows you to invoke commands in parallel on a subset of the nodes in your infrastructure. The `winrm` subcommand uses the same syntax as the [search subcommand](https://docs.chef.io/knife_search.html); you could could find the uptime of all your web servers using the command:
 
     knife winrm "role:web" "net stats srv" -x Administrator -P 'super_secret_password'
 
@@ -42,13 +42,13 @@ Or force a chef run:
     ec2-50-xx-xx-124.compute-1.amazonaws.com [Fri, 04 Mar 2011 22:00:53 +0000] INFO: Running report handlers
     ec2-50-xx-xx-124.compute-1.amazonaws.com [Fri, 04 Mar 2011 22:00:53 +0000] INFO: Report handlers complete
 
-This subcommand operates in a manner similar to [knife ssh](http://wiki.opscode.com/display/chef/Knife#Knife-SSHSubcommand)...just leveraging the WinRM protocol for communication. It also include's `knife ssh`'s "[interactive session mode](http://wiki.opscode.com/display/chef/Knife#Knife-InteractiveMode)"
+This subcommand operates in a manner similar to [knife ssh](https://docs.chef.io/knife_ssh.html)...just leveraging the WinRM protocol for communication. It also include's `knife ssh`'s "[interactive session mode](https://docs.chef.io/knife_ssh.html#options)"
 
 ### knife bootstrap windows winrm
 
 Performs a Chef Bootstrap (via the WinRM protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.
 
-This subcommand operates in a manner similar to [knife bootstrap](http://wiki.opscode.com/display/chef/Knife+Bootstrap)...just leveraging the WinRM protocol for communication. An initial run_list for the node can also be passed to the subcommand. Example usage:
+This subcommand operates in a manner similar to [knife bootstrap](https://docs.chef.io/knife_bootstrap.html)...just leveraging the WinRM protocol for communication. An initial run_list for the node can also be passed to the subcommand. Example usage:
 
     knife bootstrap windows winrm ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver],role[production]' -x Administrator -P 'super_secret_password'
 
@@ -118,7 +118,8 @@ Ruby 1.9.1+ is needed.
 
 ### Chef Version
 
-Knife plugins require >= Chef 0.10. More details about Knife plugins can be [found on the Chef wiki](http://wiki.opscode.com/display/chef/Knife+Plugins).
+Knife plugins require >= Chef 0.10. More details about Knife plugins can be
+[found in the Chef documentation](https://docs.chef.io/plugin_knife.html).
 
 ## Nodes
 
@@ -177,14 +178,14 @@ For development and testing purposes, unencrypted traffic with Basic authenticat
 
 ## CONTRIBUTING:
 
-Please file bugs against the KNIFE_WINDOWS project at https://github.com/opscode/knife-windows/issues.
+Please file bugs against the KNIFE_WINDOWS project at https://github.com/chef/knife-windows/issues.
 
-More information on the contribution process for Opscode projects can be found in the [Chef Contributions document](http://docs.opscode.com/community_contributions.html).
+More information on the contribution process for Chef projects can be found in the [Chef Contributions document](http://docs.chef.io/community_contributions.html).
 
 # LICENSE:
 
-Author:: Seth Chisamore (<schisamo@opscode.com>)
-Copyright:: Copyright (c) 2014 Opscode, Inc.
+Author:: Seth Chisamore (<schisamo@chef.io>)
+Copyright:: Copyright (c) 2015 Chef Software, Inc.
 License:: Apache License, Version 2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
