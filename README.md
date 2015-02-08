@@ -52,6 +52,22 @@ This subcommand operates in a manner similar to [knife bootstrap](https://docs.c
 
     knife bootstrap windows winrm ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver],role[production]' -x Administrator -P 'super_secret_password'
 
+### Use SSL for WinRM communication 
+
+By default, the `knife winrm` and `knife bootstrap windows winrm` subcommands use a plaintext transport,
+but they supports an option `--winrm-transport` (or `-t`) with the argument
+`ssl` that allows the SSL to secure the WinRM payload. Here's an example:
+
+    knife winrm -t ssl "role:web" "net stats srv" -x Administrator -P 'super_secret_password'
+
+Use of SSL is strongly recommended, particularly when invoking `knife-windows` on non-Windows platforms, since
+without SSL there are limited options for ensuring the privacy of the
+plaintext transport. See the later section on **Platform authentication
+support**. 
+
+SSL will become the default transport in future revisions of
+`knife-windows`.
+
 ### knife bootstrap windows ssh
 
 Performs a Chef Bootstrap (via the SSH protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.
@@ -67,7 +83,7 @@ An initial run_list for the node can also be passed to the subcommand. Example u
 Generates a certificate(x509) containing a public / private key pair for WinRM 'SSL' communication.
 The certificate will be generated in three different formats *.pfx, *.b64 and *.pem.
 The PKCS12(i.e *.pfx) contains both the public and private keys, usually used on the server. This will be added to WinRM Server's Certificate Store.
-The *.b64 is Base64 PKCS12 keypair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure.
+The *.b64 is Base64 PKCS12 key pair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure.
 The *.pem is Base64 encoded public certificate only. Required by the client to connect to the server.
 This command also displays the thumbprint of the generated certificate.
 
@@ -91,7 +107,7 @@ The command also allows you to use existing certificates from local store to cre
 
     knife windows listener create --cert-passphrase "strong_passphrase" --hostname "*.cloudapp.net" --cert-thumbprint "bf0fef0bb41be40ceb66a3b38813ca489fe99746"
 
-You can get the thumbprint for existing certificates in local store using the following powershell command:
+You can get the thumbprint for existing certificates in local store using the following PowerShell command:
 
     Get-ChildItem -path cert:\LocalMachine\My
 
@@ -108,17 +124,17 @@ This bootstrap template does the following:
 * Writes a default config file for Chef (`C:\chef\client.rb`) using values from the `knife.rb`.
 * Creates a JSON attributes file containing the specified run list and run Chef.
 
-This is the default bootstrap template used by both the `windows bootstrap` subcommands.
+This is the default bootstrap template used by both of the `windows bootstrap` subcommands.
 
 ## REQUIREMENTS/SETUP:
 
 ### Ruby
 
-Ruby 1.9.1+ is needed.
+Ruby 1.9.3+ is needed.
 
 ### Chef Version
 
-Knife plugins require >= Chef 0.10. More details about Knife plugins can be
+This knife plugins requires >= Chef 11.0.0. More details about Knife plugins can be
 [found in the Chef documentation](https://docs.chef.io/plugin_knife.html).
 
 ## Nodes
@@ -145,36 +161,94 @@ authentication schemes: Kerberos, Digest, Certificate and Basic.  The details
 of these authentication transports are outside of the scope of this README but
 details can be found on the
 [WinRM configuration guide](http://msdn.microsoft.com/en-us/library/aa384372(v=vs.85).aspx).
-Currently, this plugin support Kerberos and Basic authentication schemes on
-all platform versions. The negotiate protocol which allows NTLM is fully
-supported when `knife windows bootstrap` is executed on a Windows system; if
-it is executed on a non-Windows system, certificate authentication or Kerberos
-should be used instead via the `:kerberos_service` and related options of the subcommands.
 
-**NOTE**: In order to use NTLM / Negotiate to authenticate as the user
-  specified by the `--winrm-user` (`-x`) option, you must include the user's
-  Windows domain when specifying the user name using the format `domain\user`
-  where the backslash ('`\`') character separates the user from the domain. If
-  an account local to the node is being used to access, `.` may be used as the domain:
+## WinRM authentication
+
+The default authentication protocol for `knife-windows` subcommands that use
+WinRM is the Negotiate protocol. The following commands when executed on a
+Windows system show authentication for domain and local accounts respectively:
 
     knife bootstrap windows winrm web1.cloudapp.net -r 'server::web' -x 'proddomain\webuser' -P 'super_secret_password'
-    knife bootstrap windows winrm db1.cloudapp.net -r 'server::db' -x '.\localadmin' -P 'super_secret_password'
+    knife bootstrap windows winrm db1.cloudapp.net -r 'server::db' -x 'localadmin' -P 'super_secret_password'
 
-For development and testing purposes, unencrypted traffic with Basic authentication can make it easier to test connectivity:
+The commands above are using the default plaintext transport for WinRM --
+the default of Negotiate authentication may not be fully supported on
+non-Windows systems using the plaintext transport. To work around this, the
+remote system can be configured with an SSL WinRM listener instead of a
+plaintext listener. Then the above commands should be modified to use the SSL
+transport as follows using the `-t` (or `--winrm-transport`) option with the
+`ssl` argument:
+
+    knife bootstrap windows winrm -t ssl web1.cloudapp.net -r 'server::web' -x 'proddomain\webuser' -P 'super_secret_password'
+    knife bootstrap windows winrm -t ssl db1.cloudapp.net -r 'server::db' -x 'localadmin' -P 'super_secret_password'
+
+The commands using SSL above will work from any operating system, not just Windows.
+
+### Troubleshooting authentication
+
+For development and testing purposes, unencrypted traffic with Basic
+authentication can make it easier to test connectivity. The configuration for
+the remote system may be accomplished with the following commands:
 
     winrm set winrm/config/service @{AllowUnencrypted="true"}
     winrm set winrm/config/service/auth @{Basic="true"}
 
-## Troubleshooting
+To test connectivity via `knife-windows` from another system, the default
+authentication protocol of Negotiate must be overridden using the
+`--winrm-authentication-protocol` option with the desired protocol, in this
+case Basic:
+
+    knife winrm -m web1.cloudapp.net --winrm-authentication-protocol basic ipconfig -x 'localadmin' -P 'super_secret_password'
+
+Note that when using Basic authentication, domain accounts may not be used for
+authentication; an account local to the remote system must be used.
+
+### Platform WinRM authentication support
+
+`knife-windows` supports `Kerberos`, `Negotiate`, and `Basic` authentication
+for WinRM communication. However, some of these protocols
+may not work with `knife-windows` on non-Windows systems because
+`knife-windows` relies on operating system libraries such as GSSAPI to implement
+Windows authentication, and some versions of these libraries do not
+fully implement the protocols.
+
+The following table shows the authentication protocols that can be used with
+`knife-windows` depending on whether the knife workstation is a Windows
+system, the transport, and whether or not the target user is a domain user or
+local to the target Windows system.
+
+| Workstation OS / Account Scope | SSL                          | Plaintext                  |
+|--------------------------------|------------------------------|----------------------------|
+| Windows / Local                | Kerberos, Negotiate* , Basic | Kerberos, Negotiate, Basic |
+| Windows / Domain               | Kerberos, Negotiate          | Kerberos, Negotiate        |
+| Non-Windows / Local            | Kerberos, [Negotiate*](https://github.com/chef/knife-windows/issues/176) Basic | Kerberos, Basic |
+| Non-Windows / Domain           | Kerberos, Negotiate          | Kerberos                   |
+
+> \* There is a known defect in the `knife winrm` and `knife bootstrap windows
+> winrm` subcommands invoked on any OS  platform when authenticating with the Negotiate protocol over
+> the SSL transport. The defect is tracked by
+> [knife-windows issue #176](https://github.com/chef/knife-windows/issues/176): If the remote system is
+> domain-joined, local accounts may not be used to authenticate via Negotiate
+> over SSL -- only domain accounts will work. Local accounts will only
+> successfully authenticate if the system is not joined to a domain.
+>
+> This is generally not an issue for bootstrap scenarios, where the
+> system has yet to be joined to any domain, but can be a problem for remote
+> management cases after the system is domain joined. Workarounds include using
+> a domain account instead, or enabling Basic authentication on the remote
+> system (unencrypted communication **does not** need to be enabled to make
+> Basic authentication function over SSL).
+
+## General troubleshooting
 
 * When I run the winrm command I get: "Error: Invalid use of command line. Type "winrm -?" for help."
   You're running the winrm command from PowerShell and you need to put the key/value pair in single quotes. For example:
 
-    winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'
+   `winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'`
 
-* Windows 2008r2 and earlier versions require an extra configuration for MaxTimeoutms to avoid WinRM::WinRMHTTPTransportError: Bad HTTP response error while bootstrapping. It should be atleast 300000.
+* Windows 2008R2 and earlier versions require an extra configuration for MaxTimeoutms to avoid WinRM::WinRMHTTPTransportError: Bad HTTP response error while bootstrapping. It should be atleast 300000.
 
-    winrm set winrm/config @{MaxTimeoutms=300000}
+    `winrm set winrm/config @{MaxTimeoutms=300000}`
 
 ## CONTRIBUTING:
 
