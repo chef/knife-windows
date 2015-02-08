@@ -7,9 +7,45 @@ Description of the required change.
 -->
 # knife-windows 1.0.0 doc changes
 
+### WinRM default port default change
+The `winrm_port` option specifies the TCP port on the remote system to which
+to connect for WinRM communication for `knife-windows` commands that use
+WinRM. The default value of this option is **5986** if the WinRM transport
+(configured by the `winrm_transport` option) is SSL, otherwise it is **5985**.
+These defaults correspond to the port assignment conventions for the WinRM
+protocol, which is also honored by WinRM tools built-in to Windows such as the
+`winrs` tool.
+
+In previous releases, the default port was always 5985, regardless of the
+transport being used. To override the default, specify the `winrm_port`
+(`-p`) option and specify the desired port as the option's value.
+
+### WinRM authentication protocol defaults to `negotiate` regardless of name formats
+Unless explicitly overridden using the new `winrm_authentication_protocol`
+option, `knife-windows` subcommands that use WinRM will authenticate using the
+negotiate protocol, just as the tools built-in to the Windows operating
+system would do.
+
+Previously, `knife-windows` would use basic authentication, unless the
+username specified to the `winrm_user` option had the format `domain\user`,
+and in that case `knife-windows` would use negotiate authentication.
+
+To override the new behavior, specify the `winrm_authentication_protocol`
+option with a value of either the `basic` or `kerberos` to choose a different
+authentication protocol.
+
+### New `:winrm_authentication_protocol` option
+
+This option allows the authentication protocol used for WinRM communication to
+be explicitly specified. The supported protocol values are `kerberos`, `negotiate`,
+and `basic`, each of which directs `knife-windows` to use the respective authentication protocols.
+
+If the option is not specified, `knife-windows` treats this as a default value
+of `negotiate` and the tool uses negotiate authentication for WinRM.
+
 ### New `:winrm_ssl_verify_mode` option
 When running the `winrm` and `bootstrap windows` subcommands with the
-`:winrm_transport` option set to `ssl` to communicate with a remote Windows system using
+`winrm_transport` option set to `ssl` to communicate with a remote Windows system using
 the WinRM protocol via the SSL transport, you may disable `knife`'s verification of
 the remote system's SSL certificate. This is useful for testing or
 troubleshooting SSL connectivity before you've verified the certificate of the remote system's SSL WinRM listener.
@@ -104,7 +140,6 @@ be replaced with the `--cert-thumbprint` option to use the generated
 certificate's thumbprint to identify the certificate with which the listener
 should be configured:
 
-    knife windows cert generate --output-file $env:userprofile/winrmcerts/winrm-ssl
     knife windows cert generate --domain myorg.org --output-file $env:userprofile/winrmcerts/winrm-ssl 
     knife windows cert install $env:userprofile/winrmcerts/winrm-ssl
     knife windows listener create --hostname *.myorg.org --cert-thumbprint 1F3A70E2601FA1576BC4850ED2D7EF6587076423
@@ -250,3 +285,39 @@ If the command succeeds, then there may be a more subtle issue with negotiate
 authentication. It may be necessary to explicitly specify a domain in the user
 name parameter (e.g. `mydomain\myuser` rather than just `user`) for instance,
 or a specified domain may actually be incorrect and something that should be omitted.
+
+### Platform WinRM authentication support
+
+`knife-windows` supports `Kerberos`, `Negotiate`, and `Basic` authentication
+for WinRM communication. However, some of these protocols
+may not work with `knife-windows` on non-Windows systems because
+`knife-windows` relies on operating system libraries such as GSSAPI to implement
+Windows authentication, and some versions of these libraries do not
+fully implement the protocols.
+
+The following table shows the authentication protocols that can be used with
+`knife-windows` depending on whether the knife workstation is a Windows
+system, the transport, and whether or not the target user is a domain user or
+local to the target Windows system.
+
+| Workstation OS / Account Scope | SSL                          | Plaintext                  |
+|--------------------------------|------------------------------|----------------------------|
+| Windows / Local                | Kerberos, Negotiate* , Basic | Kerberos, Negotiate, Basic |
+| Windows / Domain               | Kerberos, Negotiate          | Kerberos, Negotiate        |
+| Non-Windows / Local            | Kerberos, [Negotiate*](https://github.com/chef/knife-windows/issues/176) Basic | Kerberos, Basic |
+| Non-Windows / Domain           | Kerberos, Negotiate          | Kerberos                   |
+
+> \* There is a known defect in the `knife winrm` and `knife bootstrap windows
+> winrm` subcommands invoked on any OS  platform when authenticating with the Negotiate protocol over
+> the SSL transport. The defect is tracked by
+> [knife-windows issue #176](https://github.com/chef/knife-windows/issues/176): If the remote system is
+> domain-joined, local accounts may not be used to authenticate via Negotiate
+> over SSL -- only domain accounts will work. Local accounts will only
+> successfully authenticate if the system is not joined to a domain.
+>
+> This is generally not an issue for bootstrap scenarios, where the
+> system has yet to be joined to any domain, but can be a problem for remote
+> management cases after the system is domain joined. Workarounds include using
+> a domain account instead, or enabling Basic authentication on the remote
+> system (unencrypted communication **does not** need to be enabled to make
+> Basic authentication function over SSL).
