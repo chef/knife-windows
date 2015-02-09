@@ -4,7 +4,8 @@
 None.
 
 ## Latest release: 0.8.3
-* [knife-windows #131](https://github.com/opscode/knife-windows/issues/108) Issue #131: Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems
+* [knife-windows #131](https://github.com/opscode/knife-windows/issues/108): Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems
+* [knife-windows #162](https://github.com/chef/knife-windows/issues/162): fixes "uninitialized constant Chef::Knife::Bootstrap (NameError)"
 
 ## Release: 0.8.2
 * [knife-windows #108](https://github.com/opscode/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption

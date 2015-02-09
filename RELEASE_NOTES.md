@@ -31,7 +31,8 @@ reported in the ticketing system at https://github.com/opscode/knife-windows/iss
 None.
 
 ## Issues fixed in knife-windows 0.8.3
-[knife-windows #131](https://github.com/opscode/knife-windows/issues/131) Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems. 
+[knife-windows #131](https://github.com/opscode/knife-windows/issues/131): Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems. 
+[knife-windows #162](https://github.com/chef/knife-windows/issues/162): fixes "uninitialized constant Chef::Knife::Bootstrap (NameError)"
 
 ## knife-windows on RubyGems and Github
 https://rubygems.org/gems/knife-windows
