@@ -78,7 +78,7 @@ class Chef
           end
 
           unless config[:cert_thumbprint]
-            ui.error "Please specify the --thumprint"
+            ui.error "Please specify the --cert-thumbprint"
             exit 1
           end
 
