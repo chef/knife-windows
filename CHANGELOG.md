@@ -1,9 +1,9 @@
 # knife-windows Change Log
 
-## Unreleased changes
-None.
+## Latest release: 0.8.4
+* [knife-windows #133](https://github.com/opscode/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
 
-## Latest release: 0.8.3
+## Release: 0.8.3
 * [knife-windows #131](https://github.com/opscode/knife-windows/issues/108): Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems
 * [knife-windows #162](https://github.com/chef/knife-windows/issues/162): fixes "uninitialized constant Chef::Knife::Bootstrap (NameError)"
 
