@@ -45,7 +45,7 @@ class Chef
         config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
 
         begin
-          ui.info "Adding certificate to the Certificate Store..."
+          ui.info "Adding certificate to the Windows Certificate Store..."
           result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{file_path}' AT_KEYEXCHANGE"}
           if $?.exitstatus == 0
             ui.info "Certificate added to Certificate Store"
