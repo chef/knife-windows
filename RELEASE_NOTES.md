@@ -54,7 +54,6 @@ To override this behavior, explicitly specify the desired port using the
 * [knife-windows #139](https://github.com/chef/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
 * [knife-windows #133](https://github.com/chef/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
 * [knife-windows #125](https://github.com/chef/knife-windows/issues/125) knife-windows should use PowerShell first before cscript to download the  Chef Client msi
-* [knife-azure 146](https://github.com/chef/knife-azure/pull/146) Virtual machine state 'provisioning' not reached after 5 minutes
 * [knife-windows #92](https://github.com/chef/knife-windows/issues/92) EventMachine issue: knife bootstrap windows winrm error
 * [knife-windows #94](https://github.com/chef/knife-windows/issues/94) Remove Eventmachine dependency
 
