@@ -5,10 +5,10 @@ Knife Windows Plugin
 
 This plugin adds additional functionality to the Chef Knife CLI tool for
 configuring/interacting with nodes running Microsoft Windows. The subcommands
-should function on any system running Ruby 1.9.1+ but nodes being configured
+should function on any system running Ruby 1.9.3+ but nodes being configured
 via these subcommands require Windows Remote Management (WinRM) 1.0+.WinRM
 allows you to call native objects in Windows. This includes, but is not
-limited to, running batch scripts, powershell scripts and fetching WMI
+limited to, running PowerShell scripts, batch scripts, and fetching WMI
 variables. For more information on WinRM, please visit
 [Microsoft's WinRM site](http://msdn.microsoft.com/en-us/library/aa384426(v=VS.85).aspx).
 You will want to familiarize yourself with (certain key aspects) of WinRM
@@ -55,15 +55,15 @@ This subcommand operates in a manner similar to [knife bootstrap](https://docs.c
 ### Use SSL for WinRM communication 
 
 By default, the `knife winrm` and `knife bootstrap windows winrm` subcommands use a plaintext transport,
-but they supports an option `--winrm-transport` (or `-t`) with the argument
+but they support an option `--winrm-transport` (or `-t`) with the argument
 `ssl` that allows the SSL to secure the WinRM payload. Here's an example:
 
     knife winrm -t ssl "role:web" "net stats srv" -x Administrator -P 'super_secret_password'
 
 Use of SSL is strongly recommended, particularly when invoking `knife-windows` on non-Windows platforms, since
 without SSL there are limited options for ensuring the privacy of the
-plaintext transport. See the later section on **Platform authentication
-support**. 
+plaintext transport. See the section on [Platform authentication
+support](#platform-winrm-authentication-support).
 
 SSL will become the default transport in future revisions of
 `knife-windows`.
@@ -146,7 +146,8 @@ A server running WinRM must also be configured properly to allow outside connect
     winrm quickconfig -q
 
 The Chef and Ohai gem installations (that occur during bootstrap) take more
-memory than the default 150MB WinRM allocates per shell -- this can slow down
+memory than the default 150MB WinRM allocates per shell on older versions of
+Windows (prior to Windows Server 2012) -- this can slow down
 bootstrap. Optionally increase the memory limit to 300MB with the following command:
 
     winrm set winrm/config/winrs @{MaxMemoryPerShellMB="300"}
@@ -157,7 +158,7 @@ complete, optionally increase to 30 minutes if bootstrap terminates a command pr
     winrm set winrm/config @{MaxTimeoutms="1800000"}
 
 WinRM supports both the HTTP and HTTPS transports and the following
-authentication schemes: Kerberos, Digest, Certificate and Basic.  The details
+authentication schemes: Kerberos, Digest, Certificate and Basic. The details
 of these authentication transports are outside of the scope of this README but
 details can be found on the
 [WinRM configuration guide](http://msdn.microsoft.com/en-us/library/aa384372(v=vs.85).aspx).
