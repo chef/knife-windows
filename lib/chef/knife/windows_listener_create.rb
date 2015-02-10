@@ -47,12 +47,6 @@ class Chef
         :long => "--cert-thumbprint THUMBPRINT",
         :description => "Thumbprint of the certificate. Required only if --cert-install option is not used."
 
-      option :basic_auth,
-        :long => "--[no-]basic-auth",
-        :description => "Disable basic authentication on the WinRM service.",
-        :boolean => true,
-        :default => true
-
       option :cert_passphrase,
         :short => "-cp PASSWORD",
         :long => "--cert-passphrase PASSWORD",
@@ -95,8 +89,6 @@ class Chef
           else
             ui.error "Error creating WinRM listener. use -VV for more details."
           end
-          result = %x{winrm set winrm/config/service/auth @{Basic="#{config[:basic_auth]}"}} unless config[:basic_auth]
-          Chef::Log.debug result
 
         rescue => e
           puts "ERROR: + #{e}"
