@@ -200,7 +200,6 @@ class Chef
             session_opts[:transport] = locate_config_value(:winrm_transport).to_sym
 
             if Chef::Platform.windows? && session_opts[:transport] == :plaintext && negotiate_auth?
-              ui.warn("Switching to Negotiate authentication, Basic does not support Domain Authentication")
               # windows - force only encrypted communication
               load_windows_specific_gems
               session_opts[:transport] = :sspinegotiate
