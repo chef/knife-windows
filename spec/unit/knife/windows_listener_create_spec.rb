@@ -29,7 +29,19 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
     @listener.config[:port] = "5986"
     expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
-    expect(@listener.ui).to receive(:info).with("WinRM listener created")
+    expect(@listener.ui).to receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
+    @listener.run
+  end
+
+  it "raise an error on command failure" do
+    @listener.config[:hostname] = "host"
+    @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
+    @listener.config[:port] = "5986"
+    @listener.config[:basic_auth] = true
+    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
+    expect($?).to receive(:exitstatus).and_return(100)
+    expect(@listener.ui).to receive(:error).with("Error creating WinRM listener. use -VV for more details.")
+    expect(@listener.ui).to_not receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
     @listener.run
   end
 
