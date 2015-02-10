@@ -90,8 +90,9 @@ class Chef
 
           result = %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:cert_thumbprint]}";Port="#{config[:port]}"}}
           Chef::Log.debug result
-          if ($?.exitstatus)
-            ui.info "WinRM listener created"
+
+          if ($?.exitstatus == 0)
+            ui.info "WinRM listener created with Port: #{config[:port]} and CertificateThumbprint: #{config[:cert_thumbprint]}"
           else
             ui.error "Error creating WinRM listener. use -VV for more details."
           end
