@@ -28,19 +28,7 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     @listener.config[:hostname] = "host"
     @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
     @listener.config[:port] = "5986"
-    @listener.config[:basic_auth] = true
     expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
-    expect(@listener.ui).to receive(:info).with("WinRM listener created")
-    @listener.run
-  end
-
-  it "creates winrm listener with no basic auth" do
-    @listener.config[:hostname] = "host"
-    @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
-    @listener.config[:port] = "5986"
-    @listener.config[:basic_auth] = false
-    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}").ordered
-    expect(@listener).to receive(:`).with("winrm set winrm/config/service/auth @{Basic=\"false\"}").ordered
     expect(@listener.ui).to receive(:info).with("WinRM listener created")
     @listener.run
   end
@@ -49,7 +37,6 @@ describe Chef::Knife::WindowsListenerCreate, :windows_only do
     @listener.config[:hostname] = "host"
     @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
     @listener.config[:port] = "5986"
-    @listener.config[:basic_auth] = true
     @listener.config[:cert_install] = true
     allow(@listener).to receive(:get_cert_passphrase).and_return("your-secret!")
     expect(@listener).to receive(:`).with("powershell.exe -Command \" 'your-secret!' | certutil  -importPFX 'true' AT_KEYEXCHANGE\"")
