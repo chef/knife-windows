@@ -111,8 +111,8 @@ describe Chef::Knife::Winrm do
           winrm_command_http.configure_chef
           winrm_command_http.configure_session
         end
-
-        it "set operation timeout" do
+        
+        it "set operation timeout and verify default" do
           Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
           allow(Chef::Platform).to receive(:windows?).and_return(false)
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
@@ -131,6 +131,19 @@ describe Chef::Knife::Winrm do
           winrm_command_http.set_defaults
           winrm_command_http.configure_chef
           winrm_command_http.configure_session
+        end
+        
+        let(:winrm_command_timeout) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword','--winrm-transport', 'plaintext', '--connection-timeout', '10', 'echo helloworld'])        }
+         
+         it "set operation timeout and verify 10 second  timeout" do
+          Chef::Config[:knife] = {winrm_transport: 'plaintext'}
+          allow(Chef::Platform).to receive(:windows?).and_return(false)
+          expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          expect(@winrm_session).to receive(:set_timeout).with(10)
+          winrm_command_timeout.set_defaults
+          winrm_command_timeout.configure_chef
+          winrm_command_timeout.configure_session
         end
 
         let(:winrm_command_https) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', 'echo helloworld'])
@@ -305,7 +318,7 @@ describe Chef::Knife::Winrm do
             @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>"5985", :operation_timeout=>1800, :no_ssl_peer_verification => false, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification => false, :basic_auth_only=>false, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
             exit_code = @winrm.run
           end
 
@@ -313,7 +326,7 @@ describe Chef::Knife::Winrm do
             Chef::Config[:knife][:winrm_authentication_protocol] = "negotiate"
             allow(Chef::Platform).to receive(:windows?).and_return(false)
             allow(@winrm).to receive(:exit)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5985", :operation_timeout=>1800, :no_ssl_peer_verification=>false, :basic_auth_only=>false, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification=>false, :basic_auth_only=>false, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
             exit_code = @winrm.run
           end
 
@@ -366,7 +379,7 @@ describe Chef::Knife::Winrm do
             Chef::Config[:knife][:winrm_transport] = "ssl"
             @winrm.config[:winrm_user] = "domain\\testuser"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>"5986", :operation_timeout=>1800, :no_ssl_peer_verification=>false, :basic_auth_only=>true, :transport=>:ssl, :disable_sspi=>true, :host=>"localhost"})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>"5986", :no_ssl_peer_verification=>false, :basic_auth_only=>true, :transport=>:ssl, :disable_sspi=>true, :host=>"localhost"})
             expect(@winrm).to_not receive(:require).with('winrm-s')
             exit_code = @winrm.run
           end
