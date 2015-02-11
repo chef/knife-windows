@@ -38,9 +38,10 @@ class Chef
       option :output_file,
         :short => "-o PATH",
         :long => "--output-file PATH",
-        :description => "By default 3 files will be generated in the current folder as winrmcert.pfx and
-        winrmcert.pem. You can specify alternate file path using this option. Eg: --output-file /home/.winrm/server_cert.pfx.
-        This will create 3 files in the specified path with name server_cert.pem, sever_cert.pfx, server_cert.der.",
+        :description => "By default 3 files will be generated in the current folder as winrmcert.pfx,
+        winrmcert.b64 and winrmcert.pem. You can specify alternate file path and filename using this option.
+        Eg: --output-file /home/.winrm/server_cert. This will create 3 files at path '/home/.winrm/'
+        with name 'server_cert'",
         :default => "winrmcert"
 
       option :key_length,
