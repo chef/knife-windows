@@ -50,6 +50,26 @@ describe Chef::Knife::WindowsCertGenerate do
 
   it "creates certificate" do
     @certgen.config[:output_file] = 'winrmcert'
+    @certgen.config[:overwrite_certs] = true
+    expect(@certgen).to receive(:overwrite_existing_certs!)
+    expect(@certgen).to receive(:generate_keypair)
+    expect(@certgen).to receive(:generate_certificate)
+    expect(@certgen).to receive(:write_certificate_to_file)
+    expect(@certgen.ui).to receive(:info).with("Generated Certificates:")
+    expect(@certgen.ui).to receive(:info).with("- winrmcert.pfx - PKCS12 format keypair. Contains both the public and private keys, usually used on the server.")
+    expect(@certgen.ui).to receive(:info).with("- winrmcert.b64 - Base64 encoded PKCS12 keypair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure")
+    expect(@certgen.ui).to receive(:info).with("- winrmcert.pem - Base64 encoded public certificate only. Required by the client to connect to the server.")
+    @certgen.thumbprint = "TEST_THUMBPRINT"
+    expect(@certgen.ui).to receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
+    @certgen.run
+  end
+
+  it "#overwrite_existing_certs" do
+    file_path = 'winrmcert'
+    @certgen.config[:output_file] = file_path
+    @certgen.config[:overwrite_certs] = false
+    allow(Dir).to receive(:glob).and_return([file_path])
+    expect(@certgen).to receive(:confirm).with("Do you really want to overwrite existing certificates")
     expect(@certgen).to receive(:generate_keypair)
     expect(@certgen).to receive(:generate_certificate)
     expect(@certgen).to receive(:write_certificate_to_file)
