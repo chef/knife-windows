@@ -56,6 +56,12 @@ class Chef
         :long => "--cert-passphrase PASSWORD",
         :description => "Password for certificate."
 
+      option :overwrite_certs,
+        :long => "--overwrite-certs",
+        :boolean => true,
+        :description => "The existing certificates files will be overwritten, if the --output-file <file_path> that the cert generate command creates already exist.",
+        :default => false
+
       def generate_keypair
         OpenSSL::PKey::RSA.new(config[:key_length].to_i)
       end
@@ -108,10 +114,33 @@ class Chef
         File.open(file_path + ".b64", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
       end
 
+      def overwrite_existing_certs!(file_path)
+        if !config[:overwrite_certs]
+          is_certs_exists = false
+          %w{pem pfx b64}.each do |extn|
+            if !Dir.glob("#{file_path}.*#{extn}").empty?
+              is_certs_exists = true
+              break
+            end
+          end
+
+          if is_certs_exists
+            begin
+              confirm("Do you really want to overwrite existing certificates")
+            rescue SystemExit   # Need to handle this as confirming with N/n raises SystemExit exception
+              exit!
+            end
+          end
+        end
+      end
+
       def run
         STDOUT.sync = STDERR.sync = true
         file_path = "winrmcert"
         file_path = config[:output_file].sub(/\.(\w+)$/,'')
+
+        # check if certs already exists at given file path
+        overwrite_existing_certs! file_path
 
         begin
           rsa_key = generate_keypair
