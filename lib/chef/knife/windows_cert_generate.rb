@@ -64,7 +64,7 @@ class Chef
       option :overwrite_certs,
         :long => "--overwrite-certs",
         :boolean => true,
-        :description => "The existing certificates files will be overwritten, if the --output-file <file_path> that the cert generate command creates already exist.",
+        :description => "The existing certificates files will be overwritten, if the --output-file <file_path> that the cert generate command creates already exist.", 
         :default => false
 
       def generate_keypair
