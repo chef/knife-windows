@@ -31,12 +31,12 @@ class Chef
       option :domain,
         :short => "-d DOMAIN",
         :long => "--domain DOMAIN",
-        :description => "By default there will be no domain name. If user wants to give the hostname as '*.mydomain.com' then he must specify the domain as: --domain 'mydomain.com'"
+        :description => "The domain for the certificate subject name. To match a hostname of '*.mydomain.com', specify the domain as: --domain 'mydomain.com'. The default is no domain."
 
       option :output_file,
         :short => "-o PATH",
         :long => "--output-file PATH",
-        :description => "By default 3 files will be generated in the current folder as winrmcert.pfx and winrmcert.pem. You can specify alternate file path using this option. Eg: --output-file /home/.winrm/server_cert.pfx. This will create 3 files in the specified path with name server_cert.pem, sever_cert.pfx, server_cert.der.",
+        :description => "Specifies the file path at which to generate the 3 certificate files of type .pfx, .b64, and .pem. The default is './winrmcert'.",
         :default => "winrmcert"
 
       option :key_length,
@@ -119,8 +119,8 @@ class Chef
           cert = generate_certificate rsa_key
           write_certificate_to_file cert, file_path, rsa_key
           ui.info "Generated Certificates:"
-          ui.info "- #{file_path}.pfx - PKCS12 format keypair. Contains both the public and private keys, usually used on the server."
-          ui.info "- #{file_path}.b64 - Base64 encoded PKCS12 keypair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure"
+          ui.info "- #{file_path}.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server."
+          ui.info "- #{file_path}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers." 
           ui.info "- #{file_path}.pem - Base64 encoded public certificate only. Required by the client to connect to the server."
           ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e
