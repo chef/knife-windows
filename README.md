@@ -1,7 +1,7 @@
 Knife Windows Plugin
 ====================
-[![Build Status Master](https://travis-ci.org/chef/chef.svg?branch=master)](https://travis-ci.org/chef/knife-windows)
-[![Build Status Master](https://ci.appveyor.com/api/projects/status/github/chef/knife-windows?branch=master&svg=true&passingText=master%20-%20Ok&pendingText=master%20-%20Pending&failingText=master%20-%20Failing)](https://ci.appveyor.com/project/Chef/chef/branch/master)
+[![Build Status Master](https://travis-ci.org/chef/knife-windows.svg?branch=master)](https://travis-ci.org/chef/knife-windows)
+[![Build Status Master](https://ci.appveyor.com/api/projects/status/github/chef/knife-windows?branch=master&svg=true&passingText=master%20-%20Ok&pendingText=master%20-%20Pending&failingText=master%20-%20Failing)](https://ci.appveyor.com/project/Chef/knife-windows/branch/master)
 
 This plugin adds additional functionality to the Chef Knife CLI tool for
 configuring/interacting with nodes running Microsoft Windows. The subcommands
