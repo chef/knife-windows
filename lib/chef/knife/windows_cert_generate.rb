@@ -26,7 +26,7 @@ class Chef
 
       attr_accessor :thumbprint, :hostname
 
-      banner "knife windows cert generate (options)"
+      banner "knife windows cert generate FILE_PATH (options)"
 
       option :domain,
         :short => "-d DOMAIN",
@@ -110,8 +110,9 @@ class Chef
 
       def run
         STDOUT.sync = STDERR.sync = true
-        file_path = "winrmcert"
-        file_path = config[:output_file].sub(/\.(\w+)$/,'')
+
+        # takes user specified first cli value as a destination file path for generated cert.
+        file_path = @name_args.empty? ? config[:output_file].sub(/\.(\w+)$/,'') : @name_args.first
 
         begin
           rsa_key = generate_keypair
