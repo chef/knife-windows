@@ -265,7 +265,7 @@ WGET_PS
           if @chef_config[:trusted_certs_dir]
             Dir.glob(File.join(PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
               content << "> #{bootstrap_directory}/trusted_certs/#{File.basename(cert)} (\n" +
-                         IO.read(File.expand_path(cert)) + "\n)\n"
+                         escape_and_echo(IO.read(File.expand_path(cert))) + "\n)\n"
             end
           end
           content
