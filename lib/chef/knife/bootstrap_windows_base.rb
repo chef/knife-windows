@@ -99,6 +99,21 @@ class Chef
             :long => "--auth-timeout MINUTES",
             :description => "The maximum time in minutes to wait to for authentication over the transport to the node to succeed. The default value is 2 minutes.",
             :default => 2
+
+          option :node_ssl_verify_mode,
+          :long        => "--node-ssl-verify-mode [peer|none]",
+          :description => "Whether or not to verify the SSL cert for all HTTPS requests.",
+          :proc        => Proc.new { |v|
+            valid_values = ["none", "peer"]
+            unless valid_values.include?(v)
+              raise "Invalid value '#{v}' for --node-ssl-verify-mode. Valid values are: #{valid_values.join(", ")}"
+            end
+          }
+
+          option :node_verify_api_cert,
+          :long        => "--[no-]node-verify-api-cert",
+          :description => "Verify the SSL cert for HTTPS requests to the Chef server API.",
+          :boolean     => true
         end
       end
 
