@@ -199,7 +199,7 @@ echo Validation key written.
 
 <% if(Gem::Specification.find_by_name('chef').version.version.to_f >= 12) %>
 <% unless trusted_certs.empty? -%>
-mkdir -p C:/chef/trusted_certs
+mkdir <%= bootstrap_directory %>\trusted_certs
 <%= trusted_certs %>
 <% end -%>
 <% end -%>
