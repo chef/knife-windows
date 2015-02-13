@@ -17,6 +17,7 @@
 #
 
 require 'chef/knife/core/bootstrap_context'
+require 'chef/util/path_helper'
 
 class Chef
   class Knife
@@ -247,7 +248,7 @@ WGET_PS
         def trusted_certs_content
           content = ""
           if @chef_config[:trusted_certs_dir]
-            Dir.glob(File.join(PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
+            Dir.glob(File.join(::Chef::Util::PathHelper.escape_glob(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
               content << "> #{bootstrap_directory}/trusted_certs/#{File.basename(cert)} (\n" +
                          escape_and_echo(IO.read(File.expand_path(cert))) + "\n)\n"
             end
