@@ -105,10 +105,10 @@ class Chef
             :default => "negotiate",
             :proc => Proc.new { |protocol| Chef::Config[:knife][:winrm_authentication_protocol] = protocol }
 						
-          option :connection_timeout,
-            :long => "--connection-timeout Seconds",
-            :description => "The timeout for the client to wait for the WinRM connection to complete",
-            :default => 1800
+          option :session_timeout,
+            :long => "--session-timeout Minutes",
+            :description => "The timeout for the client for the maximum length of the WinRM session",
+            :default => 30
         end
       end
 
