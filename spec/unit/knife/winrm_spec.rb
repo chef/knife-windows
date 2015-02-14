@@ -133,14 +133,14 @@ describe Chef::Knife::Winrm do
           winrm_command_http.configure_session
         end
         
-        let(:winrm_command_timeout) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword','--winrm-transport', 'plaintext', '--connection-timeout', '10', 'echo helloworld'])        }
+        let(:winrm_command_timeout) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword','--winrm-transport', 'plaintext', '--session-timeout', '10', 'echo helloworld'])        }
          
-         it "set operation timeout and verify 10 second  timeout" do
+         it "set operation timeout and verify 10 Minute timeout" do
           Chef::Config[:knife] = {winrm_transport: 'plaintext'}
           allow(Chef::Platform).to receive(:windows?).and_return(false)
           expect(Chef::Knife::Winrm::Session).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
           expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
-          expect(@winrm_session).to receive(:set_timeout).with(10)
+          expect(@winrm_session).to receive(:set_timeout).with(600)
           winrm_command_timeout.set_defaults
           winrm_command_timeout.configure_chef
           winrm_command_timeout.configure_session

@@ -185,7 +185,7 @@ class Chef
           session_opts[:service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
           session_opts[:ca_trust_path] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
           #30 min (Default) OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
-          session_opts[:operation_timeout] = locate_config_value(:connection_timeout).to_i if locate_config_value(:connection_timeout)
+          session_opts[:operation_timeout] = locate_config_value(:session_timeout).to_i * 60 if locate_config_value(:session_timeout)
           session_opts[:no_ssl_peer_verification] = no_ssl_peer_verification?(session_opts[:ca_trust_path])
           warn_no_ssl_peer_verification if session_opts[:no_ssl_peer_verification]
 
