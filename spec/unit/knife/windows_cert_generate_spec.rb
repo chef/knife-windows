@@ -50,8 +50,8 @@ describe Chef::Knife::WindowsCertGenerate do
 
   it "creates certificate" do
     @certgen.config[:output_file] = 'winrmcert'
-    @certgen.config[:overwrite_certs] = true
-    expect(@certgen).to receive(:overwrite_existing_certs!)
+    allow(Dir).to receive(:glob).and_return([])
+    expect(@certgen).to receive(:is_other_certificates_present?)
     expect(@certgen).to receive(:generate_keypair)
     expect(@certgen).to receive(:generate_certificate)
     expect(@certgen).to receive(:write_certificate_to_file)
@@ -64,10 +64,9 @@ describe Chef::Knife::WindowsCertGenerate do
     @certgen.run
   end
 
-  it "#overwrite_existing_certs" do
+  it "#is_other_certificates_present?" do
     file_path = 'winrmcert'
     @certgen.config[:output_file] = file_path
-    @certgen.config[:overwrite_certs] = false
     allow(Dir).to receive(:glob).and_return([file_path])
     expect(@certgen).to receive(:confirm).with("Do you really want to overwrite existing certificates")
     expect(@certgen).to receive(:generate_keypair)
