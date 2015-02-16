@@ -28,15 +28,20 @@ class Chef
 
       banner "knife windows cert generate FILE_PATH (options)"
 
-      option :domain,
-        :short => "-d DOMAIN",
-        :long => "--domain DOMAIN",
-        :description => "By default there will be no domain name. If user wants to give the hostname as '*.mydomain.com' then he must specify the domain as: --domain 'mydomain.com'"
+      option :hostname,
+        :short => "-H HOSTNAME",
+        :long => "--hostname HOSTNAME",
+        :description => "By default hostname is *. If user wants to give his fqdn as the hostname
+        then he must specify the hostname as: --hostname 'something.mydomain.com'. User can also give wildcard
+        as '*.mydomain.com'"
 
       option :output_file,
         :short => "-o PATH",
         :long => "--output-file PATH",
-        :description => "By default 3 files will be generated in the current folder as winrmcert.pfx and winrmcert.pem. You can specify alternate file path using this option. Eg: --output-file /home/.winrm/server_cert.pfx. This will create 3 files in the specified path with name server_cert.pem, sever_cert.pfx, server_cert.der.",
+        :description => "By default 3 files will be generated in the current folder as winrmcert.pfx,
+        winrmcert.b64 and winrmcert.pem. You can specify alternate file path and filename using this option.
+        Eg: --output-file /home/.winrm/server_cert. This will create 3 files at path '/home/.winrm/'
+        with name 'server_cert'",
         :default => "winrmcert"
 
       option :key_length,
@@ -75,9 +80,7 @@ class Chef
 
       def generate_certificate rsa_key
         @hostname = "*"
-        if config[:domain]
-          @hostname = "*." + config[:domain]
-        end
+        @hostname = config[:hostname] if config[:hostname]
 
         #Create a self-signed X509 certificate from the rsa_key (unencrypted)
         cert = OpenSSL::X509::Certificate.new
