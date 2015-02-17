@@ -6,35 +6,21 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
-# knife-windows 0.8.3 release notes
-This release of knife-windows addresses a bug exposed by the Chef Client 12.0
-release where Windows nodes are bootstrapped with Chef Client 12 even though
-the Chef Client version of knife is 11, which is inconsistent with the
-bootstrap behavior of non-Windows systems with knife (such systems are correctly
-bootstrapped with Chef Client 11):
+# knife-windows 0.8.4 release notes
+This release of knife-windows addresses the lack of a way to configure the ssl settings
+of a client when bootstrapped. knife-windows now mimics 'knife bootstrap' such that
+new systems will have the trusted_certs_dir that is specified on the workstation copied
+to the new node. Additional SSL related settings including verify_api_cert and
+ssl_verify_mode will be set in the bootstrapped nodes client.rb to match the settings
+in the workstations knife.rb.
 
-[knife-windows #131](https://github.com/opscode/knife-windows/issues/131) Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems. 
-
-You can install the fix for this issue by upgrading to this new version using
-the `gem` command:
-
-    gem install knife-windows --pre
-
-Our thanks go to **David Crowder** for reporting [knife-windows #131](https://github.com/opscode/knife-windows/issues/131).
-
-## Reporting issues and contributing
-
-`knife-windows` issues like the one addressed in this release should be
-reported in the ticketing system at https://github.com/opscode/knife-windows/issues. You can learn more about how to contribute features and bug fixes to `knife-windows` in the [Chef Contributions document](http://docs.opscode.com/community_contributions.html).
-
-## Features added in knife-windows 0.8.3
+## Features added in knife-windows 0.8.4
 None.
 
-## Issues fixed in knife-windows 0.8.3
-[knife-windows #131](https://github.com/opscode/knife-windows/issues/131): Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems. 
-[knife-windows #162](https://github.com/chef/knife-windows/issues/162): fixes "uninitialized constant Chef::Knife::Bootstrap (NameError)"
+## Issues fixed in knife-windows 0.8.4
+[knife-windows #133](https://github.com/opscode/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
 
 ## knife-windows on RubyGems and Github
 https://rubygems.org/gems/knife-windows
-https://github.com/opscode/knife-windows
+https://github.com/chef/knife-windows
 
