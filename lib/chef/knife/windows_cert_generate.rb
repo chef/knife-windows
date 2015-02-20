@@ -108,16 +108,16 @@ class Chef
         File.open(file_path + ".b64", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
       end
 
-      def is_other_certificates_present?(file_path)
-        is_certs_exists = false
+      def certificates_already_exist?(file_path)
+        certs_exists = false
         %w{pem pfx b64}.each do |extn|
           if !Dir.glob("#{file_path}.*#{extn}").empty?
-            is_certs_exists = true
+            certs_exists = true
             break
           end
         end
 
-        if is_certs_exists
+        if certs_exists
           begin
             confirm("Do you really want to overwrite existing certificates")
           rescue SystemExit   # Need to handle this as confirming with N/n raises SystemExit exception
@@ -132,7 +132,7 @@ class Chef
         file_path = config[:output_file].sub(/\.(\w+)$/,'')
 
         # check if certs already exists at given file path
-        is_other_certificates_present? file_path
+        certificates_already_exist? file_path
 
         begin
           rsa_key = generate_keypair

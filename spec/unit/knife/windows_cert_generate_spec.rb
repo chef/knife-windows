@@ -51,7 +51,7 @@ describe Chef::Knife::WindowsCertGenerate do
   it "creates certificate" do
     @certgen.config[:output_file] = 'winrmcert'
     allow(Dir).to receive(:glob).and_return([])
-    expect(@certgen).to receive(:is_other_certificates_present?)
+    expect(@certgen).to receive(:certificates_already_exist?)
     expect(@certgen).to receive(:generate_keypair)
     expect(@certgen).to receive(:generate_certificate)
     expect(@certgen).to receive(:write_certificate_to_file)
@@ -64,7 +64,7 @@ describe Chef::Knife::WindowsCertGenerate do
     @certgen.run
   end
 
-  it "#is_other_certificates_present?" do
+  it "#certificates_already_exist?" do
     file_path = 'winrmcert'
     @certgen.config[:output_file] = file_path
     allow(Dir).to receive(:glob).and_return([file_path])
