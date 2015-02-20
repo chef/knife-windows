@@ -138,6 +138,9 @@ class Chef
         # check if certs already exists at given file path
         certificates_already_exist? file_path
 
+        # check if certs already exists at given file path
+        certificates_already_exist? file_path
+
         begin
           rsa_key = generate_keypair
           cert = generate_certificate rsa_key
