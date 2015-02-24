@@ -107,7 +107,7 @@ goto install
 :install
 @rem Install Chef using chef-client MSI installer
 
-<% url="https://www.opscode.com/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%" -%>
+<% url="https://www.chef.io/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%" -%>
 <% url += latest_current_windows_chef_version_query -%>
 @set "REMOTE_SOURCE_MSI_URL=<%= url %>"
 @set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
