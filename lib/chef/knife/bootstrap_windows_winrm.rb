@@ -47,6 +47,7 @@ class Chef
         winrm.config[:winrm_user] = locate_config_value(:winrm_user)
         winrm.config[:winrm_password] = locate_config_value(:winrm_password)
         winrm.config[:winrm_transport] = locate_config_value(:winrm_transport)
+        winrm.config[:winrm_ssl_verify_mode] = locate_config_value(:winrm_ssl_verify_mode)
         winrm.config[:kerberos_keytab_file] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
         winrm.config[:kerberos_realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
         winrm.config[:kerberos_service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
