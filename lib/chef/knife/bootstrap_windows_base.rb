@@ -85,13 +85,13 @@ class Chef
             :proc => lambda { |o| JSON.parse(o) },
             :default => {}
 
-          option :encrypted_data_bag_secret,
+          option :secret,
             :short => "-s SECRET",
             :long  => "--secret ",
             :description => "The secret key to use to decrypt data bag item values.  Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config.",
             :default => false
 
-          option :encrypted_data_bag_secret_file,
+          option :secret_file,
             :long => "--secret-file SECRET_FILE",
             :description => "A file containing the secret key to use to encrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config."
 
@@ -147,8 +147,8 @@ class Chef
       end
 
       def render_template(template=nil)
-        if config[:encrypted_data_bag_secret_file]
-          config[:encrypted_data_bag_secret] = Chef::EncryptedDataBagItem.load_secret(config[:encrypted_data_bag_secret_file])
+        if config[:secret_file]
+          config[:secret] = Chef::EncryptedDataBagItem.load_secret(config[:secret_file])
         end
         context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
         Erubis::Eruby.new(template).evaluate(context)
