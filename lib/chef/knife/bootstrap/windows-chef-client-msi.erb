@@ -197,11 +197,9 @@ echo Validation key written.
 )
 <% end -%>
 
-<% if(Gem::Specification.find_by_name('chef').version.version.to_f >= 12) %>
-<% unless trusted_certs.empty? -%>
+<% unless trusted_certs_script.empty? -%>
 mkdir <%= bootstrap_directory %>\trusted_certs
-<%= trusted_certs %>
-<% end -%>
+<%= trusted_certs_script %>
 <% end -%>
 
 <%# Generate Ohai Hints -%>
