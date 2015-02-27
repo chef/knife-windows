@@ -40,7 +40,7 @@ class Chef
         :short => "-h HOSTNAME",
         :long => "--hostname HOSTNAME",
         :description => "Hostname on the listener. Default is *",
-        :default => "*"
+        :default => ""
 
       option :cert_thumbprint,
         :short => "-t THUMBPRINT",
