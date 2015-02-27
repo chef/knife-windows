@@ -218,6 +218,8 @@ describe Chef::Knife::Winrm do
       end
 
       context "when executing the run command which sets the process exit code" do
+        let(:session) { Chef::Knife::Winrm::Session.new(host: 'https://winrm.cloudapp.net:5986/wsman', transport: :ssl) }
+
         before(:each) do
           Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
           @winrm = Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', 'echo helloworld'])
@@ -242,9 +244,8 @@ describe Chef::Knife::Winrm do
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
           allow(@winrm.ui).to receive(:error)
           allow(@winrm).to receive(:validate!)
-          session_mock = Chef::Knife::Winrm::Session.new({})
-          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_code).and_return(command_status)
+          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session)
+          allow(session).to receive(:exit_code).and_return(command_status)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
 
@@ -254,9 +255,8 @@ describe Chef::Knife::Winrm do
           Chef::Config[:knife][:returns] = [0,53]
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
           allow(@winrm.ui).to receive(:error)
-          session_mock = Chef::Knife::Winrm::Session.new({})
-          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_code).and_return(command_status)
+          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session)
+          allow(session).to receive(:exit_code).and_return(command_status)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
         end
 
@@ -265,9 +265,8 @@ describe Chef::Knife::Winrm do
           Chef::Config[:knife][:returns] = [0,53]
           allow(@winrm).to receive(:validate!)
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
-          session_mock = Chef::Knife::Winrm::Session.new({})
-          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session)
+          allow(session).to receive(:exit_codes).and_return({"thishost" => command_status})
           exit_code = @winrm.run
           expect(exit_code).to be_zero
         end
@@ -277,9 +276,8 @@ describe Chef::Knife::Winrm do
           Chef::Config[:knife][:returns] = [0,53]
           allow(@winrm).to receive(:validate!)
           allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
-          session_mock = Chef::Knife::Winrm::Session.new({})
-          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+          allow(Chef::Knife::Winrm::Session).to receive(:new).and_return(session)
+          allow(session).to receive(:exit_codes).and_return({"thishost" => command_status})
           exit_code = @winrm.run
           expect(exit_code).to be_zero
         end
@@ -311,6 +309,7 @@ describe Chef::Knife::Winrm do
           before do
             Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
             allow(@winrm).to receive(:relay_winrm_command).and_return(0)
+            allow(@winrm).to receive(:create_winrm_session).and_return(session)
           end
 
           it "set sspinegotiate transport on windows for 'negotiate' authentication" do
