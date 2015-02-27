@@ -83,7 +83,7 @@ describe Chef::Knife::Winrm do
       context "when configuring the WinRM transport" do
         before(:all) do
           @winrm_session = Object.new
-          @winrm_session.define_singleton_method(:set_timeout){|timeout| ""}          
+          @winrm_session.define_singleton_method(:set_timeout){|timeout| ""}
         end
         after(:each) do
           Chef::Config.configuration = @original_config
@@ -111,7 +111,7 @@ describe Chef::Knife::Winrm do
           winrm_command_http.configure_chef
           winrm_command_http.configure_session
         end
-        
+
         it "set operation timeout and verify default" do
           Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
           allow(Chef::Platform).to receive(:windows?).and_return(false)
@@ -132,9 +132,9 @@ describe Chef::Knife::Winrm do
           winrm_command_http.configure_chef
           winrm_command_http.configure_session
         end
-        
+
         let(:winrm_command_timeout) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword','--winrm-transport', 'plaintext', '--session-timeout', '10', 'echo helloworld'])        }
-         
+
          it "set operation timeout and verify 10 Minute timeout" do
           Chef::Config[:knife] = {winrm_transport: 'plaintext'}
           allow(Chef::Platform).to receive(:windows?).and_return(false)

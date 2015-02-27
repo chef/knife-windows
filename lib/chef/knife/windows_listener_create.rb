@@ -59,7 +59,7 @@ class Chef
       end
 
       def run
-        STDOUT.sync = STDERR.sync = true        
+        STDOUT.sync = STDERR.sync = true
 
         begin
           if config[:cert_install]

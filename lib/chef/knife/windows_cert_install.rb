@@ -22,7 +22,7 @@ class Chef
   class Knife
     class WindowsCertInstall < Knife
 
-      banner "knife windows cert install CERT [CERT] (options)"      
+      banner "knife windows cert install CERT [CERT] (options)"
 
       option :cert_passphrase,
         :short => "-cp PASSWORD",
@@ -40,7 +40,7 @@ class Chef
         if @name_args.empty?
           ui.error "Please specify the certificate path. e.g-  'knife windows cert install <path>"
           exit 1
-        end            
+        end
         file_path = @name_args.first
         config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
 

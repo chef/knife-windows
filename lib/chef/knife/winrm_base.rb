@@ -104,7 +104,7 @@ class Chef
             :description => "The authentication protocol used during WinRM communication. The supported protocols are #{WINRM_AUTH_PROTOCOL_LIST.join(',')}. Default is 'negotiate'.",
             :default => "negotiate",
             :proc => Proc.new { |protocol| Chef::Config[:knife][:winrm_authentication_protocol] = protocol }
-						
+
           option :session_timeout,
             :long => "--session-timeout Minutes",
             :description => "The timeout for the client for the maximum length of the WinRM session",
