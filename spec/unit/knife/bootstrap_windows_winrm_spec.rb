@@ -39,7 +39,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   let(:initial_fail_count) { 4 }
   it 'should retry if a 401 is received from WinRM' do
-    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '401'}}
+    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('', '401')}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
     allow(bootstrap).to receive(:print)
@@ -50,7 +50,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should retry if something other than a 401 is received from WinRM' do
-    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '500'}}
+    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('', '500')}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
     allow(bootstrap).to receive(:print)
@@ -61,7 +61,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should have a wait timeout of 2 minutes by default' do
-    allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError)
+    allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '500'))
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
@@ -71,7 +71,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should keep retrying at 10s intervals if the timeout in minutes has not elapsed' do
-    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '500'}}
+    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('', '500')}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
     allow(bootstrap).to receive(:print)
