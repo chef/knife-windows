@@ -30,7 +30,7 @@ end
 
 def windows2012?
   is_win2k12 = false
-  
+
   if  windows?
     this_operating_system = WMI::Win32_OperatingSystem.find(:first)
     os_version = this_operating_system.send('Version')
