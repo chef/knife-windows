@@ -31,8 +31,8 @@ class Chef
       option :hostname,
         :short => "-H HOSTNAME",
         :long => "--hostname HOSTNAME",
-        :description => "By default hostname is *. If user wants to give his fqdn as the hostname
-        then he must specify the hostname as: --hostname 'something.mydomain.com'. User can also give wildcard
+        :description => "By default hostname is *. If user wants to give an fqdn as the hostname
+        then he/she must specify the hostname as: --hostname 'something.mydomain.com'. User can also give wildcard
         as '*.mydomain.com'"
 
       option :output_file,
