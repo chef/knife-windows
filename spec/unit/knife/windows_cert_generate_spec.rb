@@ -48,51 +48,43 @@ describe Chef::Knife::WindowsCertGenerate do
     @certgen.write_certificate_to_file cert, "test", key
   end
 
-  it "creates certificate" do
-    @certgen.config[:output_file] = 'winrmcert'
-    allow(Dir).to receive(:glob).and_return([])
-    expect(@certgen).to receive(:certificates_already_exist?)
-    expect(@certgen).to receive(:generate_keypair)
-    expect(@certgen).to receive(:generate_certificate)
-    expect(@certgen).to receive(:write_certificate_to_file)
-    expect(@certgen.ui).to receive(:info).with("Generated Certificates:")
-    expect(@certgen.ui).to receive(:info).with("- winrmcert.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server.")
-    expect(@certgen.ui).to receive(:info).with("- winrmcert.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers.")
-    expect(@certgen.ui).to receive(:info).with("- winrmcert.pem - Base64 encoded public certificate only. Required by the client to connect to the server.")
-    @certgen.thumbprint = "TEST_THUMBPRINT"
-    expect(@certgen.ui).to receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
-    @certgen.run
-  end
+  context "when creating certificate files" do
+    before do
+      @certgen.thumbprint = "TEST_THUMBPRINT"
+      allow(Dir).to receive(:glob).and_return([])
+      allow(@certgen).to receive(:generate_keypair)
+      allow(@certgen).to receive(:generate_certificate)
+      expect(@certgen.ui).to receive(:info).with("Generated Certificates:")
+      expect(@certgen.ui).to receive(:info).with("- winrmcert.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server.")
+      expect(@certgen.ui).to receive(:info).with("- winrmcert.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers.")
+      expect(@certgen.ui).to receive(:info).with("- winrmcert.pem - Base64 encoded public certificate only. Required by the client to connect to the server.")
+      expect(@certgen.ui).to receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
+    end
 
-  it "#certificates_already_exist?" do
-    file_path = 'winrmcert'
-    @certgen.config[:output_file] = file_path
-    allow(Dir).to receive(:glob).and_return([file_path])
-    expect(@certgen).to receive(:confirm).with("Do you really want to overwrite existing certificates")
-    expect(@certgen).to receive(:generate_keypair)
-    expect(@certgen).to receive(:generate_certificate)
-    expect(@certgen).to receive(:write_certificate_to_file)
-    expect(@certgen.ui).to receive(:info).with("Generated Certificates:")
-    expect(@certgen.ui).to receive(:info).with("- winrmcert.pfx - PKCS12 format keypair. Contains both the public and private keys, usually used on the server.")
-    expect(@certgen.ui).to receive(:info).with("- winrmcert.b64 - Base64 encoded PKCS12 keypair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure")
-    expect(@certgen.ui).to receive(:info).with("- winrmcert.pem - Base64 encoded public certificate only. Required by the client to connect to the server.")
-    @certgen.thumbprint = "TEST_THUMBPRINT"
-    expect(@certgen.ui).to receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
-    @certgen.run
-  end
+    it "writes out certificates" do
+      @certgen.config[:output_file] = 'winrmcert'
+  
+      expect(@certgen).to receive(:certificates_already_exist?).and_return(false)
+      expect(@certgen).to receive(:write_certificate_to_file)
+      @certgen.run
+    end
+  
+    it "prompts when certificates already exist" do
+      file_path = 'winrmcert'
+      @certgen.config[:output_file] = file_path
 
-  it "creates certificate on specified file path" do
-    file_path = "/tmp/winrmcert"
-    @certgen.name_args = [file_path]
-    expect(@certgen).to receive(:generate_keypair)
-    expect(@certgen).to receive(:generate_certificate)
-    expect(@certgen).to receive(:write_certificate_to_file)
-    expect(@certgen.ui).to receive(:info).with("Generated Certificates:")
-    expect(@certgen.ui).to receive(:info).with("- #{file_path}.pfx - PKCS12 format keypair. Contains both the public and private keys, usually used on the server.")
-    expect(@certgen.ui).to receive(:info).with("- #{file_path}.b64 - Base64 encoded PKCS12 keypair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure")
-    expect(@certgen.ui).to receive(:info).with("- #{file_path}.pem - Base64 encoded public certificate only. Required by the client to connect to the server.")
-    @certgen.thumbprint = "TEST_THUMBPRINT"
-    expect(@certgen.ui).to receive(:info).with("Certificate Thumbprint: TEST_THUMBPRINT")
-    @certgen.run
+      allow(Dir).to receive(:glob).and_return([file_path])
+      expect(@certgen).to receive(:confirm).with("Do you really want to overwrite existing certificates")
+      expect(@certgen).to receive(:write_certificate_to_file)
+      @certgen.run
+    end
+  
+    it "creates certificate on specified file path" do
+      file_path = "/tmp/winrmcert"
+      @certgen.name_args = [file_path]
+
+      expect(@certgen).to receive(:write_certificate_to_file) # FIXME: this should be testing that we get /tmp/winrmcert as the filename
+      @certgen.run
+    end
   end
 end

@@ -99,7 +99,7 @@ class Chef
         cert
       end
 
-      def write_certificate_to_file cert, file_path, rsa_key
+      def write_certificate_to_file(cert, file_path, rsa_key)
         File.open(file_path + ".pem", "wb") { |f| f.print cert.to_pem }
         config[:cert_passphrase] = prompt_for_passphrase unless config[:cert_passphrase]
         pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "winrmcert", rsa_key, cert)
@@ -135,13 +135,14 @@ class Chef
         certificates_already_exist? file_path
 
         begin
+          filename = File.basename(file_path)
           rsa_key = generate_keypair
           cert = generate_certificate rsa_key
           write_certificate_to_file cert, file_path, rsa_key
           ui.info "Generated Certificates:"
-          ui.info "- #{file_path}.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server."
-          ui.info "- #{file_path}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers." 
-          ui.info "- #{file_path}.pem - Base64 encoded public certificate only. Required by the client to connect to the server."
+          ui.info "- #{filename}.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server."
+          ui.info "- #{filename}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers." 
+          ui.info "- #{filename}.pem - Base64 encoded public certificate only. Required by the client to connect to the server."
           ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e
           puts "ERROR: + #{e}"
