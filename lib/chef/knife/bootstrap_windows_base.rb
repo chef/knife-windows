@@ -85,13 +85,13 @@ class Chef
             :proc => lambda { |o| JSON.parse(o) },
             :default => {}
 
-          option :secret,
+          option :encrypted_data_bag_secret,
             :short => "-s SECRET",
             :long  => "--secret ",
             :description => "The secret key to use to decrypt data bag item values.  Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config.",
             :default => false
 
-          option :secret_file,
+          option :encrypted_data_bag_secret_file,
             :long => "--secret-file SECRET_FILE",
             :description => "A file containing the secret key to use to encrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config."
 
@@ -155,7 +155,14 @@ class Chef
       end
 
       def bootstrap(proto=nil)
+        if Chef::Config[:knife][:encrypted_data_bag_secret_file] || Chef::Config[:knife][:encrypted_data_bag_secret]
+          warn_chef_config_secret_key
+          config[:secret_file] ||= Chef::Config[:knife][:encrypted_data_bag_secret_file]
+          config[:secret] ||= Chef::Config[:knife][:encrypted_data_bag_secret]
+        end
+        
         validate_name_args!
+
 
         @node_name = Array(@name_args).first
         # back compat--templates may use this setting:
@@ -216,6 +223,20 @@ class Chef
       def locate_config_value(key)
         key = key.to_sym
         config[key] || Chef::Config[:knife][key]
+      end
+
+      def warn_chef_config_secret_key
+        ui.warn(<<-WARNING)
+        *********************************************************************************
+        Specifying the encrypted data bag secret key using an 'encrypted_data_bag_secret'
+        entry in 'knife.rb' is deprecated. Please use the '--secret' or '--secret-file'
+        options of this command instead.
+
+        #{ui.color('IMPORTANT:', :red, :bold)} In a future version of Chef, this
+        behavior will be removed and any 'encrypted_data_bag_secret' entries in
+        'knife.rb' will be ignored completely.
+        ***********************************************************************************
+        WARNING
       end
     end
   end
