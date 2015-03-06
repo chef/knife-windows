@@ -110,7 +110,7 @@ goto install
 <% default_url = "https://www.chef.io/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%" -%>
 <% default_url += latest_current_windows_chef_version_query -%>
 <% cs_url = msi_url || default_url -%>
-<% ps_msi = msi_url || (default_url + "&DownloadContext=PowerShell") -%>
+<% ps_url = msi_url || (default_url + "&DownloadContext=PowerShell") -%>
 
 @set "REMOTE_SOURCE_MSI_URL=<%= cs_url %>"
 @set "REMOTE_SOURCE_MSI_PS_URL=<%= ps_url %>"
