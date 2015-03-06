@@ -256,6 +256,10 @@ WGET_PS
           local_download_path = "%TEMP%\\chef-client-latest.msi"
         end
 
+        def msi_url
+          msi_url = @config[:msi_url] || ''
+        end
+
         def first_boot
           first_boot_attributes_and_run_list = (@config[:first_boot_attributes] || {}).merge(:run_list => @run_list)
           escape_and_echo(first_boot_attributes_and_run_list.to_json)

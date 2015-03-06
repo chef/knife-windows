@@ -114,6 +114,12 @@ class Chef
             :long        => "--[no-]node-verify-api-cert",
             :description => "Verify the SSL cert for HTTPS requests to the Chef server API.",
             :boolean     => true
+
+          option :msi_url,
+            :short => "-u URL",
+            :long => "--msi_url URL",
+            :description => "Location of the Chef Client MSI. The default templates will prefer to download from this location. The MSI will be downloaded from chef.io if not provided.",
+            :default => ''
         end
       end
 

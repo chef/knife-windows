@@ -107,12 +107,15 @@ goto install
 :install
 @rem Install Chef using chef-client MSI installer
 
-<% url="https://www.chef.io/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%" -%>
-<% url += latest_current_windows_chef_version_query -%>
-@set "REMOTE_SOURCE_MSI_URL=<%= url %>"
+<% default_url = "https://www.chef.io/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%" -%>
+<% default_url += latest_current_windows_chef_version_query -%>
+<% cs_url = msi_url || default_url -%>
+<% ps_msi = msi_url || (default_url + "&DownloadContext=PowerShell") -%>
+
+@set "REMOTE_SOURCE_MSI_URL=<%= cs_url %>"
+@set "REMOTE_SOURCE_MSI_PS_URL=<%= ps_url %>"
 @set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
 @set "CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi%RANDOM%.log"
-@set "FALLBACK_QUERY_STRING=&DownloadContext=PowerShell"
 
 @rem Clear any pre-existing downloads
 @echo Checking for existing downloaded package at "%LOCAL_DESTINATION_MSI_PATH%"
@@ -130,7 +133,7 @@ goto install
 @if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
 
 @echo Attempting to download client package using PowerShell if available...
-@set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%%FALLBACK_QUERY_STRING%" "%LOCAL_DESTINATION_MSI_PATH%"
+@set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_PS_URL%" "%LOCAL_DESTINATION_MSI_PATH%"
 @echo !powershell_download!
 @call !powershell_download!
 
