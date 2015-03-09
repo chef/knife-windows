@@ -39,8 +39,8 @@ class Chef
       option :hostname,
         :short => "-h HOSTNAME",
         :long => "--hostname HOSTNAME",
-        :description => "Hostname on the listener. Default is *",
-        :default => "*"
+        :description => "Hostname on the listener. Default is blank",
+        :default => ""
 
       option :cert_thumbprint,
         :short => "-t THUMBPRINT",

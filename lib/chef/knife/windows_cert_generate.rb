@@ -31,8 +31,14 @@ class Chef
       option :hostname,
         :short => "-H HOSTNAME",
         :long => "--hostname HOSTNAME",
+<<<<<<< HEAD
         :description => "Use to specify the hostname for the listener.
         For example, --hostname something.mydomain.com or *.mydomain.com. Default value is *"
+=======
+        :description => "By default hostname is *. If user wants to give his fqdn as the hostname
+        then he must specify the hostname as: --hostname 'something.mydomain.com'. User can also give wildcard
+        as '*.mydomain.com'"
+>>>>>>> Revert "updated hostname default option to blank for knife window cert generate"
 
       option :output_file,
         :short => "-o PATH",
@@ -141,7 +147,7 @@ class Chef
           write_certificate_to_file cert, file_path, rsa_key
           ui.info "Generated Certificates:"
           ui.info "- #{filename}.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server."
-          ui.info "- #{filename}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers." 
+          ui.info "- #{filename}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers."
           ui.info "- #{filename}.pem - Base64 encoded public certificate only. Required by the client to connect to the server."
           ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e
