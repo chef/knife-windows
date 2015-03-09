@@ -31,8 +31,14 @@ class Chef
       option :hostname,
         :short => "-H HOSTNAME",
         :long => "--hostname HOSTNAME",
+<<<<<<< HEAD
         :description => "Use to specify the hostname for the listener.
         For example, --hostname something.mydomain.com or *.mydomain.com. Default value is *"
+=======
+        :description => "By default hostname is *. If user wants to give his fqdn as the hostname
+        then he must specify the hostname as: --hostname 'something.mydomain.com'. User can also give wildcard
+        as '*.mydomain.com'"
+>>>>>>> Revert "updated hostname default option to blank for knife window cert generate"
 
       option :output_file,
         :short => "-o PATH",
@@ -75,6 +81,9 @@ class Chef
       end
 
       def generate_certificate rsa_key
+        @hostname = "*"
+        @hostname = config[:hostname] if config[:hostname]
+
         #Create a self-signed X509 certificate from the rsa_key (unencrypted)
         cert = OpenSSL::X509::Certificate.new
         cert.version = 2
