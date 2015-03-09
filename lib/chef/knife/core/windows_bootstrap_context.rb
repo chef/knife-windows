@@ -174,7 +174,7 @@ sourcePath = Mid(url, Len("file:///") + 1)
 Else
 sourcePath = Mid(url, Len("file:") + 1)
 End If
-sourcePath = Replace(sourcePath, "/", "\")
+sourcePath = Replace(sourcePath, "/", "\\")
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 If objFSO.Fileexists(path) Then objFSO.DeleteFile path
