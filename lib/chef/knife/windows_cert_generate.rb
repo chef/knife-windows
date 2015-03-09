@@ -31,11 +31,9 @@ class Chef
       option :hostname,
         :short => "-H HOSTNAME",
         :long => "--hostname HOSTNAME",
-        :description => "By default hostname is blank. If user wants to give his fqdn as the hostname
+        :description => "By default hostname is *. If user wants to give his fqdn as the hostname
         then he must specify the hostname as: --hostname 'something.mydomain.com'. User can also give wildcard
-        as '*.mydomain.com'",
-        :default => ""
-
+        as '*.mydomain.com'"
 
       option :output_file,
         :short => "-o PATH",
@@ -81,6 +79,9 @@ class Chef
       end
 
       def generate_certificate rsa_key
+        @hostname = "*"
+        @hostname = config[:hostname] if config[:hostname]
+
         #Create a self-signed X509 certificate from the rsa_key (unencrypted)
         cert = OpenSSL::X509::Certificate.new
         cert.version = 2
