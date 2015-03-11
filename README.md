@@ -47,11 +47,18 @@ This subcommand operates in a manner similar to [knife ssh](https://docs.chef.io
 ### knife wsman test
 
 Connects to the remote WSMan/WinRM endpoint and verifies the remote node is listening.  This is the equivalent of running Test-Wsman from PowerShell.  Endpoints to test can be specified manually, or be driven by search and use many of the same connection options as knife winrm.
+To test a single node using the default WinRM port (5985)
 
     knife wsman test 192.168.1.10 -m
-or
+
+or to test a single node with SSL enabled on the default port (5986)
+
+    knife wsman test 192.168.1.10 -m --winrm-transport ssl
+
+or to test all windows nodes registered with your Chef Server organization
 
     knife wsman test platform:windows
+
 
 ### knife bootstrap windows winrm
 
@@ -61,7 +68,7 @@ This subcommand operates in a manner similar to [knife bootstrap](https://docs.c
 
     knife bootstrap windows winrm ec2-50-xx-xx-124.compute-1.amazonaws.com -r 'role[webserver],role[production]' -x Administrator -P 'super_secret_password'
 
-### Use SSL for WinRM communication 
+### Use SSL for WinRM communication
 
 By default, the `knife winrm` and `knife bootstrap windows winrm` subcommands use a plaintext transport,
 but they support an option `--winrm-transport` (or `-t`) with the argument
