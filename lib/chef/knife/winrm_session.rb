@@ -32,14 +32,14 @@ class Chef
           opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi], :no_ssl_peer_verification => options[:no_ssl_peer_verification]}
 
           options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
-          
+
           Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
           Chef::Log.debug("Endpoint: #{endpoint}")
           Chef::Log.debug("Transport: #{options[:transport]}")
           @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
           @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
         end
-        
+
         def relay_command(command)
           remote_id = @winrm_session.open_shell
           command_id = @winrm_session.run_command(remote_id, command)
