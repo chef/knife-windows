@@ -20,24 +20,6 @@ TEMPLATE_FILE = File.expand_path(File.dirname(__FILE__)) + "/../../../lib/chef/k
 
 require 'spec_helper'
 
-describe "While Windows Bootstrapping" do
-  context "the default Windows bootstrapping template" do
-    bootstrap = Chef::Knife::BootstrapWindowsWinrm.new
-    bootstrap.config[:template_file] = TEMPLATE_FILE
-
-    template = bootstrap.load_template
-    template_file_lines = template.split('\n')
-    it "should download Platform specific MSI" do
-      download_url=template_file_lines.find {|l| l.include?("default_url = ")}
-      download_url.include?("%MACHINE_OS%") && download_url.include?("%MACHINE_ARCH%")
-    end
-    it "should download specific version of MSI if supplied" do
-      download_url_ext= template_file_lines.find {|l| l.include?("default_url +=")}
-      download_url_ext.include?("[:bootstrap_version]")
-    end
-  end
-end
-
 describe Chef::Knife::BootstrapWindowsWinrm do
   let(:template_file) { TEMPLATE_FILE }
   let(:options) { [] }
@@ -98,21 +80,13 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     context "with explicitly provided msi_url" do
       let(:options) { ["--msi_url", "file:///something.msi"] } 
 
-      it "bootstrap batch file must fetch from provided url when using cscript" do
+      it "bootstrap batch file must fetch from provided url" do
         expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=file:///something\.msi.*})
-      end
-
-      it "bootstrap batch file must fetch from provided url when using powershell" do
-        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_PS_URL=file:///something\.msi.*})
       end
     end
     context "with no provided msi_url" do
-      it "bootstrap batch file must fetch from provided url when using cscript" do
+      it "bootstrap batch file must fetch from provided url" do
         expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=https://www\.chef\.io/.*})
-      end
-
-      it "bootstrap batch file must fetch from provided url when using powershell" do
-        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_PS_URL=https://www\.chef\.io/.*&DownloadContext=PowerShell.*})
       end
     end
   end

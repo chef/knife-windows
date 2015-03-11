@@ -91,7 +91,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     it "downloads the chef-client MSI from the default location during winrm bootstrap" do
       run_download_scenario
     end
-    describe "when provided a custom msi_url to fetch from" do
+    context "when provided a custom msi_url to fetch from" do
       let(:mock_bootstrap_context) { Chef::Knife::Core::WindowsBootstrapContext.new(
         { :msi_url => "file:///C:/Windows/System32/xcopy.exe" }, nil, { :knife => {} }) }
       it "downloads the chef-client MSI from a custom path during winrm bootstrap" do
