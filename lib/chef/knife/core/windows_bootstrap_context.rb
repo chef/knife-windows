@@ -161,10 +161,30 @@ CONFIG
         end
 
         def win_wget
+          # I tried my best to figure out how to properly url decode and switch / to \
+          # but this is VBScript - so I don't really care that badly.
           win_wget = <<-WGET
 url = WScript.Arguments.Named("url")
 path = WScript.Arguments.Named("path")
 proxy = null
+'* Vaguely attempt to handle file:// scheme urls by url unescaping and switching all
+'* / into \.  Also assume that file:/// is a local absolute path and that file://<foo>
+'* is possibly a network file path.
+If InStr(url, "file://") = 1 Then
+url = Unescape(url)
+If InStr(url, "file:///") = 1 Then
+sourcePath = Mid(url, Len("file:///") + 1)
+Else
+sourcePath = Mid(url, Len("file:") + 1)
+End If
+sourcePath = Replace(sourcePath, "/", "\\")
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+If objFSO.Fileexists(path) Then objFSO.DeleteFile path
+objFSO.CopyFile sourcePath, path, true
+Set objFSO = Nothing
+
+Else
 Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
 Set wshShell = CreateObject( "WScript.Shell" )
 Set objUserVariables = wshShell.Environment("USER")
@@ -203,8 +223,9 @@ Set objFSO = Nothing
 objADOStream.SaveToFile path
 objADOStream.Close
 Set objADOStream = Nothing
-End if
+End If
 Set objXMLHTTP = Nothing
+End If
 WGET
           escape_and_echo(win_wget)
         end
@@ -236,6 +257,21 @@ WGET_PS
 
         def local_download_path
           local_download_path = "%TEMP%\\chef-client-latest.msi"
+        end
+
+        def msi_url(machine_os=nil, machine_arch=nil, download_context=nil)
+          # The default msi path has a number of url query parameters - we attempt to substitute
+          # such parameters in as long as they are provided by the template.
+
+          if @config[:msi_url].nil? || @config[:msi_url].empty?
+            url = "https://www.chef.io/chef/download?p=windows"
+            url += "&pv=#{machine_os}" unless machine_os.nil?
+            url += "&m=#{machine_arch}" unless machine_arch.nil?
+            url += "&DownloadContext=#{download_context}" unless download_context.nil?
+            url += latest_current_windows_chef_version_query
+          else
+            @config[:msi_url]
+          end
         end
 
         def first_boot

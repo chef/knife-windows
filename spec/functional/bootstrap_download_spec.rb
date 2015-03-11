@@ -88,23 +88,15 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       allow(Chef::Knife::Core::WindowsBootstrapContext).to receive(:new).and_return(mock_bootstrap_context)
     end
 
-    it "downloads the chef-client MSI during winrm bootstrap" do
-
-      clean_test_case
-
-      winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
-      allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
-      winrm_bootstrapper.config[:template_file] = @template_file_path
-
-      # Execute the commands locally that would normally be executed via WinRM
-      allow(winrm_bootstrapper).to receive(:run_command) do |command|
-        system(command)
+    it "downloads the chef-client MSI from the default location during winrm bootstrap" do
+      run_download_scenario
+    end
+    context "when provided a custom msi_url to fetch from" do
+      let(:mock_bootstrap_context) { Chef::Knife::Core::WindowsBootstrapContext.new(
+        { :msi_url => "file:///C:/Windows/System32/xcopy.exe" }, nil, { :knife => {} }) }
+      it "downloads the chef-client MSI from a custom path during winrm bootstrap" do
+        run_download_scenario
       end
-
-      winrm_bootstrapper.run
-
-      # Download should succeed
-      expect(download_succeeded?).to be true
     end
   end
 
@@ -119,4 +111,21 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     end
   end
 
+  def run_download_scenario
+    clean_test_case
+
+    winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
+    allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
+    winrm_bootstrapper.config[:template_file] = @template_file_path
+
+    # Execute the commands locally that would normally be executed via WinRM
+    allow(winrm_bootstrapper).to receive(:run_command) do |command|
+      system(command)
+    end
+
+    winrm_bootstrapper.run
+
+    # Download should succeed
+    expect(download_succeeded?).to be true
+  end
 end

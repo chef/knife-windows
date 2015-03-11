@@ -51,4 +51,39 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
       end
     end
   end
+
+  describe "msi_url" do
+    context "when config option is not set" do
+      before do
+        expect(mock_bootstrap_context).to receive(:latest_current_windows_chef_version_query).and_return("&v=something")
+      end
+
+      it "returns a chef.io msi url with minimal url parameters" do
+        reference_url = "https://www.chef.io/chef/download?p=windows&v=something"
+        expect(mock_bootstrap_context.msi_url).to eq(reference_url)
+      end
+
+      it "returns a chef.io msi url with provided url parameters substituted" do
+        reference_url = "https://www.chef.io/chef/download?p=windows&pv=machine&m=arch&DownloadContext=ctx&v=something"
+        expect(mock_bootstrap_context.msi_url('machine', 'arch', 'ctx')).to eq(reference_url)
+      end
+    end
+
+    context "when msi_url config option is set" do
+      let(:custom_url) { "file://something" }
+
+      before do
+        mock_bootstrap_context.instance_variable_set(:@config, Mash.new(:msi_url => custom_url))
+      end
+
+      it "returns the overriden url" do
+        expect(mock_bootstrap_context.msi_url).to eq(custom_url)
+      end
+
+      it "doesn't introduce any unnecessary query parameters if provided by the template" do
+        expect(mock_bootstrap_context.msi_url('machine', 'arch', 'ctx')).to eq(custom_url)
+      end
+    end
+  end
+
 end

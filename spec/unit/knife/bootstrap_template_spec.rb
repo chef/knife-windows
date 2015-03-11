@@ -20,25 +20,18 @@ TEMPLATE_FILE = File.expand_path(File.dirname(__FILE__)) + "/../../../lib/chef/k
 
 require 'spec_helper'
 
-describe "While Windows Bootstrapping" do
-  context "the default Windows bootstrapping template" do
-    bootstrap = Chef::Knife::BootstrapWindowsWinrm.new
-    bootstrap.config[:template_file] = TEMPLATE_FILE
-
-    template = bootstrap.load_template
-    template_file_lines = template.split('\n')
-    it "should download Platform specific MSI" do
-      download_url=template_file_lines.find {|l| l.include?("url=")}
-      download_url.include?("%MACHINE_OS%") && download_url.include?("%MACHINE_ARCH%")
-    end
-    it "should download specific version of MSI if supplied" do
-      download_url_ext= template_file_lines.find {|l| l.include?("url +=")}
-      download_url_ext.include?("[:bootstrap_version]")
-    end
-  end
-end
-
 describe Chef::Knife::BootstrapWindowsWinrm do
+  let(:template_file) { TEMPLATE_FILE }
+  let(:options) { [] }
+  let(:rendered_template) do
+    knife.instance_variable_set("@template_file", template_file)
+    knife.parse_options(options)
+    # Avoid referencing a validation keyfile we won't find during #render_template
+    template = IO.read(template_file).chomp
+    template_string = template.gsub(/^.*[Vv]alidation_key.*$/, '')
+    knife.render_template(template_string)
+  end
+  
   before(:all) do
     @original_config = Chef::Config.hash_dup
     @original_knife_config = Chef::Config[:knife].dup
@@ -54,7 +47,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     @knife = Chef::Knife::BootstrapWindowsWinrm.new
     # Merge default settings in.
     @knife.merge_configs
-    @knife.config[:template_file] = TEMPLATE_FILE
+    @knife.config[:template_file] = template_file
     @stdout = StringIO.new
     allow(@knife.ui).to receive(:stdout).and_return(@stdout)
     @stderr = StringIO.new
@@ -64,15 +57,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   describe "specifying no_proxy with various entries" do
     subject(:knife) { described_class.new }
     let(:options){ ["--bootstrap-proxy", "", "--bootstrap-no-proxy", setting] }
-    let(:template_file) { TEMPLATE_FILE }
-    let(:rendered_template) do
-      knife.instance_variable_set("@template_file", template_file)
-      knife.parse_options(options)
-      # Avoid referencing a validation keyfile we won't find during #render_template
-      template = IO.read(template_file).chomp
-      template_string = template.gsub(/^.*[Vv]alidation_key.*$/, '')
-      knife.render_template(template_string)
-    end
 
     context "via --bootstrap-no-proxy" do
       let(:setting) { "api.opscode.com" }
@@ -86,6 +70,23 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
       it "renders the client.rb with comma-separated FQDN and wildcard IP address no_proxy entries" do
         expect(rendered_template).to match(%r{.*no_proxy\s*"api.opscode.com,172.16.10.\*".*})
+      end
+    end
+  end
+
+  describe "specifying msi_url" do
+    subject(:knife) { described_class.new }
+
+    context "with explicitly provided msi_url" do
+      let(:options) { ["--msi_url", "file:///something.msi"] } 
+
+      it "bootstrap batch file must fetch from provided url" do
+        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=file:///something\.msi.*})
+      end
+    end
+    context "with no provided msi_url" do
+      it "bootstrap batch file must fetch from provided url" do
+        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=https://www\.chef\.io/.*})
       end
     end
   end
