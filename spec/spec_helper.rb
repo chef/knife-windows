@@ -23,6 +23,7 @@ end
 
 require_relative '../lib/chef/knife/core/windows_bootstrap_context'
 require_relative '../lib/chef/knife/bootstrap_windows_winrm'
+require_relative '../lib/chef/knife/wsman_test'
 
 if windows?
   require 'ruby-wmi'

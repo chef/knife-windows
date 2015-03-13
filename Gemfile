@@ -12,5 +12,6 @@ gem 'winrm-s', github: 'chef/winrm-s'
 group :test do
   gem "rspec", '~> 3.0'
   gem "ruby-wmi"
+  gem "httpclient"
   gem 'rake'
 end
