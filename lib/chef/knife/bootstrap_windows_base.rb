@@ -136,7 +136,7 @@ class Chef
           bootstrap_files = []
           bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap', "#{config[:distro]}.erb")
           bootstrap_files << File.join(Dir.pwd, ".chef", "bootstrap", "#{config[:distro]}.erb")
-          ::Knife::Windows::PathHelper.home('.chef', 'bootstrap', "#{config[:distro]}.erb") { |p| bootstrap_files << p }
+          ::Knife::Windows::PathHelper.all_homes('.chef', 'bootstrap', "#{config[:distro]}.erb") { |p| bootstrap_files << p }
           bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb"))
           bootstrap_files.flatten!
         end
