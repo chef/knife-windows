@@ -157,7 +157,15 @@ goto install
     cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
 
     @if NOT ERRORLEVEL 1 (
-        echo Download via cscript succeeded.
+        @rem Sometimes the error level is not set even when the download failed,
+        @rem so check for the file to be sure it is there.
+        @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
+            echo Failed download: download completed, but downloaded file not found > "&2"
+            echo Exiting without bootstrapping due to download failure. > "&2"
+            exit /b 1
+        ) else (
+            echo Download via cscript succeeded.
+        )
     ) else (
         echo Failed to download "%REMOTE_SOURCE_MSI_URL%" with status code !ERRORLEVEL!. > "&2"
         echo Exiting without bootstrapping due to download failure. > "&2"
