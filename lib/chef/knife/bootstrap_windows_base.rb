@@ -173,9 +173,9 @@ class Chef
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
-        create_bootstrap_bat_command do |command_chunk, chunk_num|
+        create_bootstrap_bat_command do |command_chunk|
           begin
-            render_command_result = run_command(%Q!cmd.exe /C echo "Rendering #{bootstrap_bat_file} chunk #{chunk_num}" && #{command_chunk}!)
+            render_command_result = run_command(command_chunk)
             ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
             render_command_result
           rescue SystemExit => e
@@ -199,20 +199,48 @@ class Chef
         @bootstrap_command ||= "cmd.exe /C #{bootstrap_bat_file}"
       end
 
-      def create_bootstrap_bat_command(&block)
-        bootstrap_bat = []
+      def bootstrap_render_banner_command(chunk_num)
+        "cmd.exe /C echo Rendering #{bootstrap_bat_file} chunk #{chunk_num}"
+      end
+
+      def escape_windows_batch_characters(line)
+        # TODO: The commands are going to get redirected - do we need to escape &?
+        line.gsub!(/[(<|>)^]/).each{|m| "^#{m}"}
+      end
+
+      def create_bootstrap_bat_command()
         chunk_num = 0
+        bootstrap_bat = ""
+        banner = bootstrap_render_banner_command(chunk_num += 1)
         render_template(load_template(config[:bootstrap_template])).each_line do |line|
-          # escape WIN BATCH special chars
-          line.gsub!(/[(<|>)^]/).each{|m| "^#{m}"}
-          # windows commands are limited to 2047 characters
-          if((bootstrap_bat + [line]).join(" && ").size > 2047 )
-            yield bootstrap_bat.join(" && "), chunk_num += 1
-            bootstrap_bat = []
+          escape_windows_batch_characters(line)
+          # We are guaranteed to have a prefix "banner" command that echo's chunk number.  We can
+          # confidently prefix every actual command with &&.
+          # TODO: Why does ^\n&& work directly through the commandline but not through SOAP?
+          render_line = " && >> #{bootstrap_bat_file} (echo.#{line.chomp.strip})"
+          # Windows commands are limited to 8191 characters for machines running XP or higher but
+          # this includes the length of environment variables after they have been expanded.
+          # Since we don't actually know how long %TEMP% (and it's used twice - once in the banner
+          # and once in every command redirection), we simply guess and set the max to 5000.
+          # TODO: When a more accurate method is available, fix this.
+          if bootstrap_bat.length + render_line.length + banner.length > 5000
+            # Can't fit it into this chunk? - flush (if necessary) and then try.
+            # Do this first because banner.length might change (e.g. due to an extra digit) and
+            # prevent a fit.
+            unless bootstrap_bat.empty?
+              yield banner + bootstrap_bat
+              bootstrap_bat = ""
+              banner = bootstrap_render_banner_command(chunk_num += 1)
+            end
+            # Will this ever fit?
+            if render_line.length + banner.length > 5000
+              raise "Command in bootstrap template too long by #{render_line.length + banner.length - 5000} characters : #{line}"
+            end
           end
-          bootstrap_bat << ">> #{bootstrap_bat_file} (echo.#{line.chomp.strip})"
+          bootstrap_bat << render_line
         end
-        yield bootstrap_bat.join(" && "), chunk_num += 1
+        raise "Bootstrap template was empty!  Check #{config[:bootstrap_template]}" if bootstrap_bat.empty?
+        yield banner + bootstrap_bat
       end
 
       def bootstrap_bat_file
