@@ -52,8 +52,8 @@ class Chef
           escape_and_echo(super)
         end
 
-        def encrypted_data_bag_secret
-          escape_and_echo(@config[:encrypted_data_bag_secret])
+        def secret
+          escape_and_echo(@config[:secret])
         end
 
         def trusted_certs_script
@@ -122,7 +122,7 @@ CONFIG
             client_rb << %Q{no_proxy       "#{knife_config[:bootstrap_no_proxy]}"\n}
           end
 
-          if @config[:encrypted_data_bag_secret]
+          if @config[:secret]
             client_rb << %Q{encrypted_data_bag_secret "c:/chef/encrypted_data_bag_secret"\n}
           end
 

@@ -85,12 +85,14 @@ class Chef
             :proc => lambda { |o| JSON.parse(o) },
             :default => {}
 
+          # Mismatch between option 'encrypted_data_bag_secret' and it's long value '--secret' is by design for compatibility
           option :encrypted_data_bag_secret,
             :short => "-s SECRET",
             :long  => "--secret ",
             :description => "The secret key to use to decrypt data bag item values.  Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config.",
             :default => false
 
+          # Mismatch between option 'encrypted_data_bag_secret_file' and it's long value '--secret-file' is by design for compatibility
           option :encrypted_data_bag_secret_file,
             :long => "--secret-file SECRET_FILE",
             :description => "A file containing the secret key to use to encrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config."
@@ -153,15 +155,22 @@ class Chef
       end
 
       def render_template(template=nil)
-        if config[:encrypted_data_bag_secret_file]
-          config[:encrypted_data_bag_secret] = Chef::EncryptedDataBagItem.load_secret(config[:encrypted_data_bag_secret_file])
+        if config[:secret_file]
+          config[:secret] = Chef::EncryptedDataBagItem.load_secret(config[:secret_file])
         end
         context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
         Erubis::Eruby.new(template).evaluate(context)
       end
 
       def bootstrap(proto=nil)
+        if Chef::Config[:knife][:encrypted_data_bag_secret_file] || Chef::Config[:knife][:encrypted_data_bag_secret]
+          warn_chef_config_secret_key
+          config[:secret_file] ||= Chef::Config[:knife][:encrypted_data_bag_secret_file]
+          config[:secret] ||= Chef::Config[:knife][:encrypted_data_bag_secret]
+        end
+        
         validate_name_args!
+
 
         @node_name = Array(@name_args).first
         # back compat--templates may use this setting:
@@ -250,6 +259,20 @@ class Chef
       def locate_config_value(key)
         key = key.to_sym
         config[key] || Chef::Config[:knife][key]
+      end
+
+      def warn_chef_config_secret_key
+        ui.info "* " * 40
+        ui.warn(<<-WARNING)
+\nSpecifying the encrypted data bag secret key using an 'encrypted_data_bag_secret'
+entry in 'knife.rb' is deprecated. Please use the '--secret' or '--secret-file'
+options of this command instead.
+
+#{ui.color('IMPORTANT:', :red, :bold)} In a future version of Chef, this
+behavior will be removed and any 'encrypted_data_bag_secret' entries in
+'knife.rb' will be ignored completely.
+        WARNING
+        ui.info "* " * 40
       end
     end
   end

@@ -71,7 +71,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       # from being populated, i.e. chef installation and first chef
       # run sections
       allow(mock_bootstrap_context).to receive(:validation_key).and_return("echo.validation_key")
-      allow(mock_bootstrap_context).to receive(:encrypted_data_bag_secret).and_return("echo.encrypted_data_bag_secret")
+      allow(mock_bootstrap_context).to receive(:secret).and_return("echo.encrypted_data_bag_secret")
       allow(mock_bootstrap_context).to receive(:config_content).and_return("echo.config_content")
       allow(mock_bootstrap_context).to receive(:start_chef).and_return("echo.echo start_chef_command")
       allow(mock_bootstrap_context).to receive(:run_list).and_return("echo.run_list")
