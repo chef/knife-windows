@@ -100,15 +100,6 @@ class Chef
             @session_opts = {}
             @session_opts[:user] = locate_config_value(:winrm_user)
             @session_opts[:password] = locate_config_value(:winrm_password)
-
-            # set default winrm_port = 5986 for ssl transport
-            # set default winrm_port = 5985 for plaintext transport
-            case locate_config_value(:winrm_transport)
-            when 'ssl'
-              Chef::Config[:knife][:winrm_port] = "5986"
-            else
-              Chef::Config[:knife][:winrm_port] = "5985"
-            end
             @session_opts[:port] = locate_config_value(:winrm_port)
             #30 min (Default) OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
             @session_opts[:operation_timeout] = locate_config_value(:session_timeout).to_i * 60 if locate_config_value(:session_timeout)
