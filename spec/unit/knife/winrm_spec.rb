@@ -361,6 +361,7 @@ describe Chef::Knife::Winrm do
             @winrm.config[:winrm_authentication_protocol] = "basic"
             @winrm.config[:winrm_transport] = "ssl"
             @winrm.config[:winrm_user] = "domain\\testuser"
+            @winrm.config[:winrm_port] = "5986"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             expect(@winrm).to receive(:create_winrm_session).with({:user=>"domain\\testuser", :password=>"testpassword", :port=>"5986", :no_ssl_peer_verification=>false, :basic_auth_only=>true, :operation_timeout=>1800, :transport=>:ssl, :disable_sspi=>true, :host=>"localhost"})
             expect(@winrm).to_not receive(:require).with('winrm-s')
