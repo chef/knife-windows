@@ -66,11 +66,6 @@ class Chef
             :description => "Bootstrap a distro using a template",
             :default => "windows-chef-client-msi"
 
-          option :install_as_service,
-            :long => "--install-as-service",
-            :description => "Install chef-client as service in windows machine",
-            :default => false
-
           option :template_file,
             :long => "--template-file TEMPLATE",
             :description => "Full path to location of template to use",
@@ -127,6 +122,11 @@ class Chef
             :long => "--msi_url URL",
             :description => "Location of the Chef Client MSI. The default templates will prefer to download from this location. The MSI will be downloaded from chef.io if not provided.",
             :default => ''
+
+          option :install_as_service,
+            :long => "--install-as-service",
+            :description => "Install chef-client as service in windows machine",
+            :default => false
         end
       end
 
