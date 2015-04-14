@@ -101,6 +101,7 @@ class Chef
             @session_opts[:user] = locate_config_value(:winrm_user)
             @session_opts[:password] = locate_config_value(:winrm_password)
             @session_opts[:port] = locate_config_value(:winrm_port)
+
             #30 min (Default) OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
             @session_opts[:operation_timeout] = locate_config_value(:session_timeout).to_i * 60 if locate_config_value(:session_timeout)
           end
