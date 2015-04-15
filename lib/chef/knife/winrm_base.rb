@@ -56,7 +56,8 @@ class Chef
             :long => "--winrm-transport TRANSPORT",
             :description => "The WinRM transport type.  valid choices are [ssl, plaintext]",
             :default => 'plaintext',
-            :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_port] = '5986' if transport == 'ssl'; Chef::Config[:knife][:winrm_transport] = transport }
+            :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_port] = '5986' if transport == 'ssl'
+                                Chef::Config[:knife][:winrm_transport] = transport }
 
           option :winrm_port,
             :short => "-p PORT",
