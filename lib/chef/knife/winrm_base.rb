@@ -51,23 +51,25 @@ class Chef
             :description => "The WinRM password",
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_password] = key }
 
+          option :winrm_transport,
+            :short => "-t TRANSPORT",
+            :long => "--winrm-transport TRANSPORT",
+            :description => "The WinRM transport type.  valid choices are [ssl, plaintext]",
+            :default => 'plaintext',
+            :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_port] = '5986' if transport == 'ssl'
+                                Chef::Config[:knife][:winrm_transport] = transport }
+
           option :winrm_port,
             :short => "-p PORT",
             :long => "--winrm-port PORT",
             :description => "The WinRM port, by default this is '5985' for 'plaintext' and '5986' for 'ssl' winrm transport",
+            :default => '5985',
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
 
           option :identity_file,
             :short => "-i IDENTITY_FILE",
             :long => "--identity-file IDENTITY_FILE",
             :description => "The SSH identity file used for authentication"
-
-          option :winrm_transport,
-            :short => "-t TRANSPORT",
-            :long => "--winrm-transport TRANSPORT",
-            :description => "The WinRM transport type.  valid choices are [ssl, plaintext]",
-            :default => 'plaintext',
-            :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_transport] = transport }
 
           option :kerberos_keytab_file,
             :short => "-i KEYTAB_FILE",
