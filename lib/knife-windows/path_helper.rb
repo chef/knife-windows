@@ -202,7 +202,7 @@ module Knife
           paths << ENV['HOMESHARE'] + ENV['HOMEPATH'] if ENV['HOMESHARE'] && ENV['HOMEPATH']
           paths << ENV['USERPROFILE']
         end
-        paths << Dir.home
+        paths << Dir.home if ENV['HOME']
 
         # Depending on what environment variables we're using, the slashes can go in any which way.
         # Just change them all to / to keep things consistent.
