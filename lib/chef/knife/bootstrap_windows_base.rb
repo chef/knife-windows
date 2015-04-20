@@ -20,6 +20,8 @@ require 'chef/knife'
 require 'chef/knife/bootstrap'
 require 'chef/encrypted_data_bag_item'
 require 'chef/knife/core/windows_bootstrap_context'
+# Chef 11 PathHelper doesn't have #home
+#require 'chef/util/path_helper'
 
 class Chef
   class Knife
@@ -134,7 +136,7 @@ class Chef
           bootstrap_files = []
           bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap', "#{config[:distro]}.erb")
           bootstrap_files << File.join(Dir.pwd, ".chef", "bootstrap", "#{config[:distro]}.erb")
-          bootstrap_files << File.join(ENV['HOME'], '.chef', 'bootstrap', "#{config[:distro]}.erb")
+          ::Knife::Windows::PathHelper.all_homes('.chef', 'bootstrap', "#{config[:distro]}.erb") { |p| bootstrap_files << p }
           bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb"))
           bootstrap_files.flatten!
         end
