@@ -32,7 +32,8 @@ class Chef
         :short => "-H HOSTNAME",
         :long => "--hostname HOSTNAME",
         :description => "Use to specify the hostname for the listener.
-        For example, --hostname something.mydomain.com or *.mydomain.com. Default value is *"
+        For example, --hostname something.mydomain.com or *.mydomain.com.",
+        :required => true
 
       option :output_file,
         :short => "-o PATH",
@@ -75,8 +76,9 @@ class Chef
       end
 
       def generate_certificate rsa_key
-        @hostname = "*"
         @hostname = config[:hostname] if config[:hostname]
+        require 'pry'
+        binding.pry
 
         #Create a self-signed X509 certificate from the rsa_key (unencrypted)
         cert = OpenSSL::X509::Certificate.new
