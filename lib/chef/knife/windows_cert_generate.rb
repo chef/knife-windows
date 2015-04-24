@@ -77,8 +77,6 @@ class Chef
 
       def generate_certificate rsa_key
         @hostname = config[:hostname] if config[:hostname]
-        require 'pry'
-        binding.pry
 
         #Create a self-signed X509 certificate from the rsa_key (unencrypted)
         cert = OpenSSL::X509::Certificate.new
