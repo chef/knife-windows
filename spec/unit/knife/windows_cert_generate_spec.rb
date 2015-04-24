@@ -22,7 +22,7 @@ require 'openssl'
 
 describe Chef::Knife::WindowsCertGenerate do
   before(:all) do
-    @certgen = Chef::Knife::WindowsCertGenerate.new
+    @certgen = Chef::Knife::WindowsCertGenerate.new(["-H","something.mydomain.com"])
   end
 
   it "generates RSA key pair" do
