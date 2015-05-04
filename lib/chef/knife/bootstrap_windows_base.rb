@@ -144,6 +144,17 @@ class Chef
         end
       end
 
+      def default_bootstrap_template
+        "chef-full"
+      end
+
+      def bootstrap_template
+        # The order here is important. We want to check if we have the new Chef 12 option is set first.
+        # Knife cloud plugins unfortunately all set a default option for the :distro so it should be at
+        # the end.
+        config[:bootstrap_template] || config[:template_file] || config[:distro] || default_bootstrap_template
+      end
+
        # TODO: This should go away when CHEF-2193 is fixed
       def load_template(template=nil)
         # Are we bootstrapping using an already shipped template?
