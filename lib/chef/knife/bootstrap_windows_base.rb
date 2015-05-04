@@ -62,16 +62,28 @@ class Chef
             :description => "Avoid a proxy server for the given addresses",
             :proc => Proc.new { |np| Chef::Config[:knife][:bootstrap_no_proxy] = np }
 
+          # DEPR: Remove this option in Chef 13
           option :distro,
             :short => "-d DISTRO",
             :long => "--distro DISTRO",
-            :description => "Bootstrap a distro using a template",
-            :default => "windows-chef-client-msi"
+            :description => "Bootstrap a distro using a template. [DEPRECATED] Use --bootstrap-template option instead.",
+            :proc        => Proc.new { |v|
+              Chef::Log.warn("[DEPRECATED] -d / --distro option is deprecated. Use --bootstrap-template option instead.")
+              v
+            }
 
+          option :bootstrap_template,
+            :long => "--bootstrap-template TEMPLATE",
+            :description => "Bootstrap Chef using a built-in or custom template. Set to the full path of an erb template or use one of the built-in templates."
+
+          # DEPR: Remove this option in Chef 13
           option :template_file,
             :long => "--template-file TEMPLATE",
-            :description => "Full path to location of template to use",
-            :default => false
+            :description => "Full path to location of template to use. [DEPRECATED] Use --bootstrap-template option instead.",
+            :proc        => Proc.new { |v|
+              Chef::Log.warn("[DEPRECATED] --template-file option is deprecated. Use --bootstrap-template option instead.")
+              v
+            }
 
           option :run_list,
             :short => "-r RUN_LIST",
@@ -127,19 +139,25 @@ class Chef
         end
       end
 
-      # TODO: This should go away when CHEF-2193 is fixed
+       # TODO: This should go away when CHEF-2193 is fixed
       def load_template(template=nil)
         # Are we bootstrapping using an already shipped template?
-        if config[:template_file]
-          bootstrap_files = config[:template_file]
-        else
-          bootstrap_files = []
-          bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap', "#{config[:distro]}.erb")
-          bootstrap_files << File.join(Dir.pwd, ".chef", "bootstrap", "#{config[:distro]}.erb")
-          ::Knife::Windows::PathHelper.all_homes('.chef', 'bootstrap', "#{config[:distro]}.erb") { |p| bootstrap_files << p }
-          bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{config[:distro]}.erb"))
-          bootstrap_files.flatten!
+
+        template = bootstrap_template
+
+        # Use the template directly if it's a path to an actual file
+        if File.exists?(template)
+          Chef::Log.debug("Using the specified bootstrap template: #{File.dirname(template)}")
+          return template
         end
+
+        # Otherwise search the template directories until we find the right one
+        bootstrap_files = []
+        bootstrap_files << File.join(File.dirname(__FILE__), 'bootstrap/templates', "#{template}.erb")
+        bootstrap_files << File.join(Knife.chef_config_dir, "bootstrap", "#{template}.erb") if Chef::Knife.chef_config_dir
+        Chef::Util::PathHelper.home('.chef', 'bootstrap', "#{template}.erb") {|p| bootstrap_files << p}
+        bootstrap_files << Gem.find_files(File.join("chef","knife","bootstrap","#{template}.erb"))
+        bootstrap_files.flatten!
 
         template = Array(bootstrap_files).find do |bootstrap_template|
           Chef::Log.debug("Looking for bootstrap template in #{File.dirname(bootstrap_template)}")
@@ -170,7 +188,7 @@ class Chef
           config[:secret_file] ||= Chef::Config[:knife][:encrypted_data_bag_secret_file]
           config[:secret] ||= Chef::Config[:knife][:encrypted_data_bag_secret]
         end
-        
+
         validate_name_args!
 
 
