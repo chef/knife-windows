@@ -159,7 +159,7 @@ class Chef
         # Use the template directly if it's a path to an actual file
         if File.exists?(template)
           Chef::Log.debug("Using the specified bootstrap template: #{File.dirname(template)}")
-          return template
+          return IO.read(template).chomp
         end
 
         # Otherwise search the template directories until we find the right one
