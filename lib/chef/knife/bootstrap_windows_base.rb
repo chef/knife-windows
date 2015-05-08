@@ -145,7 +145,7 @@ class Chef
       end
 
       def default_bootstrap_template
-        "chef-full"
+        "windows-chef-client-msi"
       end
 
       def bootstrap_template
