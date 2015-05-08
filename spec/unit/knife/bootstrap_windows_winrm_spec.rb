@@ -66,6 +66,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
+    allow(bootstrap.client_builder).to receive(:run)
+    allow(bootstrap.client_builder).to receive(:client_path).and_return("/")
     allow(bootstrap.ui).to receive(:info)
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error(SystemExit)
@@ -87,9 +89,11 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
     #Stub out calls to create the session and just get the exit codes back
     winrm_mock = Chef::Knife::Winrm.new
-    allow(Chef::Knife::Winrm).to receive(:new).and_return(winrm_mock)    
+    allow(Chef::Knife::Winrm).to receive(:new).and_return(winrm_mock)
     allow(winrm_mock).to receive(:run).and_raise(SystemExit.new(command_status))
     #Skip over templating stuff and checking with the remote end
+    allow(bootstrap.client_builder).to receive(:run)
+    allow(bootstrap.client_builder).to receive(:client_path).and_return("/")
     allow(bootstrap).to receive(:create_bootstrap_bat_command)
     allow(bootstrap).to receive(:wait_for_remote_response)
     allow(bootstrap.ui).to receive(:info)
@@ -97,10 +101,11 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     expect { bootstrap.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
   end
 
-
   it 'should stop retrying if more than 2 minutes has elapsed' do
     times = [ Time.new(2014, 4, 1, 22, 25), Time.new(2014, 4, 1, 22, 51), Time.new(2014, 4, 1, 22, 28) ]
     allow(Time).to receive(:now).and_return(*times)
+    allow(bootstrap.client_builder).to receive(:run)
+    allow(bootstrap.client_builder).to receive(:client_path).and_return("/")
     run_command_result = lambda {raise WinRM::WinRMHTTPTransportError, '401'}
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
     allow(bootstrap).to receive(:run_command).and_return(run_command_result)

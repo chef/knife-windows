@@ -28,10 +28,9 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     knife.parse_options(options)
     # Avoid referencing a validation keyfile we won't find during #render_template
     template = IO.read(template_file).chomp
-    template_string = template.gsub(/^.*[Vv]alidation_key.*$/, '')
-    knife.render_template(template_string)
+    knife.render_template(template)
   end
-  
+
   before(:all) do
     @original_config = Chef::Config.hash_dup
     @original_knife_config = Chef::Config[:knife].dup
@@ -78,7 +77,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     subject(:knife) { described_class.new }
 
     context "with explicitly provided msi_url" do
-      let(:options) { ["--msi_url", "file:///something.msi"] } 
+      let(:options) { ["--msi_url", "file:///something.msi"] }
 
       it "bootstrap batch file must fetch from provided url" do
         expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=file:///something\.msi.*})
