@@ -191,7 +191,7 @@ class Chef
       end
 
       def bootstrap_context
-        @bootstrap_context ||= Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config,secret)
+        @bootstrap_context ||= Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
       end
 
       def render_template(template=nil)
