@@ -115,6 +115,8 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     clean_test_case
 
     winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
+    allow(winrm_bootstrapper.client_builder).to receive(:run)
+    allow(winrm_bootstrapper.client_builder).to receive(:client_path)
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
     winrm_bootstrapper.config[:template_file] = @template_file_path
 
