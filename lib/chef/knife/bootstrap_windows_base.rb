@@ -124,6 +124,11 @@ class Chef
             :long => "--msi_url URL",
             :description => "Location of the Chef Client MSI. The default templates will prefer to download from this location. The MSI will be downloaded from chef.io if not provided.",
             :default => ''
+
+          option :install_as_service,
+            :long => "--install-as-service",
+            :description => "Install chef-client as service in windows machine",
+            :default => false
         end
       end
 
