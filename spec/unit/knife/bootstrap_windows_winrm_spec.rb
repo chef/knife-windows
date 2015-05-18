@@ -85,8 +85,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
       expect(bootstrap).to receive(:wait_for_remote_response).with(2)
       allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
-      expect(bootstrap.client_builder).to receive(:run)
-      expect(bootstrap.client_builder).to receive(:client_path).and_return("/")
+      allow(bootstrap.client_builder).to receive(:run)
+      allow(bootstrap.client_builder).to receive(:client_path).and_return("/")
       allow(bootstrap.ui).to receive(:info)
       bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
       expect { bootstrap.bootstrap }.to raise_error(SystemExit)
