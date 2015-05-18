@@ -1,0 +1,15 @@
+source "https://rubygems.org"
+
+# Specify your gem's dependencies in knife-windows.gemspec
+gemspec
+
+if ENV['CHEF_VERSION'] == 'master'
+  gem 'chef', github: 'chef/chef'
+else
+  gem 'chef', ENV['CHEF_VERSION']
+end
+
+gem "rspec", '~> 3.0'
+gem "ruby-wmi"
+gem "httpclient"
+gem 'rake'
