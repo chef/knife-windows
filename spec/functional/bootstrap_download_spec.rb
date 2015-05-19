@@ -86,6 +86,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       allow(Chef::Knife::Winrm).to receive(:new).and_return(mock_winrm)
 
       allow(Chef::Knife::Core::WindowsBootstrapContext).to receive(:new).and_return(mock_bootstrap_context)
+      Chef::Config[:knife] = {:winrm_transport => 'plaintext', :chef_node_name => 'foo.example.com', :winrm_authentication_protocol => 'negotiate'}
     end
 
     it "downloads the chef-client MSI from the default location during winrm bootstrap" do

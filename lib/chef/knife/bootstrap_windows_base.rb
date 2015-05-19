@@ -217,6 +217,19 @@ class Chef
         STDOUT.sync = STDERR.sync = true
 
         if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
+
+          unless locate_config_value(:winrm_authentication_protocol) == 'negotiate' &&
+              (locate_config_value(:winrm_transport) == 'ssl' || locate_config_value(:winrm_transport) == 'plaintext') && (Chef::Platform.windows?)
+            ui.error("Validator less bootstrap only supported with negotiate authentication protocol and ssl/plaintext transport")
+            ui.info("Negotiate protocol with plaintext transport is only supported when this tool is invoked from windows-based system")
+            exit 1
+          end
+
+          unless locate_config_value(:chef_node_name)
+            ui.error("You must pass a node name with -N when bootstrapping with user credentials")
+            exit 1
+          end
+
           client_builder.run
           bootstrap_context.client_pem = client_builder.client_path
         else
