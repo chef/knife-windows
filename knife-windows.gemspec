@@ -18,9 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-s", "~> 0.3.0.dev.0"
   s.add_dependency "nokogiri"
 
-
   s.add_development_dependency 'pry'
-  s.add_development_dependency 'chef', '< 12'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

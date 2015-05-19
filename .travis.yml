@@ -1,6 +1,20 @@
-rvm:
-  - 2.0.0
-  - 2.1.5
-  - 2.2.0
+language: ruby
 
-script: bundle exec rake spec
+rvm:
+  - 1.9.3
+  - 2.0.0
+
+gemfile: ci.gemfile
+
+env:
+  - CHEF_VERSION="master"
+  - CHEF_VERSION="~> 12.0"
+  - CHEF_VERSION="< 12"
+
+matrix:
+  exclude:
+  - rvm: 1.9.3
+    env: CHEF_VERSION="master"
+  - rvm: 1.9.3
+    env: CHEF_VERSION="~> 12.0"
+
