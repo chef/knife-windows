@@ -202,7 +202,7 @@ class Chef
           end
 
           client_builder.run
-          bootstrap_context.client_pem = client_builder.client_pathqqq
+          bootstrap_context.client_pem = client_builder.client_path
         else
           ui.info("Doing old-style registration with the validation key at #{Chef::Config[:validation_key]}...")
           ui.info("Delete your validation key in order to use your user credentials instead")
