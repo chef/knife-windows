@@ -114,26 +114,38 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   context "when validation_key is not present" do
-    before do
-      allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
-      bootstrap.define_singleton_method(:client_builder){nil}
-      Chef::Config[:knife] = {:winrm_transport => 'ssl', :chef_node_name => 'foo.example.com', :winrm_authentication_protocol => 'negotiate'}
+    if chef_12?
+      before do
+        allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
+        bootstrap.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
+        Chef::Config[:knife] = {:chef_node_name => 'foo.example.com'}
+      end
+
+      it 'raises an exception if winrm_authentication_protocol is basic and transport is plaintext' do
+        Chef::Config[:knife] = {:winrm_authentication_protocol => 'basic', :winrm_transport => 'plaintext', :chef_node_name => 'foo.example.com'}
+        expect(bootstrap.ui).to receive(:error)
+        expect { bootstrap.run }.to raise_error(SystemExit)
+      end
+
+      it 'raises an exception if chef_node_name is not present ' do
+        Chef::Config[:knife] = {:chef_node_name => nil}
+        expect(bootstrap.client_builder).not_to receive(:run)
+        expect(bootstrap.client_builder).not_to receive(:client_path)
+        expect(bootstrap.ui).to receive(:error)
+        expect { bootstrap.bootstrap }.to raise_error(SystemExit)
+      end
     end
 
-    it 'raises an exception if winrm_authentication_protocol is basic' do
-      Chef::Config[:knife] = {:winrm_authentication_protocol => 'basic'}
-      expect(bootstrap.client_builder).not_to receive(:run)
-      expect(bootstrap.client_builder).not_to receive(:client_path)
-      expect(bootstrap.ui).to receive(:error)
-      expect { bootstrap.bootstrap }.to raise_error(SystemExit)
-    end
+    if chef_11?
+      before do
+        allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
+        Chef::Config[:knife] = {:winrm_transport => 'ssl', :chef_node_name => 'foo.example.com', :winrm_authentication_protocol => 'negotiate'}
+      end
 
-    it 'raises an exception if chef_node_name is not present ' do
-      Chef::Config[:knife] = {:chef_node_name => nil}
-      expect(bootstrap.client_builder).not_to receive(:run)
-      expect(bootstrap.client_builder).not_to receive(:client_path)
-      expect(bootstrap.ui).to receive(:error)
-      expect { bootstrap.bootstrap }.to raise_error(SystemExit)
+      it 'raises an exception if validation_key is not present in chef11' do
+        expect(bootstrap.ui).to receive(:error)
+        expect { bootstrap.bootstrap }.to raise_error(SystemExit)
+      end
     end
   end
 end
