@@ -139,10 +139,9 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     if chef_11?
       before do
         allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
-        Chef::Config[:knife] = {:winrm_transport => 'ssl', :chef_node_name => 'foo.example.com', :winrm_authentication_protocol => 'negotiate'}
       end
 
-      it 'raises an exception if validation_key is not present in chef11' do
+      it 'raises an exception if validation_key is not present in chef 11' do
         expect(bootstrap.ui).to receive(:error)
         expect { bootstrap.bootstrap }.to raise_error(SystemExit)
       end
