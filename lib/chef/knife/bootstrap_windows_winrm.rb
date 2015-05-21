@@ -19,6 +19,8 @@
 require 'chef/knife/bootstrap_windows_base'
 require 'chef/knife/winrm'
 require 'chef/knife/winrm_base'
+require 'chef/knife/winrm_knife_base'
+
 
 class Chef
   class Knife
@@ -26,6 +28,8 @@ class Chef
 
       include Chef::Knife::BootstrapWindowsBase
       include Chef::Knife::WinrmBase
+      include Chef::Knife::WinrmCommandSharedFunctions
+
 
       deps do
         require 'chef/knife/core/windows_bootstrap_context'
@@ -37,6 +41,17 @@ class Chef
       banner "knife bootstrap windows winrm FQDN (options)"
 
       def run
+        if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
+
+          if !negotiate_auth? && !(locate_config_value(:winrm_transport) == 'ssl')
+            ui.error("Validatorless bootstrap only supported with negotiate authentication protocol and ssl/plaintext transport")
+            exit 1
+          elsif !(Chef::Platform.windows?) && negotiate_auth?
+            ui.error("Negotiate protocol with plaintext transport is only supported when this tool is invoked from windows based system")
+            exit 1
+          end
+
+        end
         bootstrap
       end
 
