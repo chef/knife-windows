@@ -217,6 +217,13 @@ class Chef
         STDOUT.sync = STDERR.sync = true
 
         if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
+          # require 'pry'
+          # binding.pry
+
+          if Chef::VERSION.split('.').first.to_i == 11
+            ui.error("Unable to find validation key. Please verify your configuration file for validation_key config value.")
+            exit 1
+          end
 
           unless locate_config_value(:chef_node_name)
             ui.error("You must pass a node name with -N when bootstrapping with user credentials")
