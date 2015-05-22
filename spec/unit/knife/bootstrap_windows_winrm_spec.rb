@@ -41,7 +41,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   let(:initial_fail_count) { 4 }
 
-   it 'should retry if a 401 is received from WinRM' do
+  it 'should retry if a 401 is received from WinRM' do
     call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('', '401')}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
@@ -114,7 +114,18 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   context "when validation_key is not present" do
-    if chef_12?
+    context "using chef 11", :chef_11_only do
+      before do
+        allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
+      end
+
+      it 'raises an exception if validation_key is not present in chef 11' do
+        expect(bootstrap.ui).to receive(:error)
+        expect { bootstrap.bootstrap }.to raise_error(SystemExit)
+      end
+    end
+
+    context "using chef 12", :chef_12_only do
       before do
         allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
         bootstrap.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
@@ -131,17 +142,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
         Chef::Config[:knife] = {:chef_node_name => nil}
         expect(bootstrap.client_builder).not_to receive(:run)
         expect(bootstrap.client_builder).not_to receive(:client_path)
-        expect(bootstrap.ui).to receive(:error)
-        expect { bootstrap.bootstrap }.to raise_error(SystemExit)
-      end
-    end
-
-    if chef_11?
-      before do
-        allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
-      end
-
-      it 'raises an exception if validation_key is not present in chef 11' do
         expect(bootstrap.ui).to receive(:error)
         expect { bootstrap.bootstrap }.to raise_error(SystemExit)
       end

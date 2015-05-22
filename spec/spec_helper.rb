@@ -65,5 +65,7 @@ end
 RSpec.configure do |config|
   config.filter_run_excluding :windows_only => true unless windows?
   config.filter_run_excluding :windows_2012_only => true unless windows2012?
+  config.filter_run_excluding :chef_11_only unless chef_11?
+  config.filter_run_excluding :chef_12_only unless chef_12?
 end
 

@@ -217,9 +217,6 @@ class Chef
         STDOUT.sync = STDERR.sync = true
 
         if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
-          # require 'pry'
-          # binding.pry
-
           if Chef::VERSION.split('.').first.to_i == 11
             ui.error("Unable to find validation key. Please verify your configuration file for validation_key config value.")
             exit 1

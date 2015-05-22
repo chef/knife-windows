@@ -100,7 +100,6 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
         run_download_scenario
       end
     end
-
   end
 
   def download_succeeded?
@@ -118,13 +117,10 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     clean_test_case
 
     winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
+
     if chef_12?
       winrm_bootstrapper.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
-      allow(winrm_bootstrapper.client_builder).to receive(:run)
-      allow(winrm_bootstrapper.client_builder).to receive(:client_path)
-    end
-
-    if chef_11?
+    elsif chef_11?
       allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
     end
 

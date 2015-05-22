@@ -30,7 +30,6 @@ class Chef
       include Chef::Knife::WinrmBase
       include Chef::Knife::WinrmCommandSharedFunctions
 
-
       deps do
         require 'chef/knife/core/windows_bootstrap_context'
         require 'chef/json_compat'
@@ -42,19 +41,13 @@ class Chef
 
       def run
         if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
-
           if !negotiate_auth? && !(locate_config_value(:winrm_transport) == 'ssl')
-            ui.error("Validatorless bootstrap only supported with negotiate authentication protocol and ssl/plaintext transport")
-            exit 1
-          elsif !(Chef::Platform.windows?) && negotiate_auth?
-            ui.error("Negotiate protocol with plaintext transport is only supported when this tool is invoked from windows based system")
+            ui.error("Validatorless bootstrap over unsecure winrm channels could expose your key to network sniffing")
             exit 1
           end
-
         end
         bootstrap
       end
-
 
       def run_command(command = '')
         winrm = Chef::Knife::Winrm.new
