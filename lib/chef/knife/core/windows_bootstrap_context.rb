@@ -22,6 +22,7 @@ require 'chef/knife/core/bootstrap_context'
 require 'knife-windows/path_helper'
 # require 'chef/util/path_helper'
 
+
 class Chef
   class Knife
     module Core
@@ -34,10 +35,13 @@ class Chef
       class WindowsBootstrapContext < BootstrapContext
         PathHelper = ::Knife::Windows::PathHelper
 
+        attr_accessor :client_pem
+
         def initialize(config, run_list, chef_config, secret=nil)
           @config       = config
           @run_list     = run_list
           @chef_config  = chef_config
+          @secret       = secret
           # Compatibility with Chef 12 and Chef 11 versions
           begin
             # Pass along the secret parameter for Chef 12
@@ -49,7 +53,11 @@ class Chef
         end
 
         def validation_key
-          escape_and_echo(super)
+          if File.exist?(File.expand_path(@chef_config[:validation_key]))
+            IO.read(File.expand_path(@chef_config[:validation_key]))
+          else
+            false
+          end
         end
 
         def secret
@@ -67,8 +75,6 @@ log_location     STDOUT
 
 chef_server_url  "#{@chef_config[:chef_server_url]}"
 validation_client_name "#{@chef_config[:validation_client_name]}"
-client_key        "c:/chef/client.pem"
-validation_key    "c:/chef/validation.pem"
 
 file_cache_path   "c:/chef/cache"
 file_backup_path  "c:/chef/backup"

@@ -161,12 +161,15 @@ class Chef
         IO.read(template).chomp
       end
 
+      def bootstrap_context
+        @bootstrap_context ||= Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
+      end
+
       def render_template(template=nil)
         if config[:secret_file]
           config[:secret] = Chef::EncryptedDataBagItem.load_secret(config[:secret_file])
         end
-        context = Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
-        Erubis::Eruby.new(template).evaluate(context)
+        Erubis::Eruby.new(template).evaluate(bootstrap_context)
       end
 
       def bootstrap(proto=nil)
@@ -175,15 +178,36 @@ class Chef
           config[:secret_file] ||= Chef::Config[:knife][:encrypted_data_bag_secret_file]
           config[:secret] ||= Chef::Config[:knife][:encrypted_data_bag_secret]
         end
-        
-        validate_name_args!
 
+        validate_name_args!
 
         @node_name = Array(@name_args).first
         # back compat--templates may use this setting:
         config[:server_name] = @node_name
 
         STDOUT.sync = STDERR.sync = true
+
+        if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
+          # require 'pry'
+          # binding.pry
+
+          if Chef::VERSION.split('.').first.to_i == 11
+            ui.error("Unable to find validation key. Please verify your configuration file for validation_key config value.")
+            exit 1
+          end
+
+          unless locate_config_value(:chef_node_name)
+            ui.error("You must pass a node name with -N when bootstrapping with user credentials")
+            exit 1
+          end
+
+          client_builder.run
+          bootstrap_context.client_pem = client_builder.client_path
+        else
+          ui.info("Doing old-style registration with the validation key at #{Chef::Config[:validation_key]}...")
+          ui.info("Delete your validation key in order to use your user credentials instead")
+          ui.info("")
+        end
 
         wait_for_remote_response( config[:auth_timeout].to_i )
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
@@ -202,6 +226,7 @@ class Chef
         # execute the bootstrap.bat file
         bootstrap_command_result = run_command(bootstrap_command)
         ui.error("Bootstrap command returned #{bootstrap_command_result}") if bootstrap_command_result != 0
+
         bootstrap_command_result
       end
 

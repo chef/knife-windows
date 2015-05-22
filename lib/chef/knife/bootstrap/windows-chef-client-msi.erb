@@ -188,11 +188,20 @@ goto install
 @endlocal
 
 @echo off
+
+<% if client_pem -%>
+> <%= bootstrap_directory %>\client.pem (
+ <%= escape_and_echo(::File.read(::File.expand_path(client_pem))) %>
+)
+<% end -%>
+
 echo Writing validation key...
 
+<% if validation_key -%>
 > <%= bootstrap_directory %>\validation.pem (
- <%= validation_key %>
+ <%= escape_and_echo(validation_key) %>
 )
+<% end -%>
 
 echo Validation key written.
 @echo on

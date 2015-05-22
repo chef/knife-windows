@@ -86,11 +86,13 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       allow(Chef::Knife::Winrm).to receive(:new).and_return(mock_winrm)
 
       allow(Chef::Knife::Core::WindowsBootstrapContext).to receive(:new).and_return(mock_bootstrap_context)
+      Chef::Config[:knife] = {:winrm_transport => 'plaintext', :chef_node_name => 'foo.example.com', :winrm_authentication_protocol => 'negotiate'}
     end
 
     it "downloads the chef-client MSI from the default location during winrm bootstrap" do
       run_download_scenario
     end
+
     context "when provided a custom msi_url to fetch from" do
       let(:mock_bootstrap_context) { Chef::Knife::Core::WindowsBootstrapContext.new(
         { :msi_url => "file:///C:/Windows/System32/xcopy.exe" }, nil, { :knife => {} }) }
@@ -98,6 +100,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
         run_download_scenario
       end
     end
+
   end
 
   def download_succeeded?
@@ -115,6 +118,16 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     clean_test_case
 
     winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
+    if chef_12?
+      winrm_bootstrapper.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
+      allow(winrm_bootstrapper.client_builder).to receive(:run)
+      allow(winrm_bootstrapper.client_builder).to receive(:client_path)
+    end
+
+    if chef_11?
+      allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
+    end
+
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
     winrm_bootstrapper.config[:template_file] = @template_file_path
 

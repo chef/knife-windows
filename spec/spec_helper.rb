@@ -54,6 +54,13 @@ def windows2012?
   is_win2k12
 end
 
+def chef_11?
+  Chef::VERSION.split('.').first.to_i == 11
+end
+
+def chef_12?
+  Chef::VERSION.split('.').first.to_i == 12
+end
 
 RSpec.configure do |config|
   config.filter_run_excluding :windows_only => true unless windows?
