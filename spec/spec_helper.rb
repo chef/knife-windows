@@ -54,9 +54,15 @@ def windows2012?
   is_win2k12
 end
 
+def gt_chef12?
+  Gem::Version.new(Chef::VERSION) > Gem::Version.new("12.0.0")
+end
+
+
 
 RSpec.configure do |config|
   config.filter_run_excluding :windows_only => true unless windows?
   config.filter_run_excluding :windows_2012_only => true unless windows2012?
+  config.filter_run_excluding :gt_chef12_only => true unless gt_chef12?
 end
 
