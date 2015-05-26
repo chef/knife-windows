@@ -25,6 +25,18 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
      allow(Chef::Knife::Core::WindowsBootstrapContext).to receive(:new).and_return(mock_bootstrap_context)
    end
 
+  describe "validation_key", :gt_chef12_only do
+    before do
+      mock_bootstrap_context.instance_variable_set(:@config, Mash.new(:validation_key => "C:\\chef\\key.pem"))
+    end
+
+    it "should return false if validation_key does not exist" do
+      allow(::File).to receive(:expand_path)
+      allow(::File).to receive(:exist?).and_return(false)
+      expect(mock_bootstrap_context.validation_key).to eq(false)
+    end
+  end
+
   describe "latest_current_windows_chef_version_query" do
     it "returns the major version of the current version of Chef" do
       stub_const("Chef::VERSION", '11.1.2')
