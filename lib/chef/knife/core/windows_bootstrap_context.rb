@@ -49,7 +49,11 @@ class Chef
         end
 
         def validation_key
-          escape_and_echo(super)
+          if super
+            escape_and_echo(super)
+          else
+            false
+          end
         end
 
         def secret
