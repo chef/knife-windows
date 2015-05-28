@@ -265,7 +265,7 @@ local to the target Windows system.
 
 * Windows 2008R2 and earlier versions require an extra configuration for MaxTimeoutms to avoid WinRM::WinRMHTTPTransportError: Bad HTTP response error while bootstrapping. It should be atleast 300000.
 
-    `winrm set winrm/config @{MaxTimeoutms=300000}`
+    `winrm set winrm/config @{MaxTimeoutms="300000"}`
 
 ## CONTRIBUTING:
 
