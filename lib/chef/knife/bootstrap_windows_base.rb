@@ -92,6 +92,15 @@ class Chef
             :proc => lambda { |o| o.split(",") },
             :default => []
 
+          option :hint,
+            :long => "--hint HINT_NAME[=HINT_FILE]",
+            :description => "Specify Ohai Hint to be set on the bootstrap target.  Use multiple --hint options to specify multiple hints.",
+            :proc => Proc.new { |h|
+              Chef::Config[:knife][:hints] ||= Hash.new
+              name, path = h.split("=")
+              Chef::Config[:knife][:hints][name] = path ? Chef::JSONCompat.parse(::File.read(path)) : Hash.new
+            }
+        
           option :first_boot_attributes,
             :short => "-j JSON_ATTRIBS",
             :long => "--json-attributes",
