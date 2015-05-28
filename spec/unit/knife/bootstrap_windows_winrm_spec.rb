@@ -114,7 +114,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   context "when validation_key is not present" do
-    context "using chef 11", :chef_11_only do
+    context "using chef 11", :chef_lt_12_only do
       before do
         allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
       end
@@ -125,7 +125,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       end
     end
 
-    context "using chef 12", :chef_12_only do
+    context "using chef 12", :chef_gte_12_only do
       before do
         allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
         bootstrap.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
