@@ -18,8 +18,6 @@
 
 require 'spec_helper'
 
-Chef::Knife::Winrm.load_deps
-
 describe Chef::Knife::Bootstrap do
   before(:all) do
     Chef::Config.reset
@@ -109,6 +107,34 @@ expected: #{expected}
       :session_timeout,
       :winrm_authentication_protocol,
       :winrm_transport,
+    ] }
+
+    include_examples 'compare_options'
+  end
+
+  context 'when compared to BootstrapWindowsSsh' do
+    let(:win_bootstrap) { Chef::Knife::BootstrapWindowsSsh.new }
+
+    let(:opt_map) { {
+      :msi_url => :bootstrap_url,
+      :encrypted_data_bag_secret => :secret,
+      :encrypted_data_bag_secret_file => :secret_file,
+    }}
+    let(:ref_ignore) { [
+      :bootstrap_curl_options,
+      :bootstrap_install_command,
+      :bootstrap_vault_file,     
+      :bootstrap_vault_item,
+      :bootstrap_vault_json,
+      :bootstrap_wget_options,
+      :encrypt,
+      :forward_agent,
+      :use_sudo,
+      :use_sudo_password,
+    ] }
+    let(:win_ignore) { [
+      :auth_timeout,
+      :install_as_service,
     ] }
 
     include_examples 'compare_options'
