@@ -58,7 +58,7 @@ class Chef
             :proc => Proc.new { |p| Chef::Config[:knife][:bootstrap_proxy] = p }
 
           option :bootstrap_no_proxy,
-            :long => "--bootstrap-no-proxy ",
+            :long => "--bootstrap-no-proxy [NO_PROXY_URL|NO_PROXY_IP]",
             :description => "Avoid a proxy server for the given addresses",
             :proc => Proc.new { |np| Chef::Config[:knife][:bootstrap_no_proxy] = np }
 
@@ -73,6 +73,7 @@ class Chef
             }
 
           option :bootstrap_template,
+            :short => "-t TEMPLATE",
             :long => "--bootstrap-template TEMPLATE",
             :description => "Bootstrap Chef using a built-in or custom template. Set to the full path of an erb template or use one of the built-in templates."
 
