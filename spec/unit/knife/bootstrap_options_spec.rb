@@ -24,9 +24,24 @@ describe Chef::Knife::Bootstrap do
   end
 
   let(:bootstrap) { Chef::Knife::Bootstrap.new }
+  let(:win_bootstrap) { nil }
   let(:opt_map) { {} }
   let(:ref_ignore) { [] }
   let(:win_ignore) { [] }
+
+  def compare_property(sym)
+    win_bootstrap.options.each do |win_key, win_val|
+      unless win_ignore.include?(win_key) || opt_map.include?(win_key) then
+        actual = win_val[sym]
+        expected = bootstrap.options[win_key][sym]
+        expect(actual).to eq(expected),
+          "#{win_key} flag's #{sym} property doesn't match
+
+expected: #{expected}
+     got: #{actual}"
+      end
+    end
+  end
 
   # ref_opts, win_opts: Hashes of Mixlib::CLI options for core bootstrap and windows.
   # opt_map: Hash of symbols in windows mapping to symbols in core.  Name checks are
@@ -41,32 +56,20 @@ describe Chef::Knife::Bootstrap do
       expect(filtered_keys).to match_array(bootstrap.options.keys - ref_ignore)
     end
 
-    it 'uses the same long-name/description' do
-      win_bootstrap.options.each do |win_key, win_val|
-        unless win_ignore.include?(win_key) || opt_map.include?(win_key) then
-          actual = win_val[:long]
-          expected = bootstrap.options[win_key][:long]
-          expect(actual).to eq(expected),
-            "#{win_key} flag's long-name doesn't match
-
-expected: #{expected}
-     got: #{actual}"
-        end
-      end
+    it 'uses the same long-name' do
+      compare_property(:long)
     end
 
-    it 'uses the same short-name/description' do
-      win_bootstrap.options.each do |win_key, win_val|
-        unless win_ignore.include?(win_key) || opt_map.include?(win_key) then   
-          actual = win_val[:short]
-          expected = bootstrap.options[win_key][:short]
-          expect(actual).to eq(expected),
-            "#{win_key} flag's short-name doesn't match
+    it 'uses the same short-name' do
+      compare_property(:short)
+    end
 
-expected: #{expected}
-     got: #{actual}"
-        end
-      end
+    it 'uses the same description' do
+      compare_property(:description)
+    end
+
+    it 'uses the same default value' do
+      compare_property(:default)
     end
   end
 

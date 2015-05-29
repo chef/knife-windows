@@ -59,14 +59,14 @@ class Chef
 
           option :bootstrap_no_proxy,
             :long => "--bootstrap-no-proxy [NO_PROXY_URL|NO_PROXY_IP]",
-            :description => "Avoid a proxy server for the given addresses",
+            :description => "Do not proxy locations for the node being bootstrapped; this option is used internally by Opscode",
             :proc => Proc.new { |np| Chef::Config[:knife][:bootstrap_no_proxy] = np }
 
           # DEPR: Remove this option in Chef 13
           option :distro,
             :short => "-d DISTRO",
             :long => "--distro DISTRO",
-            :description => "Bootstrap a distro using a template. [DEPRECATED] Use --bootstrap-template option instead.",
+            :description => "Bootstrap a distro using a template. [DEPRECATED] Use -t / --bootstrap-template option instead.",
             :proc        => Proc.new { |v|
               Chef::Log.warn("[DEPRECATED] -d / --distro option is deprecated. Use --bootstrap-template option instead.")
               v
@@ -80,7 +80,7 @@ class Chef
           # DEPR: Remove this option in Chef 13
           option :template_file,
             :long => "--template-file TEMPLATE",
-            :description => "Full path to location of template to use. [DEPRECATED] Use --bootstrap-template option instead.",
+            :description => "Full path to location of template to use. [DEPRECATED] Use -t / --bootstrap-template option instead.",
             :proc        => Proc.new { |v|
               Chef::Log.warn("[DEPRECATED] --template-file option is deprecated. Use --bootstrap-template option instead.")
               v

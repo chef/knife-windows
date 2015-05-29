@@ -67,7 +67,7 @@ class Chef
 
       option :host_key_verify,
         :long => "--[no-]host-key-verify",
-        :description => "Disable host key verification",
+        :description => "Verify host key, enabled by default.",
         :boolean => true,
         :default => true
 
