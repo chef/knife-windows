@@ -72,7 +72,7 @@ class Chef
             :description => "The SSH identity file used for authentication"
 
           option :kerberos_keytab_file,
-            :short => "-i KEYTAB_FILE",
+            :short => "-T KEYTAB_FILE",
             :long => "--keytab-file KEYTAB_FILE",
             :description => "The Kerberos keytab file used for authentication",
             :proc => Proc.new { |keytab| Chef::Config[:knife][:kerberos_keytab_file] = keytab }
