@@ -18,7 +18,7 @@
 
 require 'spec_helper'
 
-describe Chef::Knife::Bootstrap do
+describe Chef::Knife::Bootstrap, :chef_gte_12_only do
   before(:all) do
     Chef::Config.reset
   end
