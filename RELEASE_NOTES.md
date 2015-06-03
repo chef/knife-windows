@@ -38,6 +38,9 @@ previous releases, if the port was not specified, it was always 5985.
 To override this behavior, explicitly specify the desired port using the
 `winrm_port` (`-p`) option.
 
+### Kerberos Keytab short option is now -T
+The short option flag for --keytab-file is now -T to fix a conflict with the --identity-file option.
+
 ## Features added in knife-windows 1.0.0.rc.0
 * New `--winrm-authentication-protocol` option for explicit control of WinRM authentication
 * `knife windows cert generate` subcommand:
@@ -48,7 +51,13 @@ To override this behavior, explicitly specify the desired port using the
   so that it can be used as part of the configuration for a WinRM SSL listener
 * `knife windows listener create` subcommand:
   Creates a WinRM SSL listener on a Windows system
-
+* Added `--hint` option for creating Ohai hints on bootstrap
+* Validatorless bootstrapping is now supported
+* New `--install-as-service` option will have Chef Client be installed as a service on bootstrap
+* Added `--msi_url` option for providing an alternate URL to the Chef Client installation package
+* `knife wsman test` subcommaned:
+  Verifies winrm functionality on a remote system, e.g. `knife wsman test 192.168.1.10 -m --winrm-transport ssl`
+  
 ## Issues fixed in knife-windows 1.0.0.rc.0
 * [knife-windows #159](https://github.com/chef/knife-windows/issues/159) `winrm_port` option should default to 5986 if `winrm_transport` option is `ssl`
 * [knife-windows #139](https://github.com/chef/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
@@ -56,6 +65,8 @@ To override this behavior, explicitly specify the desired port using the
 * [knife-windows #125](https://github.com/chef/knife-windows/issues/125) knife-windows should use PowerShell first before cscript to download the  Chef Client msi
 * [knife-windows #92](https://github.com/chef/knife-windows/issues/92) EventMachine issue: knife bootstrap windows winrm error
 * [knife-windows #94](https://github.com/chef/knife-windows/issues/94) Remove Eventmachine dependency
+* [knife-windows #213](https://github.com/chef/knife-windows/pull/213) Search possibilities of HOME for bootstrap templates
+* [knife-windows #227](https://github.com/chef/knife-windows/issues/227) Exception: NoMethodError: undefined method 'gsub' for false:FalseClass
 
 ## knife-windows on RubyGems and Github
 https://rubygems.org/gems/knife-windows
