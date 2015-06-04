@@ -59,6 +59,12 @@ class Chef
         :description => "The ssh gateway",
         :proc => Proc.new { |key| Chef::Config[:knife][:ssh_gateway] = key }
 
+      option :forward_agent,
+        :short => "-A",
+        :long => "--forward-agent",
+        :description => "Enable SSH agent forwarding",
+        :boolean => true
+
       option :identity_file,
         :short => "-i IDENTITY_FILE",
         :long => "--identity-file IDENTITY_FILE",
@@ -82,6 +88,7 @@ class Chef
         ssh.config[:ssh_port] = locate_config_value(:ssh_port)
         ssh.config[:ssh_gateway] =  locate_config_value(:ssh_gateway)
         ssh.config[:identity_file] = config[:identity_file]
+        ssh.config[:forward_agent] = config[:forward_agent]
         ssh.config[:manual] = true
         ssh.config[:host_key_verify] = config[:host_key_verify]
         ssh.run

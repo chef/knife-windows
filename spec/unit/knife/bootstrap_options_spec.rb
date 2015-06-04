@@ -131,7 +131,6 @@ expected: #{expected}
       :bootstrap_vault_json,
       :bootstrap_wget_options,
       :encrypt,
-      :forward_agent,
       :use_sudo,
       :use_sudo_password,
     ] }
