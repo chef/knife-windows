@@ -125,8 +125,8 @@ class Chef
               @session_opts[:transport] = :sspinegotiate
               @session_opts[:disable_sspi] = false
             elsif negotiate_auth? && !Chef::Platform.windows?
-              ui.warn "The '--winrm-authentication-protocol = negotiate' with 'plaintext' transport is only supported when this tool is invoked from a Windows-based system."
-              ui.info "Try '--winrm-authentication-protocol = basic'"
+              ui.warn "\nUsing '--winrm-authentication-protocol negotiate' with '--winrm-transport plaintext' is only supported when this tool is invoked from a Windows system."
+              ui.warn "Switch to either '--winrm-transport ssl' or '--winrm-authentication-protocol basic'."
               exit 1
             end
           end
