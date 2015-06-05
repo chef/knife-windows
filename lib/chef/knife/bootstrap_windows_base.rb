@@ -142,7 +142,7 @@ class Chef
 
           option :msi_url,
             :short => "-u URL",
-            :long => "--msi_url URL",
+            :long => "--msi-url URL",
             :description => "Location of the Chef Client MSI. The default templates will prefer to download from this location. The MSI will be downloaded from chef.io if not provided.",
             :default => ''
 
