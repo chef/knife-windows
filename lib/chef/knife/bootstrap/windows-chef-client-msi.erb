@@ -175,8 +175,10 @@ goto install
 
 @echo Installing downloaded client package...
 
-<%= install_chef %>
-
+<% if @config[:bootstrap_install_command] %>
+    <%= @config[:bootstrap_install_command] %>
+<% else %>
+    <%= install_chef %>
 @if ERRORLEVEL 1 (
     echo Chef-client package failed to install with status code !ERRORLEVEL!. > "&2"
     echo See installation log for additional detail: %CHEF_CLIENT_MSI_LOG_PATH%. > "&2"
@@ -184,6 +186,7 @@ goto install
     @echo Installation completed successfully
     del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
 )
+<% end %>
 
 @endlocal
 

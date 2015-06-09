@@ -101,7 +101,7 @@ class Chef
               name, path = h.split("=")
               Chef::Config[:knife][:hints][name] = path ? Chef::JSONCompat.parse(::File.read(path)) : Hash.new
             }
-        
+
           option :first_boot_attributes,
             :short => "-j JSON_ATTRIBS",
             :long => "--json-attributes",
@@ -151,6 +151,12 @@ class Chef
             :long => "--install-as-service",
             :description => "Install chef-client as service in windows machine",
             :default => false
+
+          option :bootstrap_install_command,
+            :long        => "--bootstrap-install-command COMMANDS",
+            :description => "Custom command to install chef-client",
+            :proc        => Proc.new { |ic| Chef::Config[:knife][:bootstrap_install_command] = ic }
+
         end
       end
 
