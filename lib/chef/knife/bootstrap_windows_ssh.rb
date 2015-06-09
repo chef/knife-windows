@@ -51,8 +51,7 @@ class Chef
         :short => "-p PORT",
         :long => "--ssh-port PORT",
         :description => "The ssh port",
-        :default => "22",
-        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key }
+        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key.strip }
 
       option :ssh_gateway,
         :short => "-G GATEWAY",
@@ -60,14 +59,31 @@ class Chef
         :description => "The ssh gateway",
         :proc => Proc.new { |key| Chef::Config[:knife][:ssh_gateway] = key }
 
+      option :forward_agent,
+        :short => "-A",
+        :long => "--forward-agent",
+        :description => "Enable SSH agent forwarding",
+        :boolean => true
+
       option :identity_file,
         :short => "-i IDENTITY_FILE",
         :long => "--identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
 
+      # DEPR: Remove this option for the next release.
       option :host_key_verification,
-        :long => "--[no-]host-key-verification",
-        :description => "Disable host key verification",
+        :long => "--[no-]host-key-verify",
+        :description => "Verify host key, enabled by default. [DEPRECATED] Use --host-key-verify option instead.",
+        :boolean => true,
+        :default => true,
+        :proc => Proc.new { |key|
+          Chef::Log.warn("[DEPRECATED] --host-key-verification option is deprecated. Use --host-key-verify option instead.")
+          config[:host_key_verify] = key
+        }
+
+      option :host_key_verify,
+        :long => "--[no-]host-key-verify",
+        :description => "Verify host key, enabled by default.",
         :boolean => true,
         :default => true
 
@@ -83,6 +99,7 @@ class Chef
         ssh.config[:ssh_port] = locate_config_value(:ssh_port)
         ssh.config[:ssh_gateway] =  locate_config_value(:ssh_gateway)
         ssh.config[:identity_file] = config[:identity_file]
+        ssh.config[:forward_agent] = config[:forward_agent]
         ssh.config[:manual] = true
         ssh.config[:host_key_verify] = config[:host_key_verify]
         ssh.run
