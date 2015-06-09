@@ -86,18 +86,22 @@ expected: #{expected}
       :winrm_ssl_verify_mode => :host_key_verify,
     }}
     let(:ref_ignore) { [
+      # These are irrelevant to WinRM.
       :bootstrap_curl_options,
       :bootstrap_install_command,
-      :bootstrap_vault_file,     
-      :bootstrap_vault_item,
-      :bootstrap_vault_json,
       :bootstrap_wget_options,
-      :encrypt,
       :forward_agent,
       :ssh_gateway,
       :use_sudo,
       :use_sudo_password,
-    ] }
+    ] + [
+      # These are the options that we still need to implement
+      # but are ignoring for now to get the tests to pass.
+      :bootstrap_vault_file,     
+      :bootstrap_vault_item,
+      :bootstrap_vault_json,
+      :encrypt,  # We might not need to do this - isn't encrypt always true for bootstrap?
+    ]}
     let(:win_ignore) { [
       :attribute,
       :auth_timeout,
@@ -126,17 +130,21 @@ expected: #{expected}
     let(:ref_ignore) { [
       :bootstrap_curl_options,
       :bootstrap_install_command,
+      :bootstrap_wget_options,
+      :use_sudo,
+      :use_sudo_password,
+    ] + [
+      # These are the options that we still need to implement
+      # but are ignoring for now to get the tests to pass.
       :bootstrap_vault_file,     
       :bootstrap_vault_item,
       :bootstrap_vault_json,
-      :bootstrap_wget_options,
       :encrypt,
-      :use_sudo,
-      :use_sudo_password,
-    ] }
+    ]}
     let(:win_ignore) { [
       :auth_timeout,
       :install_as_service,
+      :host_key_verification,  # Deprecated - remove this when the flag is removed.
     ] }
 
     include_examples 'compare_options'
