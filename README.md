@@ -103,7 +103,7 @@ The *.b64 is Base64 PKCS12 key pair. Contains both the public and private keys, 
 The *.pem is Base64 encoded public certificate only. Required by the client to connect to the server.
 This command also displays the thumbprint of the generated certificate.
 
-    knife windows cert generate --cert-passphrase "strong_passphrase" --domain "cloudapp.net" --output-file "~/server_cert.pfx"
+    knife windows cert generate --cert-passphrase "strong_passphrase" --hostname "cloudapp.net" --output-file "~/server_cert.pfx"
     # This command will generate certificates at user's home directory with names server_cert.b64, server_cert.pfx and server_cert.pem.
 
 ### knife windows cert install

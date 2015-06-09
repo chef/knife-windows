@@ -36,25 +36,29 @@ class Chef
       end
 
       def run
-        STDOUT.sync = STDERR.sync = true
-        if @name_args.empty?
-          ui.error "Please specify the certificate path. e.g-  'knife windows cert install <path>"
-          exit 1
-        end
-        file_path = @name_args.first
-        config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
-
-        begin
-          ui.info "Adding certificate to the Windows Certificate Store..."
-          result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{file_path}' AT_KEYEXCHANGE"}
-          if $?.exitstatus == 0
-            ui.info "Certificate added to Certificate Store"
-          else
-            ui.info "Error adding the certificate. Use -VV option for details"
+        if Chef::Platform.windows?
+          STDOUT.sync = STDERR.sync = true
+          if @name_args.empty?
+            ui.error "Please specify the certificate path. e.g-  'knife windows cert install <path>"
+            exit 1
           end
-          Chef::Log.debug "#{result}"
-        rescue => e
-          puts "ERROR: + #{e}"
+          file_path = @name_args.first
+          config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
+
+          begin
+            ui.info "Adding certificate to the Windows Certificate Store..."
+            result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{file_path}' AT_KEYEXCHANGE"}
+            if $?.exitstatus == 0
+              ui.info "Certificate added to Certificate Store"
+            else
+              ui.info "Error adding the certificate. Use -VV option for details"
+            end
+            Chef::Log.debug "#{result}"
+          rescue => e
+            puts "ERROR: + #{e}"
+          end
+        else
+          ui.error "Certificate can be installed on Windows system only"
         end
       end
     end
