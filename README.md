@@ -140,7 +140,7 @@ This bootstrap template does the following:
 * Writes a default config file for Chef (`C:\chef\client.rb`) using values from the `knife.rb`.
 * Creates a JSON attributes file containing the specified run list and run Chef.
 
-This is the default bootstrap template used by both of the `windows bootstrap` subcommands.
+This is the default bootstrap template used by both of the `knife windows bootstrap winrm` and `knife windows bootstrap ssh` subcommands.
 
 ## REQUIREMENTS/SETUP:
 
