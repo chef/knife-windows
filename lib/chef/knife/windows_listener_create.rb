@@ -59,9 +59,9 @@ class Chef
       end
 
       def run
-        if Chef::Platform.windows?
-          STDOUT.sync = STDERR.sync = true
+        STDOUT.sync = STDERR.sync = true
 
+        if Chef::Platform.windows?
           begin
             if config[:cert_install]
               config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]

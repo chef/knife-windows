@@ -36,8 +36,9 @@ class Chef
       end
 
       def run
+        STDOUT.sync = STDERR.sync = true
+
         if Chef::Platform.windows?
-          STDOUT.sync = STDERR.sync = true
           if @name_args.empty?
             ui.error "Please specify the certificate path. e.g-  'knife windows cert install <path>"
             exit 1
