@@ -153,10 +153,28 @@ class Chef
             :default => false
 
           option :bootstrap_install_command,
-            :long        => "--bootstrap-install-command COMMANDS",
-            :description => "Custom command to install chef-client",
+            :long        => '--bootstrap-install-command COMMANDS',
+            :description => 'Custom command to install chef-client',
             :proc        => Proc.new { |ic| Chef::Config[:knife][:bootstrap_install_command] = ic }
 
+          option :bootstrap_vault_file,
+          :long        => '--bootstrap-vault-file VAULT_FILE',
+          :description => 'A JSON file with a list of vault(s) and item(s) to be updated'
+
+          option :bootstrap_vault_json,
+            :long        => '--bootstrap-vault-json VAULT_JSON',
+            :description => 'A JSON string with the vault(s) and item(s) to be updated'
+
+          option :bootstrap_vault_item,
+            :long        => '--bootstrap-vault-item VAULT_ITEM',
+            :description => 'A single vault and item to update as "vault:item"',
+            :proc        => Proc.new { |i|
+              (vault, item) = i.split(/:/)
+              Chef::Config[:knife][:bootstrap_vault_item] ||= {}
+              Chef::Config[:knife][:bootstrap_vault_item][vault] ||= []
+              Chef::Config[:knife][:bootstrap_vault_item][vault].push(item)
+              Chef::Config[:knife][:bootstrap_vault_item]
+            }
         end
       end
 
@@ -242,6 +260,8 @@ class Chef
             ui.error("You must pass a node name with -N when bootstrapping with user credentials")
             exit 1
           end
+
+          chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
 
           client_builder.run
           bootstrap_context.client_pem = client_builder.client_path
