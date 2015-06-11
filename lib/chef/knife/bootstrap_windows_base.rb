@@ -152,14 +152,9 @@ class Chef
             :description => "Install chef-client as service in windows machine",
             :default => false
 
-          option :bootstrap_install_command,
-            :long        => '--bootstrap-install-command COMMANDS',
-            :description => 'Custom command to install chef-client',
-            :proc        => Proc.new { |ic| Chef::Config[:knife][:bootstrap_install_command] = ic }
-
           option :bootstrap_vault_file,
-          :long        => '--bootstrap-vault-file VAULT_FILE',
-          :description => 'A JSON file with a list of vault(s) and item(s) to be updated'
+            :long        => '--bootstrap-vault-file VAULT_FILE',
+            :description => 'A JSON file with a list of vault(s) and item(s) to be updated'
 
           option :bootstrap_vault_json,
             :long        => '--bootstrap-vault-json VAULT_JSON',
@@ -261,9 +256,10 @@ class Chef
             exit 1
           end
 
+          client_builder.run
+
           chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
 
-          client_builder.run
           bootstrap_context.client_pem = client_builder.client_path
         else
           ui.info("Doing old-style registration with the validation key at #{Chef::Config[:validation_key]}...")
