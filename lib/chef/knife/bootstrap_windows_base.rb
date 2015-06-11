@@ -101,7 +101,7 @@ class Chef
               name, path = h.split("=")
               Chef::Config[:knife][:hints][name] = path ? Chef::JSONCompat.parse(::File.read(path)) : Hash.new
             }
-        
+
           option :first_boot_attributes,
             :short => "-j JSON_ATTRIBS",
             :long => "--json-attributes",
@@ -151,6 +151,25 @@ class Chef
             :long => "--install-as-service",
             :description => "Install chef-client as service in windows machine",
             :default => false
+
+          option :bootstrap_vault_file,
+            :long        => '--bootstrap-vault-file VAULT_FILE',
+            :description => 'A JSON file with a list of vault(s) and item(s) to be updated'
+
+          option :bootstrap_vault_json,
+            :long        => '--bootstrap-vault-json VAULT_JSON',
+            :description => 'A JSON string with the vault(s) and item(s) to be updated'
+
+          option :bootstrap_vault_item,
+            :long        => '--bootstrap-vault-item VAULT_ITEM',
+            :description => 'A single vault and item to update as "vault:item"',
+            :proc        => Proc.new { |i|
+              (vault, item) = i.split(/:/)
+              Chef::Config[:knife][:bootstrap_vault_item] ||= {}
+              Chef::Config[:knife][:bootstrap_vault_item][vault] ||= []
+              Chef::Config[:knife][:bootstrap_vault_item][vault].push(item)
+              Chef::Config[:knife][:bootstrap_vault_item]
+            }
         end
       end
 
@@ -238,6 +257,9 @@ class Chef
           end
 
           client_builder.run
+
+          chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
+
           bootstrap_context.client_pem = client_builder.client_path
         else
           ui.info("Doing old-style registration with the validation key at #{Chef::Config[:validation_key]}...")

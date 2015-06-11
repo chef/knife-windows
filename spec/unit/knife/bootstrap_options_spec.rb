@@ -84,6 +84,9 @@ expected: #{expected}
       :winrm_password => :ssh_password,
       :winrm_port => :ssh_port,
       :winrm_ssl_verify_mode => :host_key_verify,
+      :bootstrap_vault_file => :bootstrap_vault_file,
+      :bootstrap_vault_item => :bootstrap_vault_item,
+      :bootstrap_vault_json => :bootstrap_vault_json,
     }}
     let(:ref_ignore) { [
       # These are irrelevant to WinRM.
@@ -97,9 +100,6 @@ expected: #{expected}
     ] + [
       # These are the options that we still need to implement
       # but are ignoring for now to get the tests to pass.
-      :bootstrap_vault_file,     
-      :bootstrap_vault_item,
-      :bootstrap_vault_json,
       :encrypt,  # We might not need to do this - isn't encrypt always true for bootstrap?
     ]}
     let(:win_ignore) { [
@@ -126,6 +126,9 @@ expected: #{expected}
       :msi_url => :bootstrap_url,
       :encrypted_data_bag_secret => :secret,
       :encrypted_data_bag_secret_file => :secret_file,
+      :bootstrap_vault_file => :bootstrap_vault_file,
+      :bootstrap_vault_item => :bootstrap_vault_item,
+      :bootstrap_vault_json => :bootstrap_vault_json,
     }}
     let(:ref_ignore) { [
       :bootstrap_curl_options,
@@ -136,9 +139,6 @@ expected: #{expected}
     ] + [
       # These are the options that we still need to implement
       # but are ignoring for now to get the tests to pass.
-      :bootstrap_vault_file,     
-      :bootstrap_vault_item,
-      :bootstrap_vault_json,
       :encrypt,
     ]}
     let(:win_ignore) { [

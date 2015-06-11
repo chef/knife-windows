@@ -176,7 +176,6 @@ goto install
 @echo Installing downloaded client package...
 
 <%= install_chef %>
-
 @if ERRORLEVEL 1 (
     echo Chef-client package failed to install with status code !ERRORLEVEL!. > "&2"
     echo See installation log for additional detail: %CHEF_CLIENT_MSI_LOG_PATH%. > "&2"
