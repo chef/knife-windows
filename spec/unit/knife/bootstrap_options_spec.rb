@@ -43,11 +43,6 @@ expected: #{expected}
     end
   end
 
-  # ref_opts, win_opts: Hashes of Mixlib::CLI options for core bootstrap and windows.
-  # opt_map: Hash of symbols in windows mapping to symbols in core.  Name checks are
-  #   ignored for these.
-  # ref_ignore: Options in core that we haven't implemented.
-  # win_ignore: Options in windows that aren't relevant to core.
   shared_examples 'compare_options' do
     it 'contains the option flags' do
       opt_map.default_proc = proc { |map, key| key }
@@ -76,6 +71,8 @@ expected: #{expected}
   context 'when compared to BootstrapWindowsWinrm' do
     let(:win_bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new }
 
+    # opt_map: Hash of symbols in windows mapping to symbols in core.  Name checks are
+    #   ignored for these.
     let(:opt_map) { {
       :msi_url => :bootstrap_url,
       :encrypted_data_bag_secret => :secret,
@@ -85,6 +82,8 @@ expected: #{expected}
       :winrm_port => :ssh_port,
       :winrm_ssl_verify_mode => :host_key_verify,
     }}
+
+    # ref_ignore: Options in core that are not implemented here.
     let(:ref_ignore) { [
       # These are irrelevant to WinRM.
       :bootstrap_curl_options,
@@ -94,14 +93,16 @@ expected: #{expected}
       :ssh_gateway,
       :use_sudo,
       :use_sudo_password,
+      :encrypt, # irrelevant during bootstrap
     ] + [
       # These are the options that we still need to implement
       # but are ignoring for now to get the tests to pass.
       :bootstrap_vault_file,     
       :bootstrap_vault_item,
       :bootstrap_vault_json,
-      :encrypt,  # We might not need to do this - isn't encrypt always true for bootstrap?
     ]}
+
+    # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
       :attribute,
       :auth_timeout,
@@ -122,25 +123,29 @@ expected: #{expected}
   context 'when compared to BootstrapWindowsSsh' do
     let(:win_bootstrap) { Chef::Knife::BootstrapWindowsSsh.new }
 
+    # opt_map: Hash of symbols in windows mapping to symbols in core.  Name checks are
+    #   ignored for these.
     let(:opt_map) { {
       :msi_url => :bootstrap_url,
       :encrypted_data_bag_secret => :secret,
       :encrypted_data_bag_secret_file => :secret_file,
     }}
+    # ref_ignore: Options in core that are not implemented here.
     let(:ref_ignore) { [
       :bootstrap_curl_options,
       :bootstrap_install_command,
       :bootstrap_wget_options,
       :use_sudo,
       :use_sudo_password,
+      :encrypt, # irrelevant during bootstrap
     ] + [
       # These are the options that we still need to implement
       # but are ignoring for now to get the tests to pass.
       :bootstrap_vault_file,     
       :bootstrap_vault_item,
       :bootstrap_vault_json,
-      :encrypt,
     ]}
+    # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
       :auth_timeout,
       :install_as_service,
