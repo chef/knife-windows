@@ -90,6 +90,7 @@ class Chef
               ui.info "WinRM listener created with Port: #{config[:port]} and CertificateThumbprint: #{config[:cert_thumbprint]}"
             else
               ui.error "Error creating WinRM listener. use -VV for more details."
+              exit 1
             end
 
           rescue => e
@@ -97,6 +98,7 @@ class Chef
           end
         else
           ui.error "WinRM listener can be created on Windows system only"
+          exit 1
         end
       end
 

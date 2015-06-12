@@ -19,43 +19,58 @@
 require 'spec_helper'
 require 'chef/knife/windows_listener_create'
 
-describe Chef::Knife::WindowsListenerCreate, :windows_only do
-  before(:all) do
-    @listener = Chef::Knife::WindowsListenerCreate.new
+describe Chef::Knife::WindowsListenerCreate do
+  context "on Windows" do
+    before do
+      allow(Chef::Platform).to receive(:windows?).and_return(true)
+      @listener = Chef::Knife::WindowsListenerCreate.new
+    end
+  
+    it "creates winrm listener" do
+      @listener.config[:hostname] = "host"
+      @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
+      @listener.config[:port] = "5986"
+      expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
+      expect(@listener.ui).to receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
+      @listener.run
+    end
+  
+    it "raise an error on command failure" do
+      @listener.config[:hostname] = "host"
+      @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
+      @listener.config[:port] = "5986"
+      @listener.config[:basic_auth] = true
+      expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
+      expect($?).to receive(:exitstatus).and_return(100)
+      expect(@listener.ui).to receive(:error).with("Error creating WinRM listener. use -VV for more details.")
+      expect(@listener.ui).to_not receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
+      expect { @listener.run }.to raise_error(SystemExit)
+    end
+  
+    it "creates winrm listener with cert install option" do
+      @listener.config[:hostname] = "host"
+      @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
+      @listener.config[:port] = "5986"
+      @listener.config[:cert_install] = true
+      allow(@listener).to receive(:get_cert_passphrase).and_return("your-secret!")
+      expect(@listener).to receive(:`).with("powershell.exe -Command \" 'your-secret!' | certutil  -importPFX 'true' AT_KEYEXCHANGE\"")
+      expect(@listener).to receive(:`).with("powershell.exe -Command \" echo (Get-PfxCertificate true).thumbprint \"")
+      expect(@listener.ui).to receive(:info).with("Certificate installed to Certificate Store")
+      expect(@listener.ui).to receive(:info).with("Certificate Thumbprint: ")
+      allow(@listener).to receive(:puts)
+      @listener.run
+    end
   end
 
-  it "creates winrm listener" do
-    @listener.config[:hostname] = "host"
-    @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
-    @listener.config[:port] = "5986"
-    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
-    expect(@listener.ui).to receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
-    @listener.run
-  end
+  context "not on Windows" do
+    before do
+      allow(Chef::Platform).to receive(:windows?).and_return(false)
+      @listener = Chef::Knife::WindowsListenerCreate.new
+    end
 
-  it "raise an error on command failure" do
-    @listener.config[:hostname] = "host"
-    @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
-    @listener.config[:port] = "5986"
-    @listener.config[:basic_auth] = true
-    expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
-    expect($?).to receive(:exitstatus).and_return(100)
-    expect(@listener.ui).to receive(:error).with("Error creating WinRM listener. use -VV for more details.")
-    expect(@listener.ui).to_not receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
-    @listener.run
+    it "exits with an error" do
+      expect(@listener.ui).to receive(:error)
+      expect { @listener.run }.to raise_error(SystemExit)
+    end
   end
-
-  it "creates winrm listener with cert install option" do
-    @listener.config[:hostname] = "host"
-    @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
-    @listener.config[:port] = "5986"
-    @listener.config[:cert_install] = true
-    allow(@listener).to receive(:get_cert_passphrase).and_return("your-secret!")
-    expect(@listener).to receive(:`).with("powershell.exe -Command \" 'your-secret!' | certutil  -importPFX 'true' AT_KEYEXCHANGE\"")
-    expect(@listener).to receive(:`).with("powershell.exe -Command \" echo (Get-PfxCertificate true).thumbprint \"")
-    expect(@listener.ui).to receive(:info).with("Certificate installed to Certificate Store")
-    expect(@listener.ui).to receive(:info).with("Certificate Thumbprint: ")
-    allow(@listener).to receive(:puts)
-    @listener.run
-  end
-end
+end  

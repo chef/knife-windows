@@ -60,6 +60,7 @@ class Chef
           end
         else
           ui.error "Certificate can be installed on Windows system only"
+          exit 1
         end
       end
     end
