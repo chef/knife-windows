@@ -94,12 +94,6 @@ expected: #{expected}
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
-    ] + [
-      # These are the options that we still need to implement
-      # but are ignoring for now to get the tests to pass.
-      :bootstrap_vault_file,     
-      :bootstrap_vault_item,
-      :bootstrap_vault_json,
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -138,12 +132,6 @@ expected: #{expected}
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
-    ] + [
-      # These are the options that we still need to implement
-      # but are ignoring for now to get the tests to pass.
-      :bootstrap_vault_file,     
-      :bootstrap_vault_item,
-      :bootstrap_vault_json,
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
