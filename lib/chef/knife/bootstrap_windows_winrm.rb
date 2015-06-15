@@ -91,8 +91,16 @@ class Chef
           return
         rescue
           retries_left -= 1
+          # $! will contain the current exception object
+          if $!.class.equal?(Errno::ECONNREFUSED)
+            ui.error("RuntimeError: No response received from remote node.")
+            ui.info("Hint: Please check remote server's winrm configuration i.e '$ winrm/config/service' AllowUnencrypted flag")
+            raise
+          end
+
           if retries_left <= 0 || (elapsed_time_in_minutes(wait_start_time) > wait_max_minutes)
             ui.error("No response received from remote node after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
+            ui.info("Hint: Please check remote server's winrm configuration i.e '$ winrm/config/service' AllowUnencrypted flag")
             raise
           end
           print '.'
