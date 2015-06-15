@@ -89,10 +89,14 @@ class Chef
           raise RuntimeError, 'Command execution failed.' if status != 0
           ui.info(ui.color("Remote node responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
           return
-        rescue
+        rescue Errno::ECONNREFUSED => e
+          ui.error("Connection refused connecting to #{locate_config_value(:server_name)}:#{locate_config_value(:winrm_port)}.")
+          raise
+        rescue Exception => e
           retries_left -= 1
           if retries_left <= 0 || (elapsed_time_in_minutes(wait_start_time) > wait_max_minutes)
             ui.error("No response received from remote node after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
+            ui.error("Exception: #{e.message}")
             raise
           end
           print '.'

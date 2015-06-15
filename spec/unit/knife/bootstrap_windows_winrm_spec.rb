@@ -84,6 +84,17 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     expect { bootstrap.bootstrap }.to raise_error(SystemExit)
   end
 
+  it 'should not a wait for timeout on Errno::ECONNREFUSED' do
+    allow(bootstrap).to receive(:run_command).and_raise(Errno::ECONNREFUSED.new)
+    allow(bootstrap.ui).to receive(:info)
+    bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
+    expect(bootstrap.ui).to receive(:error).with("Connection refused connecting to localhost:5985.")
+
+    # wait_for_remote_response is protected method, So define singleton test method to call it.
+    bootstrap.define_singleton_method(:test_wait_for_remote_response){wait_for_remote_response(bootstrap.options[:auth_timeout][:default])}
+    expect { bootstrap.test_wait_for_remote_response }.to raise_error(Errno::ECONNREFUSED)
+  end
+
   it "should exit bootstrap with non-zero status if the bootstrap fails" do
     command_status = 1
 
