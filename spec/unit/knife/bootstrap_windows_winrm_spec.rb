@@ -85,7 +85,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should not a wait for timeout on Errno::ECONNREFUSED' do
-    allow(bootstrap).to receive(:run_command).and_raise(Errno::ECONNREFUSED.new('','500'))
+    allow(bootstrap).to receive(:run_command).and_raise(Errno::ECONNREFUSED.new)
     allow(bootstrap.ui).to receive(:info)
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect(bootstrap.ui).to receive(:error).with("Connection refused connecting to localhost:5985.")
