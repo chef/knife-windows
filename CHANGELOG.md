@@ -22,6 +22,7 @@
 * [knife-windows #125](https://github.com/opscode/knife-windows/issues/125) knife-windows should use PowerShell first before cscript to download the  Chef Client msi
 * [knife-windows #92](https://github.com/opscode/knife-windows/issues/92) EventMachine issue: knife bootstrap windows winrm error
 * [knife-windows #94](https://github.com/opscode/knife-windows/issues/94) Remove Eventmachine dependency
+* [knife-windows #252](https://github.com/chef/knife-windows/pull/252) Fail early on ECONNREFUSED, Closes #244.
 
 ## Release: 0.8.5
 * [knife-windows #228](https://github.com/chef/knife-windows/pull/228) make winrm-s dep more strict on knife-windows 0.8.x
