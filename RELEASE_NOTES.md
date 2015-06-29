@@ -10,6 +10,8 @@ Details about the thing that changed that needs to get included in the Release N
 This release of knife-windows includes new features to improve authentication,
 simplify use of the WinRM SSL transport, and addresses compatibility issues with Chef Client 12.0.
 
+**Note:** This release is not compatible with chef-dk versions before 0.7.0. Please use `chef-dk >= 0.7.0` release version.
+
 You can install the new features using the `gem` command:
 
     gem install knife-windows
