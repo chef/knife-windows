@@ -6,13 +6,18 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
-# knife-windows 1.0.0.rc.0 release notes:
+# knife-windows 1.0.0 release notes:
 This release of knife-windows includes new features to improve authentication,
 simplify use of the WinRM SSL transport, and addresses compatibility issues with Chef Client 12.0.
 
 You can install the new features using the `gem` command:
 
-    gem install knife-windows --pre
+    gem install knife-windows
+
+Due to dependency conflicts, to use knife-windows 1.0.0+ with ChefDK 0.6.2, you must also upgrade chef-provisioning to 1.2.0+ and update the line referencing chef-provisioning in c:\opscode\chefdk\bin\chef. ChefDK 0.7.0+ will include the latest versions of both knife-windows and chef-provisioning.
+
+    chef gem install knife-windows
+    chef gem install chef-provisioning
 
 ## Reporting issues and contributing
 
@@ -41,7 +46,7 @@ To override this behavior, explicitly specify the desired port using the
 ### Kerberos Keytab short option is now -T
 The short option flag for --keytab-file is now -T to fix a conflict with the --identity-file option.
 
-## Features added in knife-windows 1.0.0.rc.0
+## Features added in knife-windows 1.0.0
 * New `--winrm-authentication-protocol` option for explicit control of WinRM authentication
 * `knife windows cert generate` subcommand:
   Generates a certificate and related public key file for use in configuring a WinRM listener and validating communication involving it.
@@ -58,7 +63,7 @@ The short option flag for --keytab-file is now -T to fix a conflict with the --i
 * `knife wsman test` subcommaned:
   Verifies winrm functionality on a remote system, e.g. `knife wsman test 192.168.1.10 -m --winrm-transport ssl`
   
-## Issues fixed in knife-windows 1.0.0.rc.0
+## Issues fixed in knife-windows 1.0.0
 * [knife-windows #159](https://github.com/chef/knife-windows/issues/159) `winrm_port` option should default to 5986 if `winrm_transport` option is `ssl`
 * [knife-windows #139](https://github.com/chef/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
 * [knife-windows #133](https://github.com/chef/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
