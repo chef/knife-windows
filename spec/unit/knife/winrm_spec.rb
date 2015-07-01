@@ -366,7 +366,7 @@ describe Chef::Knife::Winrm do
             @winrm.config[:winrm_transport] = "plaintext"
             allow(Chef::Platform).to receive(:windows?).and_return(false)
             expect(@winrm).to_not receive(:require).with('winrm-s')
-            expect(@winrm.ui).to receive(:warn).twice
+            expect(@winrm.ui).to receive(:warn).once
             expect { @winrm.run }.to raise_error(SystemExit)
           end
         end
