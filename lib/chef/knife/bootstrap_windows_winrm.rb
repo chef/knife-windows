@@ -37,27 +37,19 @@ class Chef
         Chef::Knife::Winrm.load_deps
       end
 
-      banner "knife bootstrap windows winrm FQDN (options)"
+      banner 'knife bootstrap windows winrm FQDN (options)'
 
       def run
         validate!
-        bootstrap
-      end
-
-      def validate!
-        if negotiate_auth? && !Chef::Platform.windows? && !(locate_config_value(:winrm_transport) == 'ssl')
-          ui.warn "\n Using '--winrm-authentication-protocol negotiate' with '--winrm-transport plaintext' is only
-          supported when this tool is invoked from a Windows system. Switch to either '--winrm-transport ssl' or
-          '--winrm-authentication-protocol basic'.".strip
-          exit 1
-        end
 
         if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
           if !negotiate_auth? && !(locate_config_value(:winrm_transport) == 'ssl')
-            ui.error("Validatorless bootstrap over unsecure winrm channels could expose your key to network sniffing")
+            ui.error('Validatorless bootstrap over unsecure winrm channels could expose your key to network sniffing')
             exit 1
           end
         end
+
+        bootstrap
       end
 
       def run_command(command = '')

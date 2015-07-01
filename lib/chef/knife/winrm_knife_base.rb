@@ -34,7 +34,17 @@ class Chef
 
           #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
           #Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
+          def validate!
+            if negotiate_auth? && !Chef::Platform.windows? && !(locate_config_value(:winrm_transport) == 'ssl')
+              ui.warn "\n Using '--winrm-authentication-protocol negotiate' with '--winrm-transport plaintext' is only
+              supported when this tool is invoked from a Windows system. Switch to either '--winrm-transport ssl' or
+              '--winrm-authentication-protocol basic'.".strip
+              exit 1
+            end
+          end
+
           def configure_session
+            validate!
             resolve_session_options
             resolve_target_nodes
             session_from_list
@@ -124,10 +134,6 @@ class Chef
               load_windows_specific_gems
               @session_opts[:transport] = :sspinegotiate
               @session_opts[:disable_sspi] = false
-            elsif negotiate_auth? && !Chef::Platform.windows?
-              ui.warn "\nUsing '--winrm-authentication-protocol negotiate' with '--winrm-transport plaintext' is only supported when this tool is invoked from a Windows system."
-              ui.warn "Switch to either '--winrm-transport ssl' or '--winrm-authentication-protocol basic'."
-              exit 1
             end
           end
 
