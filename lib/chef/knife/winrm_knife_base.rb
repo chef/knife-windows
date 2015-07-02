@@ -34,7 +34,7 @@ class Chef
 
           #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
           #Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
-          def validate!
+          def validate_options!
             if negotiate_auth? && !Chef::Platform.windows? && !(locate_config_value(:winrm_transport) == 'ssl')
               ui.warn "\n Using '--winrm-authentication-protocol negotiate' with '--winrm-transport plaintext' is only
               supported when this tool is invoked from a Windows system. Switch to either '--winrm-transport ssl' or
