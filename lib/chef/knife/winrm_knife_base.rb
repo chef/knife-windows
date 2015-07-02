@@ -44,7 +44,7 @@ class Chef
           end
 
           def configure_session
-            validate!
+            validate_options!
             resolve_session_options
             resolve_target_nodes
             session_from_list
