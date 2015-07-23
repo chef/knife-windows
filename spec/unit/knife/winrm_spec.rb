@@ -147,18 +147,18 @@ describe Chef::Knife::Winrm do
         end
 
         it "should exit the process with 100 if command execution raises an exception other than 401" do
-          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '500')
+          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('500', '500'))
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
         it "should exit the process with 100 if command execution raises a 401" do
-          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
+          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('401', '401'))
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
         it "should exit the process with 0 if command execution raises a 401 and suppress_auth_failure is set to true" do
           @winrm.config[:suppress_auth_failure] = true
-          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError, '401')
+          allow(@winrm).to receive(:winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('401', '401'))
           exit_code = @winrm.run_with_pretty_exceptions
           expect(exit_code).to eq(401)
         end

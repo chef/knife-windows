@@ -42,7 +42,11 @@ class Chef
         end
 
         def validation_key
-          escape_and_echo(super)
+          if super
+            escape_and_echo(super)
+          else
+            raise 'Knife-Windows < 1.0 does not support validatorless bootstraps'
+          end
         end
 
         def encrypted_data_bag_secret

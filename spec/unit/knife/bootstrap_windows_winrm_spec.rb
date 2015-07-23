@@ -38,7 +38,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   let(:initial_fail_count) { 4 }  
   it 'should retry if a 401 is received from WinRM' do
-    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '401'}}
+    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('401', '401')}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
 
@@ -47,7 +47,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should retry if something other than a 401 is received from WinRM' do
-    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '500'}}
+    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('500', '500')}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
 
@@ -56,7 +56,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should have a wait timeout of 2 minutes by default' do
-    allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError)
+    allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError.new('',''))
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
@@ -65,7 +65,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should keep retrying at 10s intervals if the timeout in minutes has not elapsed' do
-    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError, '500'}}
+    call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('500', '500')}}
     call_result_sequence.push(0)
     allow(bootstrap).to receive(:run_command).and_return(*call_result_sequence)
 
@@ -96,11 +96,11 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   it 'should stop retrying if more than 2 minutes has elapsed' do
     times = [ Time.new(2014, 4, 1, 22, 25), Time.new(2014, 4, 1, 22, 51), Time.new(2014, 4, 1, 22, 28) ]
     allow(Time).to receive(:now).and_return(*times)
-    run_command_result = lambda {raise WinRM::WinRMHTTPTransportError, '401'}
+    run_command_result = lambda {raise WinRM::WinRMHTTPTransportError.new('401', '401')}
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
     allow(bootstrap).to receive(:run_command).and_return(run_command_result)
     expect(bootstrap).to receive(:run_command).exactly(1).times
-    bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]    
+    bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error RuntimeError
   end
 end
