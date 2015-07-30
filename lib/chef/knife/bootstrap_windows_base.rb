@@ -225,7 +225,7 @@ class Chef
 
       def render_template(template=nil)
         if config[:secret_file]
-          config[:secret] = Chef::EncryptedDataBagItem.load_secret(config[:secret_file])
+          config[:secret] = Chef::EncryptedDataBagItem.load_secret(config[:secret_file]) if !config[:secret]
         end
         Erubis::Eruby.new(template).evaluate(bootstrap_context)
       end
@@ -235,6 +235,10 @@ class Chef
           warn_chef_config_secret_key
           config[:secret_file] ||= Chef::Config[:knife][:encrypted_data_bag_secret_file]
           config[:secret] ||= Chef::Config[:knife][:encrypted_data_bag_secret]
+        end
+        if config[:encrypted_data_bag_secret_file] || config[:encrypted_data_bag_secret]
+          config[:secret_file] = config[:encrypted_data_bag_secret_file]
+          config[:secret] = config[:encrypted_data_bag_secret] || Chef::EncryptedDataBagItem.load_secret(config[:secret_file]) if config[:encrypted_data_bag_secret] || config[:secret_file]
         end
 
         validate_name_args!
