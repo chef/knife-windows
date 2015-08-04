@@ -17,7 +17,6 @@
 #
 
 require 'spec_helper'
-require 'fileutils'
 
 Chef::Knife::Winrm.load_deps
 
