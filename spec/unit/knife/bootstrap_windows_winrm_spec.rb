@@ -45,103 +45,94 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   context "knife secret-file && knife secret options are passed" do
     before do
       Chef::Config.reset
-      @secret_file_path = "/tmp/encrypted_data_bag_secret"
-      File.open(@secret_file_path,"w+") do |f|
-        f.write "data_bag_secret_key_passed_under_knife_secret_file_option"
-      end
-      Chef::Config[:knife][:encrypted_data_bag_secret_file] = @secret_file_path
+      Chef::Config[:knife][:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
       Chef::Config[:knife][:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_knife_secret_option"
     end
     it "gives preference to secret key passed under knife's secret-file option" do
-      expect(Chef::EncryptedDataBagItem).to receive(:load_secret).with(@secret_file_path).and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
-      expect(bootstrap.load_correct_secret).to eq("data_bag_secret_key_passed_under_knife_secret_file_option")
-    end
-    after do
-      FileUtils.rm_rf(@secret_file_path)
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        Chef::Config[:knife][:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_knife_secret_file_option")
     end
   end
 
   context "cli secret-file && cli secret options are passed" do
     before do
       Chef::Config.reset
-      @secret_file_path = "/tmp/encrypted_data_bag_secret"
-      File.open(@secret_file_path,"w+") do |f|
-        f.write "data_bag_secret_key_passed_under_cli_secret_file_option"
-      end
-      bootstrap.config[:encrypted_data_bag_secret_file] = @secret_file_path
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
       bootstrap.config[:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_cli_secret_option"
     end
     it "gives preference to secret key passed under cli's secret-file option" do
-      expect(Chef::EncryptedDataBagItem).to receive(:load_secret).with(@secret_file_path).and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
-      expect(bootstrap.load_correct_secret).to eq("data_bag_secret_key_passed_under_cli_secret_file_option")
-    end
-    after do
-      FileUtils.rm_rf(@secret_file_path)
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
     end
   end
 
   context "knife secret-file, knife secret, cli secret-file && cli secret options are passed" do
     before do
       Chef::Config.reset
-      @knife_secret_file_path = "/tmp/knife_encrypted_data_bag_secret"
-      @cli_secret_file_path = "/tmp/cli_encrypted_data_bag_secret"
-      File.open(@knife_secret_file_path,"w+") do |f|
-        f.write "data_bag_secret_key_passed_under_knife_secret_file_option"
-      end
-      File.open(@cli_secret_file_path,"w+") do |f|
-        f.write "data_bag_secret_key_passed_under_cli_secret_file_option"
-      end
-      Chef::Config[:knife][:encrypted_data_bag_secret_file] = @knife_secret_file_path
+      Chef::Config[:knife][:encrypted_data_bag_secret_file] = "/tmp/knife_encrypted_data_bag_secret"
       Chef::Config[:knife][:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_knife_secret_option"
-      bootstrap.config[:encrypted_data_bag_secret_file] = @cli_secret_file_path
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/cli_encrypted_data_bag_secret"
       bootstrap.config[:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_cli_secret_option"
     end
     it "gives preference to secret key passed under cli's secret-file option" do
-      expect(Chef::EncryptedDataBagItem).to receive(:load_secret).with(@knife_secret_file_path).and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
-      expect(Chef::EncryptedDataBagItem).to receive(:load_secret).with(@cli_secret_file_path).and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
-      expect(bootstrap.load_correct_secret).to eq("data_bag_secret_key_passed_under_cli_secret_file_option")
-    end
-    after do
-      FileUtils.rm_rf(@knife_secret_file_path)
-      FileUtils.rm_rf(@cli_secret_file_path)
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        Chef::Config[:knife][:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
     end
   end
 
   context "knife secret-file && cli secret options are passed" do
     before do
       Chef::Config.reset
-      @secret_file_path = "/tmp/encrypted_data_bag_secret"
-      File.open(@secret_file_path,"w+") do |f|
-        f.write "data_bag_secret_key_passed_under_knife_secret_file_option"
-      end
-      Chef::Config[:knife][:encrypted_data_bag_secret_file] = @secret_file_path
+      Chef::Config[:knife][:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
       bootstrap.config[:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_cli_secret_option"
     end
     it "gives preference to secret key passed under cli's secret option" do
-      expect(Chef::EncryptedDataBagItem).to receive(:load_secret).with(@secret_file_path).and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
-      expect(bootstrap.load_correct_secret).to eq("data_bag_secret_key_passed_under_cli_secret_option")
-    end
-    after do
-      FileUtils.rm_rf(@secret_file_path)
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        Chef::Config[:knife][:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_option")
     end
   end
 
   context "knife secret && cli secret-file options are passed" do
     before do
       Chef::Config.reset
-      @secret_file_path = "/tmp/encrypted_data_bag_secret"
-      File.open(@secret_file_path,"w+") do |f|
-        f.write "data_bag_secret_key_passed_under_cli_secret_file_option"
-      end
       Chef::Config[:knife][:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_knife_secret_option"
-      bootstrap.config[:encrypted_data_bag_secret_file] = @secret_file_path
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
     end
     it "gives preference to secret key passed under cli's secret-file option" do
-      expect(Chef::EncryptedDataBagItem).to receive(:load_secret).with(@secret_file_path).and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
-      expect(bootstrap.load_correct_secret).to eq("data_bag_secret_key_passed_under_cli_secret_file_option")
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
     end
-    after do
-      FileUtils.rm_rf(@secret_file_path)
+  end
+
+  context "cli secret-file option is passed" do
+    before do
+      Chef::Config.reset
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
+    end
+    it "takes the secret key passed under cli's secret-file option" do
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
     end
   end
 
