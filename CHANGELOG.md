@@ -1,6 +1,12 @@
 # knife-windows Change Log
 
-## Latest release: 0.8.4
+## Latest release: 0.8.6
+* [knife-windows #268](https://github.com/chef/knife-windows/issues/268) Use winrm 1.3.x in 0.8-stable
+
+## Release: 0.8.5
+* [knife-windows #228](https://github.com/chef/knife-windows/issues/228) make winrm-s dep more strict on knife-windows 0.8.x
+
+## Release: 0.8.4
 * [knife-windows #133](https://github.com/opscode/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
 
 ## Release: 0.8.3

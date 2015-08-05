@@ -6,19 +6,14 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
-# knife-windows 0.8.4 release notes
-This release of knife-windows addresses the lack of a way to configure the ssl settings
-of a client when bootstrapped. knife-windows now mimics 'knife bootstrap' such that
-new systems will have the trusted_certs_dir that is specified on the workstation copied
-to the new node. Additional SSL related settings including verify_api_cert and
-ssl_verify_mode will be set in the bootstrapped nodes client.rb to match the settings
-in the workstations knife.rb.
+# knife-windows 0.8.6 release notes
+This release of knife-windows updates winrm-s to version 0.3.0 and em-winrm to version 0.7.
 
-## Features added in knife-windows 0.8.4
+## Features added in knife-windows 0.8.6
 None.
 
-## Issues fixed in knife-windows 0.8.4
-[knife-windows #133](https://github.com/opscode/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
+## Issues fixed in knife-windows 0.8.6
+[knife-windows #218](https://github.com/chef/knife-windows/issues/218) winrm bootstrap with --winrm-authentication-protocol negotiate gives HTTP 400
 
 ## knife-windows on RubyGems and Github
 https://rubygems.org/gems/knife-windows
