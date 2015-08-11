@@ -100,6 +100,14 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
         run_download_scenario
       end
     end
+
+     context "when provided a custom msi_url with space in path to fetch from" do
+      let(:mock_bootstrap_context) { Chef::Knife::Core::WindowsBootstrapContext.new(
+        { :msi_url => "file:///C:/Program Files/Windows NT/Accessories/wordpad.exe" }, nil, { :knife => {} }) }
+      it "downloads the chef-client MSI from a custom path with spaces during winrm bootstrap" do
+        run_download_scenario
+      end
+    end
   end
 
   def download_succeeded?
