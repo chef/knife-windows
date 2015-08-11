@@ -4,23 +4,9 @@ Knife Windows Plugin
 [![Build Status Master](https://ci.appveyor.com/api/projects/status/github/chef/knife-windows?branch=master&svg=true&passingText=master%20-%20Ok&pendingText=master%20-%20Pending&failingText=master%20-%20Failing)](https://ci.appveyor.com/project/Chef/knife-windows/branch/master)
 
 This plugin adds additional functionality to the Chef Knife CLI tool for
-configuring/interacting with nodes running Microsoft Windows. The subcommands
-should function on any system running Ruby 1.9.3+ but nodes being configured
-via these subcommands require Windows Remote Management (WinRM) 1.0+.WinRM
-allows you to call native objects in Windows. This includes, but is not
-limited to, running PowerShell scripts, batch scripts, and fetching WMI
-variables. For more information on WinRM, please visit
-[Microsoft's WinRM site](http://msdn.microsoft.com/en-us/library/aa384426(v=VS.85).aspx).
-You will want to familiarize yourself with (certain key aspects) of WinRM
-because you will be writing scripts / running commands with this tool to get
-you from specific point A to specific point B.
-
-WinRM is built into Windows 7 and Windows Server 2008+. It can also be easily installed on older version of Windows, including:
-
-* Windows Server 2003
-* Windows Vista
-
-More information can be found on [Microsoft Support article 968930](http://support.microsoft.com/?kbid=968930).
+configuring/interacting with nodes running Microsoft Windows. This includes, but is not
+limited to, running PowerShell / batch scripts, bootstrapping a node with Chef, and fetching WMI
+variables.
 
 ## Subcommands
 
@@ -144,14 +130,28 @@ This is the default bootstrap template used by both of the `knife windows bootst
 
 ## REQUIREMENTS/SETUP:
 
-### Ruby
+### Workstation requirements
 
-Ruby 1.9.3+ is needed.
+On the workstation, i.e. the system on which you're running knife, the following are required:
 
-### Chef Version
+* Ruby 1.9.3+
+* Chef Client **version 11.0.0** or later
 
-This knife plugins requires >= Chef 11.0.0. More details about Knife plugins can be
-[found in the Chef documentation](https://docs.chef.io/plugin_knife.html).
+More details about Knife plugins can be [found in the Chef documentation](https://docs.chef.io/plugin_knife.html).
+
+### Remote Windows system
+
+#### WinRM protocol
+Subcommands such as `winrm` or `bootstrap windows winrm` are executed against remote systems using Windows Remote Management (WinRM), a Windows ecosystem protocol with capabilities similar to the secure shell (ssh) protocol. The requirements on the remote node include:
+
+* Windows Remote Management (WinRM) 2.0 or later. New versions of WinRM may be available in distributions of the Windows Management Framework (WMF).
+* The appropriate open TCP ports: Defaults are `5985` for the plaintext transport, `5986` for SSL.
+
+WinRM is not enabled by default on systems -- see subsequent sections detailing how to use the `winrm quickconfig` tool to enable it.
+For more information on WinRM, please visit [Microsoft's WinRM site](http://msdn.microsoft.com/en-us/library/aa384426(v=VS.85).aspx).
+
+#### SSH protocol for bootstrap
+The `bootstrap windows ssh` subcommand bootraps a remote node using the ssh protocol rather than the WinRM protocol. This functionality requires an ssh server such as OpenSSH to be active on the remote node listening on an open port, assumed by the tool to be TCP port 22 by default.
 
 ## Nodes
 
