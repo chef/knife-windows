@@ -41,6 +41,100 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   let(:initial_fail_count) { 4 }
 
+  context "knife secret-file && knife secret options are passed" do
+    before do
+      Chef::Config.reset
+      Chef::Config[:knife][:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
+      Chef::Config[:knife][:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_knife_secret_option"
+    end
+    it "gives preference to secret key passed under knife's secret-file option" do
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        Chef::Config[:knife][:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_knife_secret_file_option")
+    end
+  end
+
+  context "cli secret-file && cli secret options are passed" do
+    before do
+      Chef::Config.reset
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
+      bootstrap.config[:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_cli_secret_option"
+    end
+    it "gives preference to secret key passed under cli's secret-file option" do
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
+    end
+  end
+
+  context "knife secret-file, knife secret, cli secret-file && cli secret options are passed" do
+    before do
+      Chef::Config.reset
+      Chef::Config[:knife][:encrypted_data_bag_secret_file] = "/tmp/knife_encrypted_data_bag_secret"
+      Chef::Config[:knife][:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_knife_secret_option"
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/cli_encrypted_data_bag_secret"
+      bootstrap.config[:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_cli_secret_option"
+    end
+    it "gives preference to secret key passed under cli's secret-file option" do
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        Chef::Config[:knife][:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
+    end
+  end
+
+  context "knife secret-file && cli secret options are passed" do
+    before do
+      Chef::Config.reset
+      Chef::Config[:knife][:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
+      bootstrap.config[:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_cli_secret_option"
+    end
+    it "gives preference to secret key passed under cli's secret option" do
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        Chef::Config[:knife][:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_knife_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_option")
+    end
+  end
+
+  context "knife secret && cli secret-file options are passed" do
+    before do
+      Chef::Config.reset
+      Chef::Config[:knife][:encrypted_data_bag_secret] = "data_bag_secret_key_passed_under_knife_secret_option"
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
+    end
+    it "gives preference to secret key passed under cli's secret-file option" do
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
+    end
+  end
+
+  context "cli secret-file option is passed" do
+    before do
+      Chef::Config.reset
+      bootstrap.config[:encrypted_data_bag_secret_file] = "/tmp/encrypted_data_bag_secret"
+    end
+    it "takes the secret key passed under cli's secret-file option" do
+      allow(Chef::EncryptedDataBagItem).to receive(:load_secret).with(
+        bootstrap.config[:encrypted_data_bag_secret_file]).
+        and_return("data_bag_secret_key_passed_under_cli_secret_file_option")
+      expect(bootstrap.load_correct_secret).to eq(
+        "data_bag_secret_key_passed_under_cli_secret_file_option")
+    end
+  end
+
   it 'should retry if a 401 is received from WinRM' do
     call_result_sequence = Array.new(initial_fail_count) {lambda {raise WinRM::WinRMHTTPTransportError.new('', '401')}}
     call_result_sequence.push(0)

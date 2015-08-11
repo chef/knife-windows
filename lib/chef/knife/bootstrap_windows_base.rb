@@ -223,18 +223,29 @@ class Chef
         @bootstrap_context ||= Knife::Core::WindowsBootstrapContext.new(config, config[:run_list], Chef::Config)
       end
 
+      def load_correct_secret
+        knife_secret_file = Chef::Config[:knife][:encrypted_data_bag_secret_file]
+        knife_secret = Chef::Config[:knife][:encrypted_data_bag_secret]
+        cli_secret_file = config[:encrypted_data_bag_secret_file]
+        cli_secret = config[:encrypted_data_bag_secret]
+
+        cli_secret_file = nil if cli_secret_file == knife_secret_file
+        cli_secret = nil if cli_secret == knife_secret
+
+        cli_secret_file = Chef::EncryptedDataBagItem.load_secret(cli_secret_file) if cli_secret_file != nil
+        knife_secret_file = Chef::EncryptedDataBagItem.load_secret(knife_secret_file) if knife_secret_file != nil
+
+        cli_secret_file || cli_secret || knife_secret_file || knife_secret
+      end
+
       def render_template(template=nil)
-        if config[:secret_file]
-          config[:secret] = Chef::EncryptedDataBagItem.load_secret(config[:secret_file])
-        end
+        config[:secret] = load_correct_secret
         Erubis::Eruby.new(template).evaluate(bootstrap_context)
       end
 
       def bootstrap(proto=nil)
         if Chef::Config[:knife][:encrypted_data_bag_secret_file] || Chef::Config[:knife][:encrypted_data_bag_secret]
           warn_chef_config_secret_key
-          config[:secret_file] ||= Chef::Config[:knife][:encrypted_data_bag_secret_file]
-          config[:secret] ||= Chef::Config[:knife][:encrypted_data_bag_secret]
         end
 
         validate_name_args!
