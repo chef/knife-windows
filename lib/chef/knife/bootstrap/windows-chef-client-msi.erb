@@ -105,85 +105,91 @@ goto install
 goto install
 
 :install
-@rem Install Chef using chef-client MSI installer
+@rem If user has provided the custom installation command for chef-client then execute it
+<% if @chef_config[:knife][:bootstrap_install_command] %>
+  <%= @chef_config[:knife][:bootstrap_install_command] %>
+<% else %>
+  @rem Install Chef using chef-client MSI installer
 
-@set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
-@set "CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi%RANDOM%.log"
+  @set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
+  @set "CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi%RANDOM%.log"
 
-@rem Clear any pre-existing downloads
-@echo Checking for existing downloaded package at "%LOCAL_DESTINATION_MSI_PATH%"
-@if EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
-    @echo Found existing downloaded package, deleting.
-    @del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
-    @if ERRORLEVEL 1 (
-        echo Warning: Failed to delete pre-existing package with status code !ERRORLEVEL! > "&2"
+  @rem Clear any pre-existing downloads
+  @echo Checking for existing downloaded package at "%LOCAL_DESTINATION_MSI_PATH%"
+  @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
+      @echo Found existing downloaded package, deleting.
+      @del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
+      @if ERRORLEVEL 1 (
+          echo Warning: Failed to delete pre-existing package with status code !ERRORLEVEL! > "&2"
+      )
+  ) else (
+      echo No existing downloaded packages to delete.
     )
-) else (
-    echo No existing downloaded packages to delete.
-)
 
-@rem If there is somehow a name collision, remove pre-existing log
-@if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
+  @rem If there is somehow a name collision, remove pre-existing log
+  @if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
 
-@echo Attempting to download client package using PowerShell if available...
-@set "REMOTE_SOURCE_MSI_URL=<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>"
-@set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%" "%LOCAL_DESTINATION_MSI_PATH%"
-@echo !powershell_download!
-@call !powershell_download!
+  @echo Attempting to download client package using PowerShell if available...
+  @set "REMOTE_SOURCE_MSI_URL=<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>"
+  @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%" "%LOCAL_DESTINATION_MSI_PATH%"
+  @echo !powershell_download!
+  @call !powershell_download!
 
-@set DOWNLOAD_ERROR_STATUS=!ERRORLEVEL!
+  @set DOWNLOAD_ERROR_STATUS=!ERRORLEVEL!
 
-@if ERRORLEVEL 1 (
-    @echo Failed PowerShell download with status code !DOWNLOAD_ERROR_STATUS! > "&2"
-    @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2
-) else (
-    @rem Sometimes the error level is not set even when the download failed,
-    @rem so check for the file to be sure it is there -- if it is not, we will retry
-    @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
-        echo Failed download: download completed, but downloaded file not found > "&2"
-        set DOWNLOAD_ERROR_STATUS=2
-    ) else (
-        echo Download via PowerShell succeeded.
-    )
-)
-
-@if NOT %DOWNLOAD_ERROR_STATUS%==0 (
-    @echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
-    @echo Warning: Retrying download with cscript ...
-
-    @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
-
-    @set "REMOTE_SOURCE_MSI_URL=<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%') %>"
-    cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
-
-    @if NOT ERRORLEVEL 1 (
-        @rem Sometimes the error level is not set even when the download failed,
-        @rem so check for the file to be sure it is there.
-        @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
-            echo Failed download: download completed, but downloaded file not found > "&2"
-            echo Exiting without bootstrapping due to download failure. > "&2"
-            exit /b 1
-        ) else (
-            echo Download via cscript succeeded.
+  @if ERRORLEVEL 1 (
+      @echo Failed PowerShell download with status code !DOWNLOAD_ERROR_STATUS! > "&2"
+      @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2
+  ) else (
+      @rem Sometimes the error level is not set even when the download failed,
+      @rem so check for the file to be sure it is there -- if it is not, we will retry
+      @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
+          echo Failed download: download completed, but downloaded file not found > "&2"
+          set DOWNLOAD_ERROR_STATUS=2
+      ) else (
+          echo Download via PowerShell succeeded.
         )
-    ) else (
-        echo Failed to download "%REMOTE_SOURCE_MSI_URL%" with status code !ERRORLEVEL!. > "&2"
-        echo Exiting without bootstrapping due to download failure. > "&2"
-        exit /b 1
     )
-)
 
-@echo Installing downloaded client package...
+  @if NOT %DOWNLOAD_ERROR_STATUS%==0 (
+      @echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
+      @echo Warning: Retrying download with cscript ...
 
-<%= install_chef %>
+      @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
 
-@if ERRORLEVEL 1 (
-    echo Chef-client package failed to install with status code !ERRORLEVEL!. > "&2"
-    echo See installation log for additional detail: %CHEF_CLIENT_MSI_LOG_PATH%. > "&2"
-) else (
-    @echo Installation completed successfully
-    del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
-)
+      @set "REMOTE_SOURCE_MSI_URL=<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%') %>"
+      cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
+
+      @if NOT ERRORLEVEL 1 (
+          @rem Sometimes the error level is not set even when the download failed,
+          @rem so check for the file to be sure it is there.
+          @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
+              echo Failed download: download completed, but downloaded file not found > "&2"
+              echo Exiting without bootstrapping due to download failure. > "&2"
+              exit /b 1
+          ) else (
+              echo Download via cscript succeeded.
+            )
+      ) else (
+          echo Failed to download "%REMOTE_SOURCE_MSI_URL%" with status code !ERRORLEVEL!. > "&2"
+          echo Exiting without bootstrapping due to download failure. > "&2"
+          exit /b 1
+        )
+  )
+
+  @echo Installing downloaded client package...
+
+  <%= install_chef %>
+
+  @if ERRORLEVEL 1 (
+      echo Chef-client package failed to install with status code !ERRORLEVEL!. > "&2"
+      echo See installation log for additional detail: %CHEF_CLIENT_MSI_LOG_PATH%. > "&2"
+  ) else (
+      @echo Installation completed successfully
+      del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
+    )
+
+<% end %>
 
 @endlocal
 
