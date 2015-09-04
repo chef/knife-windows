@@ -164,9 +164,12 @@ A server running WinRM must also be configured properly to allow outside connect
 The Chef and Ohai gem installations (that occur during bootstrap) take more
 memory than the default 150MB WinRM allocates per shell on older versions of
 Windows (prior to Windows Server 2012) -- this can slow down
-bootstrap. Optionally increase the memory limit to 300MB with the following command:
+bootstrap. This limit was increased to 1GB with Windows Management Framework 3 
+(and Server 2012). However, there is a bug in Windows Management Framework 3
+(and Server 2012) which requires a [hotfix from Microsoft](https://support.microsoft.com/en-us/kb/2842230/en-us).
+You can increase the memory limit to 1GB with the following command:
 
-    winrm set winrm/config/winrs @{MaxMemoryPerShellMB="300"}
+    winrm set winrm/config/winrs @{MaxMemoryPerShellMB="1024"}
 
 Bootstrap commands can take longer than the WinRM default 60 seconds to
 complete, optionally increase to 30 minutes if bootstrap terminates a command prematurely:
