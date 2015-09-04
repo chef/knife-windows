@@ -29,6 +29,13 @@ class Chef
 
       include Chef::Knife::WinrmCommandSharedFunctions     
 
+      FAILED_BASIC_HINT ||= "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server."
+      FAILED_NOT_BASIC_HINT ||= <<-eos.gsub /^\s+/, ""
+        Hint: Make sure to prefix domain usernames with the correct domain name.
+        Hint: Local user names should be prefixed with computer name or IP address.
+        EXAMPLE: my_domain\\user_namer
+      eos
+
       deps do
         require 'readline'
         require 'chef/search/query'
@@ -69,14 +76,13 @@ class Chef
             exit @exit_code if @exit_code && @exit_code != 0
             @exit_code || 0
           end
-        rescue WinRM::WinRMHTTPTransportError => e
-          case e.message
-          when /401/
+        rescue WinRM::WinRMHTTPTransportError, WinRM::WinRMAuthorizationError => e
+          if authorization_error?(e)
             if ! config[:suppress_auth_failure]
               # Display errors if the caller hasn't opted to retry
               ui.error "Failed to authenticate to #{@name_args[0].split(" ")} as #{locate_config_value(:winrm_user)}"
               ui.info "Response: #{e.message}"
-              ui.info "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server."
+              ui.info get_failed_authentication_hint
               raise e
             end
             @exit_code = 401
@@ -180,11 +186,24 @@ class Chef
         Readline
       end
 
+      def authorization_error?(exception)
+        exception.is_a?(WinRM::WinRMAuthorizationError) ||
+          exception.message =~ /401/
+      end
+
       def success_return_codes
         #Redundant if the CLI options parsing occurs
         return [0] unless config[:returns]
         return @success_return_codes ||= config[:returns].split(',').collect {|item| item.to_i}
-      end      
+      end
+
+      def get_failed_authentication_hint
+        if @session_opts[:basic_auth_only]
+          FAILED_BASIC_HINT
+        else
+          FAILED_NOT_BASIC_HINT
+        end
+      end
     end
   end
 end

@@ -272,9 +272,10 @@ describe Chef::Knife::Winrm do
           expect(exit_code).to be_zero
         end
 
-        it "exits with 100 if command execution raises an exception other than 401" do
+        it "exits with 100 and no hint if command execution raises an exception other than 401" do
           allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '500'))
           allow(@winrm.ui).to receive(:error)
+          expect(@winrm.ui).to_not receive(:info)
           expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
         end
 
@@ -290,6 +291,29 @@ describe Chef::Knife::Winrm do
           allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
           exit_code = @winrm.run_with_pretty_exceptions
           expect(exit_code).to eq(401)
+        end
+
+        it "prints a hint on failure for negotiate authentication" do
+          @winrm.config[:winrm_authentication_protocol] = "negotiate"
+          @winrm.config[:winrm_transport] = "plaintext"
+          allow(Chef::Platform).to receive(:windows?).and_return(true)
+          allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
+          allow(Chef::Knife::WinrmSession).to receive(:new)
+          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMAuthorizationError.new)
+          allow(@winrm.ui).to receive(:error)
+          allow(@winrm.ui).to receive(:info)
+          expect(@winrm.ui).to receive(:info).with(Chef::Knife::Winrm::FAILED_NOT_BASIC_HINT)
+          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
+        end
+
+        it "prints a hint on failure for basic authentication" do
+          @winrm.config[:winrm_authentication_protocol] = "basic"
+          @winrm.config[:winrm_transport] = "plaintext"
+          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
+          allow(@winrm.ui).to receive(:error)
+          allow(@winrm.ui).to receive(:info)
+          expect(@winrm.ui).to receive(:info).with(Chef::Knife::Winrm::FAILED_BASIC_HINT)
+          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
         end
 
         context "when winrm_authentication_protocol specified" do
