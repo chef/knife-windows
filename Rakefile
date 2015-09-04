@@ -4,11 +4,16 @@ Bundler::GemHelper.install_tasks
 begin
   require 'rspec/core/rake_task'
 
-  task :default => :spec
+  task :default => [:unit_spec, :functional_spec]
 
-  desc "Run all specs in spec directory"
-  RSpec::Core::RakeTask.new(:spec) do |t|
-    t.pattern = 'spec/**/*_spec.rb'
+  desc "Run all functional specs in spec directory"
+  RSpec::Core::RakeTask.new(:functional_spec) do |t|
+    t.pattern = 'spec/functional/**/*_spec.rb'
+  end
+
+  desc "Run all unit specs in spec directory"
+  RSpec::Core::RakeTask.new(:unit_spec) do |t|
+    t.pattern = 'spec/unit/**/*_spec.rb'
   end
 
 rescue LoadError
