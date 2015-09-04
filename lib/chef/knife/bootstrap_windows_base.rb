@@ -170,6 +170,12 @@ class Chef
               Chef::Config[:knife][:bootstrap_vault_item][vault].push(item)
               Chef::Config[:knife][:bootstrap_vault_item]
             }
+
+          option :tags,
+            :long => "--tags TAGS",
+            :description => "Comma separated list of tags to apply to the node",
+            :proc => lambda { |o| o.split(/[\s,]+/) },
+            :default => []
         end
       end
 

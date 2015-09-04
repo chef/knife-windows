@@ -281,8 +281,7 @@ WGET_PS
         end
 
         def first_boot
-          first_boot_attributes_and_run_list = (@config[:first_boot_attributes] || {}).merge(:run_list => @run_list)
-          escape_and_echo(first_boot_attributes_and_run_list.to_json)
+          escape_and_echo(super.to_json)
         end
 
         # escape WIN BATCH special chars
