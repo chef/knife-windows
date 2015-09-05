@@ -189,21 +189,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     expect { bootstrap.test_wait_for_remote_response }.to raise_error(Errno::ECONNREFUSED)
   end
 
-  it "should exit bootstrap with non-zero status if the bootstrap fails" do
-    command_status = 1
-
-    #Stub out calls to create the session and just get the exit codes back
-    winrm_mock = Chef::Knife::Winrm.new
-    allow(Chef::Knife::Winrm).to receive(:new).and_return(winrm_mock)
-    allow(winrm_mock).to receive(:run).and_raise(SystemExit.new(command_status))
-    #Skip over templating stuff and checking with the remote end
-    allow(bootstrap).to receive(:create_bootstrap_bat_command)
-    allow(bootstrap).to receive(:wait_for_remote_response)
-    allow(bootstrap.ui).to receive(:info)
-
-    expect { bootstrap.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
-  end
-
   it 'should stop retrying if more than 2 minutes has elapsed' do
     times = [ Time.new(2014, 4, 1, 22, 25), Time.new(2014, 4, 1, 22, 51), Time.new(2014, 4, 1, 22, 28) ]
     allow(Time).to receive(:now).and_return(*times)

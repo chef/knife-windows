@@ -385,13 +385,13 @@ describe Chef::Knife::Winrm do
             @winrm.run
           end
 
-          it "prints a warning and exits on linux for unencrypted negotiate authentication" do
+          it "prints a warning on linux for unencrypted negotiate authentication" do
             @winrm.config[:winrm_authentication_protocol] = "negotiate"
             @winrm.config[:winrm_transport] = "plaintext"
             allow(Chef::Platform).to receive(:windows?).and_return(false)
             expect(@winrm).to_not receive(:require).with('winrm-s')
             expect(@winrm.ui).to receive(:warn).once
-            expect { @winrm.run }.to raise_error(SystemExit)
+            expect { @winrm.run }.to_not raise_error(SystemExit)
           end
         end
       end
