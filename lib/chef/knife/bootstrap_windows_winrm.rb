@@ -48,16 +48,30 @@ class Chef
         end
 
         validate_options
-        resolve_session_options
-        @session_opts[:host] = server_name
-        @session = Chef::Knife::WinrmSession.new(@session_opts)
 
         bootstrap
       end
 
       def run_command(command = '')
-        @session.relay_command(command)
-        return @session.exit_code
+        winrm = Chef::Knife::Winrm.new
+        winrm.name_args = [ server_name, command ]
+        winrm.config[:winrm_user] = locate_config_value(:winrm_user)
+        winrm.config[:winrm_password] = locate_config_value(:winrm_password)
+        winrm.config[:winrm_transport] = locate_config_value(:winrm_transport)
+        winrm.config[:winrm_ssl_verify_mode] = locate_config_value(:winrm_ssl_verify_mode)
+        winrm.config[:kerberos_keytab_file] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
+        winrm.config[:kerberos_realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
+        winrm.config[:kerberos_service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
+        winrm.config[:ca_trust_file] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
+        winrm.config[:manual] = true
+        winrm.config[:winrm_port] = locate_config_value(:winrm_port)
+        winrm.config[:suppress_auth_failure] = true
+
+        #If you turn off the return flag, then winrm.run won't atually check and
+        #return the error
+        #codes.  Otherwise, it ignores the return value of the server call.
+        winrm.config[:returns] = "0"
+        winrm.run
       end
 
       protected
