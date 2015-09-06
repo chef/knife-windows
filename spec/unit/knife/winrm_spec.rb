@@ -92,6 +92,40 @@ describe Chef::Knife::Winrm do
           Chef::Config[:knife] = @original_knife_config if @original_knife_config
         end
 
+        context "kerberos option is set" do
+          let(:winrm_command_http) { Chef::Knife::Winrm.new([
+            '-m', 'localhost',
+            '-x', 'testuser', 
+            '-P', 'testpassword',
+            '--winrm-authentication-protocol', 'basic',
+            '--kerberos-realm', 'realm',
+            'echo helloworld'
+          ]) }
+
+          it "sets the transport to kerberos" do
+            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :kerberos, anything).and_return(@winrm_session)
+            winrm_command_http.configure_chef
+            winrm_command_http.configure_session
+          end
+        end
+
+        context "kerberos option is set but nil" do
+          let(:winrm_command_http) { Chef::Knife::Winrm.new([
+            '-m', 'localhost',
+            '-x', 'testuser', 
+            '-P', 'testpassword',
+            '--winrm-authentication-protocol', 'basic',
+            'echo helloworld'
+          ]) }
+
+          it "sets the transport to plaintext" do
+            winrm_command_http.config[:kerberos_realm] = nil
+            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :plaintext, anything).and_return(@winrm_session)
+            winrm_command_http.configure_chef
+            winrm_command_http.configure_session
+          end
+        end
+
         context "on windows workstations" do
           let(:winrm_command_windows_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword',  'echo helloworld'])        }
           it "defaults to negotiate when on a Windows host" do

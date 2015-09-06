@@ -122,7 +122,7 @@ class Chef
           end
 
           def resolve_winrm_kerberos_options
-            if config.keys.any? {|k| k.to_s =~ /kerberos/ }
+            if config.any? {|k,v| k.to_s =~ /kerberos/ && !v.nil? }
               @session_opts[:transport] = :kerberos
               @session_opts[:keytab] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
               @session_opts[:realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
