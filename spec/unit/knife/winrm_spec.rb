@@ -81,7 +81,7 @@ describe Chef::Knife::Winrm do
 
   describe "#configure_session" do
     let(:winrm_user) { 'testuser' }
-    let(:transport) { 'ssl' }
+    let(:transport) { 'plaintext' }
     let(:protocol) { 'basic' }
     let(:knife_args) do
       [
@@ -191,13 +191,17 @@ describe Chef::Knife::Winrm do
       end
 
       context "on windows workstations" do
-        let(:winrm_command_windows_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword',  'echo helloworld'])        }
-        it "defaults to negotiate when on a Windows host" do
+        let(:protocol) { 'negotiate' }
+
+        before do
           allow(Chef::Platform).to receive(:windows?).and_return(true)
-          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :sspinegotiate)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
-          winrm_command_windows_http.configure_chef
-          winrm_command_windows_http.configure_session
+        end
+
+        it "defaults to negotiate when on a Windows host" do
+          expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+            expect(opts[:transport]).to eq(:sspinegotiate)
+          end.and_return(winrm_session)
+          subject.configure_session
         end
       end
 
@@ -276,6 +280,8 @@ describe Chef::Knife::Winrm do
         end
 
         context "when setting verify_none" do
+          let(:transport) { 'ssl' }
+
           before { knife_args << '--winrm-ssl-verify-mode' << 'verify_none' }
 
           it "does not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do

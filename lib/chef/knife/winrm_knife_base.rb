@@ -185,7 +185,6 @@ class Chef
             @password ||= ui.ask("Enter your password: ") { |q| q.echo = false }
           end
 
-          # returns true if winrm_authentication_protocol is 'negotiate'
           def negotiate_auth?
             locate_config_value(:winrm_authentication_protocol) == "negotiate"
           end

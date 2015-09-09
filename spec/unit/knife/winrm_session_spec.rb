@@ -37,7 +37,8 @@ describe Chef::Knife::WinrmSession do
       let(:options) { { transport: :sspinegotiate } }
 
       it "uses winrm-s" do
-        expect(subject.winrm_provider).to eq('winrm-s')
+        expect(Chef::Knife::WinrmSession).to receive(:load_windows_specific_gems)
+        subject
       end
     end
   end

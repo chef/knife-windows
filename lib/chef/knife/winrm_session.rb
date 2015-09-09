@@ -22,7 +22,6 @@ class Chef
   class Knife
     class WinrmSession
       attr_reader :host, :endpoint, :port, :output, :error, :exit_code
-      attr_reader :winrm_provider
 
       def initialize(options)
         @host = options[:host]
@@ -39,7 +38,7 @@ class Chef
         Chef::Log.debug("Endpoint: #{endpoint}")
         Chef::Log.debug("Transport: #{options[:transport]}")
         
-        load_windows_specific_gems if options[:transport] == :sspinegotiate
+        WinrmSession.load_windows_specific_gems if options[:transport] == :sspinegotiate
         @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
         @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
       end
@@ -72,11 +71,9 @@ class Chef
         end
       end
 
-      def load_windows_specific_gems
-        @winrm_provider = 'winrm-s'
-
+      def self.load_windows_specific_gems
         #checking for windows in case testing on linux
-        require @winrm_provider if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
+        require 'winrm-s'
         Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
       end
     end
