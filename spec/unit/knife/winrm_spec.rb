@@ -92,6 +92,40 @@ describe Chef::Knife::Winrm do
           Chef::Config[:knife] = @original_knife_config if @original_knife_config
         end
 
+        context "kerberos option is set" do
+          let(:winrm_command_http) { Chef::Knife::Winrm.new([
+            '-m', 'localhost',
+            '-x', 'testuser', 
+            '-P', 'testpassword',
+            '--winrm-authentication-protocol', 'basic',
+            '--kerberos-realm', 'realm',
+            'echo helloworld'
+          ]) }
+
+          it "sets the transport to kerberos" do
+            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :kerberos, anything).and_return(@winrm_session)
+            winrm_command_http.configure_chef
+            winrm_command_http.configure_session
+          end
+        end
+
+        context "kerberos option is set but nil" do
+          let(:winrm_command_http) { Chef::Knife::Winrm.new([
+            '-m', 'localhost',
+            '-x', 'testuser', 
+            '-P', 'testpassword',
+            '--winrm-authentication-protocol', 'basic',
+            'echo helloworld'
+          ]) }
+
+          it "sets the transport to plaintext" do
+            winrm_command_http.config[:kerberos_realm] = nil
+            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :plaintext, anything).and_return(@winrm_session)
+            winrm_command_http.configure_chef
+            winrm_command_http.configure_session
+          end
+        end
+
         context "on windows workstations" do
           let(:winrm_command_windows_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword',  'echo helloworld'])        }
           it "defaults to negotiate when on a Windows host" do
@@ -385,13 +419,13 @@ describe Chef::Knife::Winrm do
             @winrm.run
           end
 
-          it "prints a warning and exits on linux for unencrypted negotiate authentication" do
+          it "prints a warning on linux for unencrypted negotiate authentication" do
             @winrm.config[:winrm_authentication_protocol] = "negotiate"
             @winrm.config[:winrm_transport] = "plaintext"
             allow(Chef::Platform).to receive(:windows?).and_return(false)
             expect(@winrm).to_not receive(:require).with('winrm-s')
             expect(@winrm.ui).to receive(:warn).once
-            expect { @winrm.run }.to raise_error(SystemExit)
+            expect { @winrm.run }.to_not raise_error(SystemExit)
           end
         end
       end

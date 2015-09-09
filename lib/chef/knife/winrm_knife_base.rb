@@ -34,17 +34,21 @@ class Chef
 
           #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
           #Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
-          def validate_options!
+          def validate_options
             if negotiate_auth? && !Chef::Platform.windows? && !(locate_config_value(:winrm_transport) == 'ssl')
-              ui.warn "\n Using '--winrm-authentication-protocol negotiate' with '--winrm-transport plaintext' is only
-              supported when this tool is invoked from a Windows system. Switch to either '--winrm-transport ssl' or
-              '--winrm-authentication-protocol basic'.".strip
-              exit 1
+              ui.warn <<-eos.gsub /^\s+/, ""
+                You are using '--winrm-authentication-protocol negotiate' with 
+                '--winrm-transport plaintext' on a non-Windows system which results in
+                unencrypted traffic. To avoid this warning and secure communication,
+                use '--winrm-transport ssl' instead of the plaintext transport,
+                or execute this command from a Windows system which enables encrypted
+                communication over plaintext with the negotiate authentication protocol.
+              eos
             end
           end
 
           def configure_session
-            validate_options!
+            validate_options
             resolve_session_options
             resolve_target_nodes
             session_from_list
@@ -64,6 +68,7 @@ class Chef
                      end
                      r
                    end
+             
              if @list.length == 0
               if @action_nodes.length == 0
                 ui.fatal("No nodes returned from search!")
@@ -117,7 +122,7 @@ class Chef
           end
 
           def resolve_winrm_kerberos_options
-            if config.keys.any? {|k| k.to_s =~ /kerberos/ }
+            if config.any? {|k,v| k.to_s =~ /kerberos/ && !v.nil? }
               @session_opts[:transport] = :kerberos
               @session_opts[:keytab] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
               @session_opts[:realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
