@@ -133,9 +133,8 @@ class Chef
           def resolve_winrm_user
             user = locate_config_value(:winrm_user)
             
-            # Negotiate Auth may rejects local user access
-            # This can be fixed by the '.\' prefix which domain
-            # qualifies the user to the local machine
+            # Prefixing with '.\' when using negotiate
+            # to auth user against local machine domain
             if resolve_winrm_basic_auth ||
               resolve_winrm_transport == :kerberos ||
               user.include?("\\") ||
