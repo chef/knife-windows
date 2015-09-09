@@ -32,6 +32,16 @@ describe Chef::Knife::WinrmSession do
 
   subject { Chef::Knife::WinrmSession.new(options) }
 
+  describe "#initialize" do
+    context "when using sspinegotiate transport" do
+      let(:options) { { transport: :sspinegotiate } }
+
+      it "uses winrm-s" do
+        expect(subject.winrm_provider).to eq('winrm-s')
+      end
+    end
+  end
+
   describe "#relay_command" do
     it "run command and display commands output" do
       expect(winrm_service).to receive(:open_shell).ordered

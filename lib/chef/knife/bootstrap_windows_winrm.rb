@@ -49,7 +49,6 @@ class Chef
 
         validate_options!
         resolve_session_options
-        load_windows_specific_gems if @session_opts[:transport] == :sspinegotiate
         @session_opts[:host] = server_name
         @session = Chef::Knife::WinrmSession.new(@session_opts)
 

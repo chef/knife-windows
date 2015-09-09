@@ -22,20 +22,24 @@ class Chef
   class Knife
     class WinrmSession
       attr_reader :host, :endpoint, :port, :output, :error, :exit_code
+      attr_reader :winrm_provider
+
       def initialize(options)
         @host = options[:host]
         @port = options[:port]
         url = "#{options[:host]}:#{options[:port]}/wsman"
         scheme = options[:transport] == :ssl ? 'https' : 'http'
         @endpoint = "#{scheme}://#{url}"
+        
         opts = Hash.new
         opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi], :no_ssl_peer_verification => options[:no_ssl_peer_verification]}
-
         options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
 
         Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
         Chef::Log.debug("Endpoint: #{endpoint}")
         Chef::Log.debug("Transport: #{options[:transport]}")
+        
+        load_windows_specific_gems if options[:transport] == :sspinegotiate
         @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
         @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
       end
@@ -66,6 +70,14 @@ class Chef
           print Chef::Knife::Winrm.ui.color(host, color)
           puts " #{data}"
         end
+      end
+
+      def load_windows_specific_gems
+        @winrm_provider = 'winrm-s'
+
+        #checking for windows in case testing on linux
+        require @winrm_provider if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
+        Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
       end
     end
   end
