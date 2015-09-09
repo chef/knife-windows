@@ -80,22 +80,23 @@ describe Chef::Knife::Winrm do
   end
 
   describe "#configure_session" do
-    context "when configuring the WinRM user name" do
-      let(:winrm_user) { 'testuser' }
-      let(:knife_args) do
-        [
-          '-m', 'localhost',
-          '-x', winrm_user,
-          '-P', 'testpassword',
-          '-t', 'ssl',
-          '--winrm-authentication-protocol', protocol,
-          'echo helloworld'
-        ]
-      end
-      let(:winrm_session) { double('winrm_session') }
+    let(:winrm_user) { 'testuser' }
+    let(:protocol) { 'basic' }
+    let(:knife_args) do
+      [
+        '-m', 'localhost',
+        '-x', winrm_user,
+        '-P', 'testpassword',
+        '-t', 'ssl',
+        '--winrm-authentication-protocol', protocol,
+        'echo helloworld'
+      ]
+    end
+    let(:winrm_session) { double('winrm_session') }
 
-      subject { Chef::Knife::Winrm.new(knife_args) }
-      
+    subject { Chef::Knife::Winrm.new(knife_args) }
+
+    context "when configuring the WinRM user name" do      
       context "when basic auth is used" do
         let(:protocol) { 'basic' }
 
@@ -269,22 +270,24 @@ describe Chef::Knife::Winrm do
           winrm_command_verify_peer.configure_session
         end
 
-        let(:winrm_command_no_verify) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--winrm-ssl-verify-mode', 'verify_none', 'echo helloworld'])}
+        context "when setting verify_none" do
+          before { knife_args << '--winrm-ssl-verify-mode' << 'verify_none' }
 
-        it "does not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do
-          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
-          winrm_command_no_verify.configure_chef
-          winrm_command_no_verify.configure_session
-        end
+          it "does not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do
+            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+            expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
+            subject.configure_chef
+            subject.configure_session
+          end
 
-        it "prints warning output when the :winrm_ssl_verify_mode set to :verify_none to disable server validation" do
-          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
-          expect(winrm_command_no_verify).to receive(:warn_no_ssl_peer_verification)
+          it "prints warning output when the :winrm_ssl_verify_mode set to :verify_none to disable server validation" do
+            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+            expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
+            expect(subject).to receive(:warn_no_ssl_peer_verification)
 
-          winrm_command_no_verify.configure_chef
-          winrm_command_no_verify.configure_session
+            subject.configure_chef
+            subject.configure_session
+          end
         end
 
         let(:winrm_command_ca_trust) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--ca-trust-file', '~/catrustroot', '--winrm-ssl-verify-mode', 'verify_none', 'echo helloworld'])}
