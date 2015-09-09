@@ -31,20 +31,17 @@ describe Chef::Knife::Winrm do
     Chef::Config[:knife] = @original_knife_config if @original_knife_config
   end
 
-  before do
-    @knife = Chef::Knife::Winrm.new
-    @knife.config[:attribute] = "fqdn"
-    @node_foo = Chef::Node.new
-    @node_foo.automatic_attrs[:fqdn] = "foo.example.org"
-    @node_foo.automatic_attrs[:ipaddress] = "10.0.0.1"
-    @node_bar = Chef::Node.new
-    @node_bar.automatic_attrs[:fqdn] = "bar.example.org"
-    @node_bar.automatic_attrs[:ipaddress] = "10.0.0.2"
-    @node_bar.automatic_attrs[:ec2][:public_hostname] = "somewhere.com"
-  end
-
-  describe "#configure_session" do
+  describe "#resolve_target_nodes" do
     before do
+      @knife = Chef::Knife::Winrm.new
+      @knife.config[:attribute] = "fqdn"
+      @node_foo = Chef::Node.new
+      @node_foo.automatic_attrs[:fqdn] = "foo.example.org"
+      @node_foo.automatic_attrs[:ipaddress] = "10.0.0.1"
+      @node_bar = Chef::Node.new
+      @node_bar.automatic_attrs[:fqdn] = "bar.example.org"
+      @node_bar.automatic_attrs[:ipaddress] = "10.0.0.2"
+      @node_bar.automatic_attrs[:ec2][:public_hostname] = "somewhere.com"
       @query = double("Chef::Search::Query")
     end
 
@@ -80,26 +77,41 @@ describe Chef::Knife::Winrm do
         @knife.resolve_target_nodes
       end
     end
+  end
 
-    describe Chef::Knife::Winrm do
-      context "when configuring the WinRM user name" do
-        let(:winrm_user) { 'testuser' }
-        let(:knife_args) do
-          [
-            '-m', 'localhost',
-            '-x', winrm_user,
-            '-P', 'testpassword',
-            '-t', 'ssl',
-            '--winrm-authentication-protocol', protocol,
-            'echo helloworld'
-          ]
+  describe "#configure_session" do
+    context "when configuring the WinRM user name" do
+      let(:winrm_user) { 'testuser' }
+      let(:knife_args) do
+        [
+          '-m', 'localhost',
+          '-x', winrm_user,
+          '-P', 'testpassword',
+          '-t', 'ssl',
+          '--winrm-authentication-protocol', protocol,
+          'echo helloworld'
+        ]
+      end
+      let(:winrm_session) { double('winrm_session') }
+
+      subject { Chef::Knife::Winrm.new(knife_args) }
+      
+      context "when basic auth is used" do
+        let(:protocol) { 'basic' }
+
+        it "passes user name as given in options" do
+          expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+            expect(opts[:user]).to eq(winrm_user)
+          end.and_return(winrm_session)
+          subject.configure_session
         end
-        let(:winrm_session) { double('winrm_session') }
+      end
 
-        subject { Chef::Knife::Winrm.new(knife_args) }
-        
-        context "when basic auth is used" do
-          let(:protocol) { 'basic' }
+      context "when negotiate auth is used" do
+        let(:protocol) { 'negotiate' }
+
+        context "when user is prefixed with realm" do
+          let(:winrm_user) { "my_realm\\myself" }
 
           it "passes user name as given in options" do
             expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
@@ -109,379 +121,364 @@ describe Chef::Knife::Winrm do
           end
         end
 
-        context "when negotiate auth is used" do
-          let(:protocol) { 'negotiate' }
+        context "when user realm is included via email format" do
+          let(:winrm_user) { "myself@my_realm.com" }
 
-          context "when user is prefixed with realm" do
-            let(:winrm_user) { "my_realm\\myself" }
-
-            it "passes user name as given in options" do
-              expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
-                expect(opts[:user]).to eq(winrm_user)
-              end.and_return(winrm_session)
-              subject.configure_session
-            end
+          it "passes user name as given in options" do
+            expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+              expect(opts[:user]).to eq(winrm_user)
+            end.and_return(winrm_session)
+            subject.configure_session
           end
+        end
 
-          context "when user realm is included via email format" do
-            let(:winrm_user) { "myself@my_realm.com" }
-
-            it "passes user name as given in options" do
-              expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
-                expect(opts[:user]).to eq(winrm_user)
-              end.and_return(winrm_session)
-              subject.configure_session
-            end
-          end
-
-          context "when a local user is given" do
-            it "prefixes user with the dot (local) realm" do
-              expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
-                expect(opts[:user]).to eq(".\\#{winrm_user}")
-              end.and_return(winrm_session)
-              subject.configure_session
-            end
+        context "when a local user is given" do
+          it "prefixes user with the dot (local) realm" do
+            expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+              expect(opts[:user]).to eq(".\\#{winrm_user}")
+            end.and_return(winrm_session)
+            subject.configure_session
           end
         end
       end
+    end
 
-      context "when configuring the WinRM transport" do
-        before(:all) do
-          @winrm_session = Object.new
-          @winrm_session.define_singleton_method(:set_timeout){|timeout| ""}
-        end
+    context "when configuring the WinRM transport" do
+      before(:all) do
+        @winrm_session = Object.new
+        @winrm_session.define_singleton_method(:set_timeout){|timeout| ""}
+      end
 
-        context "kerberos option is set" do
-          let(:winrm_command_http) { Chef::Knife::Winrm.new([
-            '-m', 'localhost',
-            '-x', 'testuser', 
-            '-P', 'testpassword',
-            '--winrm-authentication-protocol', 'basic',
-            '--kerberos-realm', 'realm',
-            'echo helloworld'
-          ]) }
+      context "kerberos option is set" do
+        let(:winrm_command_http) { Chef::Knife::Winrm.new([
+          '-m', 'localhost',
+          '-x', 'testuser', 
+          '-P', 'testpassword',
+          '--winrm-authentication-protocol', 'basic',
+          '--kerberos-realm', 'realm',
+          'echo helloworld'
+        ]) }
 
-          it "sets the transport to kerberos" do
-            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :kerberos, anything).and_return(@winrm_session)
-            winrm_command_http.configure_chef
-            winrm_command_http.configure_session
-          end
-        end
-
-        context "kerberos option is set but nil" do
-          let(:winrm_command_http) { Chef::Knife::Winrm.new([
-            '-m', 'localhost',
-            '-x', 'testuser', 
-            '-P', 'testpassword',
-            '--winrm-authentication-protocol', 'basic',
-            'echo helloworld'
-          ]) }
-
-          it "sets the transport to plaintext" do
-            winrm_command_http.config[:kerberos_realm] = nil
-            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :plaintext, anything).and_return(@winrm_session)
-            winrm_command_http.configure_chef
-            winrm_command_http.configure_session
-          end
-        end
-
-        context "on windows workstations" do
-          let(:winrm_command_windows_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword',  'echo helloworld'])        }
-          it "defaults to negotiate when on a Windows host" do
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(winrm_command_windows_http).to receive(:load_windows_specific_gems)
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :sspinegotiate)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
-            winrm_command_windows_http.configure_chef
-            winrm_command_windows_http.configure_session
-          end
-        end
-
-        context "on non-windows workstations" do
-          before do
-            allow(Chef::Platform).to receive(:windows?).and_return(false)
-          end
-
-          let(:winrm_command_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '-t', 'plaintext', '--winrm-authentication-protocol', 'basic', 'echo helloworld']) }
-
-          it "defaults to the http uri scheme" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
-            winrm_command_http.configure_chef
-            winrm_command_http.configure_session
-          end
-
-          it "sets the operation timeout and verifes default" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
-            expect(@winrm_session).to receive(:set_timeout).with(1800)
-            winrm_command_http.configure_chef
-            winrm_command_http.configure_session
-          end
-
-          it "sets the user specified winrm port" do
-            Chef::Config[:knife] = {winrm_port: "5988"}
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5988/wsman', anything, anything).and_return(@winrm_session)
-            winrm_command_http.configure_chef
-            winrm_command_http.configure_session
-          end
-
-          let(:winrm_command_timeout) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-authentication-protocol', 'basic', '--session-timeout', '10', 'echo helloworld']) }
-
-          it "sets operation timeout and verify 10 Minute timeout" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
-            expect(@winrm_session).to receive(:set_timeout).with(600)
-            winrm_command_timeout.configure_chef
-            winrm_command_timeout.configure_session
-          end
-
-          let(:winrm_command_https) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', 'echo helloworld']) }
-
-          it "uses the https uri scheme if the ssl transport is specified" do
-            Chef::Config[:knife] = {:winrm_transport => 'ssl'}
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with('https://localhost:5986/wsman', anything, anything).and_return(@winrm_session)
-            winrm_command_https.configure_chef
-            winrm_command_https.configure_session
-          end
-
-          it "uses the winrm port '5986' by default for ssl transport" do
-            Chef::Config[:knife] = {:winrm_transport => 'ssl'}
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with('https://localhost:5986/wsman', anything, anything).and_return(@winrm_session)
-            winrm_command_https.configure_chef
-            winrm_command_https.configure_session
-          end
-
-          it "defaults to validating the server when the ssl transport is used" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
-            winrm_command_https.configure_chef
-            winrm_command_https.configure_session
-          end
-
-          let(:winrm_command_verify_peer) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--winrm-ssl-verify-mode', 'verify_peer', 'echo helloworld'])}
-
-          it "validates the server when the ssl transport is used and the :winrm_ssl_verify_mode option is not configured to :verify_none" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
-            winrm_command_verify_peer.configure_chef
-            winrm_command_verify_peer.configure_session
-          end
-
-          let(:winrm_command_no_verify) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--winrm-ssl-verify-mode', 'verify_none', 'echo helloworld'])}
-
-          it "does not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
-            winrm_command_no_verify.configure_chef
-            winrm_command_no_verify.configure_session
-          end
-
-          it "prints warning output when the :winrm_ssl_verify_mode set to :verify_none to disable server validation" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
-            expect(winrm_command_no_verify).to receive(:warn_no_ssl_peer_verification)
-
-            winrm_command_no_verify.configure_chef
-            winrm_command_no_verify.configure_session
-          end
-
-          let(:winrm_command_ca_trust) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--ca-trust-file', '~/catrustroot', '--winrm-ssl-verify-mode', 'verify_none', 'echo helloworld'])}
-
-          it "validates the server when the ssl transport is used and the :ca_trust_file option is specified even if the :winrm_ssl_verify_mode option is set to :verify_none" do
-            expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
-            expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
-            winrm_command_ca_trust.configure_chef
-            winrm_command_ca_trust.configure_session
-          end
+        it "sets the transport to kerberos" do
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :kerberos, anything).and_return(@winrm_session)
+          winrm_command_http.configure_chef
+          winrm_command_http.configure_session
         end
       end
 
-      context "when executing the run command which sets the process exit code" do
-        before(:each) do
-          Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
-          @winrm = Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-authentication-protocol', 'basic', 'echo helloworld'])
+      context "kerberos option is set but nil" do
+        let(:winrm_command_http) { Chef::Knife::Winrm.new([
+          '-m', 'localhost',
+          '-x', 'testuser', 
+          '-P', 'testpassword',
+          '--winrm-authentication-protocol', 'basic',
+          'echo helloworld'
+        ]) }
+
+        it "sets the transport to plaintext" do
+          winrm_command_http.config[:kerberos_realm] = nil
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', :plaintext, anything).and_return(@winrm_session)
+          winrm_command_http.configure_chef
+          winrm_command_http.configure_session
         end
+      end
 
-        it "returns with 0 if the command succeeds" do
-          allow(@winrm).to receive(:relay_winrm_command).and_return(0)
-          return_code = @winrm.run
-          expect(return_code).to be_zero
-        end
-
-        it "exits with exact exit status if the command fails and returns config is set to 0" do
-          command_status = 510
-          session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
-
-          @winrm.config[:returns] = "0"
-          Chef::Config[:knife][:returns] = [0]
-
-          allow(@winrm).to receive(:relay_winrm_command)
-          allow(@winrm.ui).to receive(:error)
-          allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_code).and_return(command_status)
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
-        end
-
-        it "exits with non-zero status if the command fails and returns config is set to 0" do
-          command_status = 1
-          @winrm.config[:returns] = "0,53"
-          Chef::Config[:knife][:returns] = [0,53]
-          allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
-          allow(@winrm.ui).to receive(:error)
-          session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
-          allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_code).and_return(command_status)
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
-        end
-
-        it "exits with a zero status if the command returns an expected non-zero status" do
-          command_status = 53
-          Chef::Config[:knife][:returns] = [0,53]
-          allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
-          session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
-          allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
-          exit_code = @winrm.run
-          expect(exit_code).to be_zero
-        end
-
-        it "exits with a zero status if the command returns an expected non-zero status" do
-          command_status = 53
-          @winrm.config[:returns] = '0,53'
-          allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
-          session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
-          allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
-          allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
-          exit_code = @winrm.run
-          expect(exit_code).to be_zero
-        end
-
-        it "exits with 100 and no hint if command execution raises an exception other than 401" do
-          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '500'))
-          allow(@winrm.ui).to receive(:error)
-          expect(@winrm.ui).to_not receive(:info)
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
-        end
-
-        it "exits with 100 if command execution raises a 401" do
-          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
-          allow(@winrm.ui).to receive(:info)
-          allow(@winrm.ui).to receive(:error)
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
-        end
-
-        it "exits with 0 if command execution raises a 401 and suppress_auth_failure is set to true" do
-          @winrm.config[:suppress_auth_failure] = true
-          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
-          exit_code = @winrm.run_with_pretty_exceptions
-          expect(exit_code).to eq(401)
-        end
-
-        it "prints a hint on failure for negotiate authentication" do
-          @winrm.config[:winrm_authentication_protocol] = "negotiate"
-          @winrm.config[:winrm_transport] = "plaintext"
+      context "on windows workstations" do
+        let(:winrm_command_windows_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword',  'echo helloworld'])        }
+        it "defaults to negotiate when on a Windows host" do
           allow(Chef::Platform).to receive(:windows?).and_return(true)
-          allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-          allow(Chef::Knife::WinrmSession).to receive(:new)
-          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMAuthorizationError.new)
-          allow(@winrm.ui).to receive(:error)
-          allow(@winrm.ui).to receive(:info)
-          expect(@winrm.ui).to receive(:info).with(Chef::Knife::Winrm::FAILED_NOT_BASIC_HINT)
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
+          expect(winrm_command_windows_http).to receive(:load_windows_specific_gems)
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :sspinegotiate)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          winrm_command_windows_http.configure_chef
+          winrm_command_windows_http.configure_session
+        end
+      end
+
+      context "on non-windows workstations" do
+        before do
+          allow(Chef::Platform).to receive(:windows?).and_return(false)
         end
 
-        it "prints a hint on failure for basic authentication" do
-          @winrm.config[:winrm_authentication_protocol] = "basic"
-          @winrm.config[:winrm_transport] = "plaintext"
-          allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
-          allow(@winrm.ui).to receive(:error)
-          allow(@winrm.ui).to receive(:info)
-          expect(@winrm.ui).to receive(:info).with(Chef::Knife::Winrm::FAILED_BASIC_HINT)
-          expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
+        let(:winrm_command_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '-t', 'plaintext', '--winrm-authentication-protocol', 'basic', 'echo helloworld']) }
+
+        it "defaults to the http uri scheme" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          winrm_command_http.configure_chef
+          winrm_command_http.configure_session
         end
 
-        context "when winrm_authentication_protocol specified" do
-          before do
-            Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
-            allow(@winrm).to receive(:relay_winrm_command).and_return(0)
-          end
-
-          it "sets sspinegotiate transport on windows for 'negotiate' authentication" do
-            @winrm.config[:winrm_authentication_protocol] = "negotiate"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>".\\testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification => false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
-            exit_code = @winrm.run
-          end
-
-          it "does not have winrm opts transport set to sspinegotiate for unix" do
-            @winrm.config[:winrm_authentication_protocol] = "negotiate"
-            allow(Chef::Platform).to receive(:windows?).and_return(false)
-            allow(@winrm).to receive(:exit)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>".\\testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification=>false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
-            exit_code = @winrm.run
-          end
-
-          it "applies winrm monkey patch on windows if 'negotiate' authentication and 'plaintext' transport is specified", :windows_only => true do
-            @winrm.config[:winrm_authentication_protocol] = "negotiate"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            allow(@winrm.ui).to receive(:warn)
-            expect(@winrm).to receive(:require).with('winrm-s').and_call_original
-            @winrm.run
-          end
-
-          it "raises an error if value is other than [basic, negotiate, kerberos]" do
-            @winrm.config[:winrm_authentication_protocol] = "invalid"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(@winrm.ui).to receive(:error)
-            expect { @winrm.run }.to raise_error(SystemExit)
-          end
-
-          it "skips the winrm monkey patch for 'basic' authentication" do
-            @winrm.config[:winrm_authentication_protocol] = "basic"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(@winrm).to_not receive(:require).with('winrm-s')
-            @winrm.run
-          end
-
-          it "skips the winrm monkey patch for 'kerberos' authentication" do
-            @winrm.config[:winrm_authentication_protocol] = "kerberos"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(@winrm).to_not receive(:require).with('winrm-s')
-            @winrm.run
-          end
-
-          it "skips the winrm monkey patch for 'ssl' transport and 'negotiate' authentication" do
-            @winrm.config[:winrm_authentication_protocol] = "negotiate"
-            @winrm.config[:winrm_transport] = "ssl"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(@winrm).to_not receive(:require).with('winrm-s')
-            @winrm.run
-          end
-
-          it "disables sspi and skips the winrm monkey patch for 'ssl' transport and 'basic' authentication" do
-            @winrm.config[:winrm_authentication_protocol] = "basic"
-            @winrm.config[:winrm_transport] = "ssl"
-            @winrm.config[:winrm_port] = "5986"
-            allow(Chef::Platform).to receive(:windows?).and_return(true)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5986", :no_ssl_peer_verification=>false, :basic_auth_only=>true, :operation_timeout=>1800, :transport=>:ssl, :disable_sspi=>true, :host=>"localhost"})
-            expect(@winrm).to_not receive(:require).with('winrm-s')
-            @winrm.run
-          end
-
-          it "prints a warning on linux for unencrypted negotiate authentication" do
-            @winrm.config[:winrm_authentication_protocol] = "negotiate"
-            @winrm.config[:winrm_transport] = "plaintext"
-            allow(Chef::Platform).to receive(:windows?).and_return(false)
-            expect(@winrm).to_not receive(:require).with('winrm-s')
-            expect(@winrm.ui).to receive(:warn).once
-            expect { @winrm.run }.to_not raise_error(SystemExit)
-          end
+        it "sets the operation timeout and verifes default" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          expect(@winrm_session).to receive(:set_timeout).with(1800)
+          winrm_command_http.configure_chef
+          winrm_command_http.configure_session
         end
+
+        it "sets the user specified winrm port" do
+          Chef::Config[:knife] = {winrm_port: "5988"}
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5988/wsman', anything, anything).and_return(@winrm_session)
+          winrm_command_http.configure_chef
+          winrm_command_http.configure_session
+        end
+
+        let(:winrm_command_timeout) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-authentication-protocol', 'basic', '--session-timeout', '10', 'echo helloworld']) }
+
+        it "sets operation timeout and verify 10 Minute timeout" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('http://localhost:5985/wsman', anything, anything).and_return(@winrm_session)
+          expect(@winrm_session).to receive(:set_timeout).with(600)
+          winrm_command_timeout.configure_chef
+          winrm_command_timeout.configure_session
+        end
+
+        let(:winrm_command_https) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', 'echo helloworld']) }
+
+        it "uses the https uri scheme if the ssl transport is specified" do
+          Chef::Config[:knife] = {:winrm_transport => 'ssl'}
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('https://localhost:5986/wsman', anything, anything).and_return(@winrm_session)
+          winrm_command_https.configure_chef
+          winrm_command_https.configure_session
+        end
+
+        it "uses the winrm port '5986' by default for ssl transport" do
+          Chef::Config[:knife] = {:winrm_transport => 'ssl'}
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with('https://localhost:5986/wsman', anything, anything).and_return(@winrm_session)
+          winrm_command_https.configure_chef
+          winrm_command_https.configure_session
+        end
+
+        it "defaults to validating the server when the ssl transport is used" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
+          winrm_command_https.configure_chef
+          winrm_command_https.configure_session
+        end
+
+        let(:winrm_command_verify_peer) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--winrm-ssl-verify-mode', 'verify_peer', 'echo helloworld'])}
+
+        it "validates the server when the ssl transport is used and the :winrm_ssl_verify_mode option is not configured to :verify_none" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
+          winrm_command_verify_peer.configure_chef
+          winrm_command_verify_peer.configure_session
+        end
+
+        let(:winrm_command_no_verify) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--winrm-ssl-verify-mode', 'verify_none', 'echo helloworld'])}
+
+        it "does not validate the server when the ssl transport is used and the :winrm_ssl_verify_mode option is set to :verify_none" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
+          winrm_command_no_verify.configure_chef
+          winrm_command_no_verify.configure_session
+        end
+
+        it "prints warning output when the :winrm_ssl_verify_mode set to :verify_none to disable server validation" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => true)).and_return(@winrm_session)
+          expect(winrm_command_no_verify).to receive(:warn_no_ssl_peer_verification)
+
+          winrm_command_no_verify.configure_chef
+          winrm_command_no_verify.configure_session
+        end
+
+        let(:winrm_command_ca_trust) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-transport', 'ssl', '--ca-trust-file', '~/catrustroot', '--winrm-ssl-verify-mode', 'verify_none', 'echo helloworld'])}
+
+        it "validates the server when the ssl transport is used and the :ca_trust_file option is specified even if the :winrm_ssl_verify_mode option is set to :verify_none" do
+          expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :ssl)).and_call_original
+          expect(WinRM::WinRMWebService).to receive(:new).with(anything, anything, hash_including(:no_ssl_peer_verification => false)).and_return(@winrm_session)
+          winrm_command_ca_trust.configure_chef
+          winrm_command_ca_trust.configure_session
+        end
+      end
+    end
+  end
+
+  describe "#run" do
+    before(:each) do
+      Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
+      @winrm = Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-authentication-protocol', 'basic', 'echo helloworld'])
+    end
+
+    it "returns with 0 if the command succeeds" do
+      allow(@winrm).to receive(:relay_winrm_command).and_return(0)
+      return_code = @winrm.run
+      expect(return_code).to be_zero
+    end
+
+    it "exits with exact exit status if the command fails and returns config is set to 0" do
+      command_status = 510
+      session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
+
+      @winrm.config[:returns] = "0"
+      Chef::Config[:knife][:returns] = [0]
+
+      allow(@winrm).to receive(:relay_winrm_command)
+      allow(@winrm.ui).to receive(:error)
+      allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
+      allow(session_mock).to receive(:exit_code).and_return(command_status)
+      expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
+    end
+
+    it "exits with non-zero status if the command fails and returns config is set to 0" do
+      command_status = 1
+      @winrm.config[:returns] = "0,53"
+      Chef::Config[:knife][:returns] = [0,53]
+      allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+      allow(@winrm.ui).to receive(:error)
+      session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
+      allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
+      allow(session_mock).to receive(:exit_code).and_return(command_status)
+      expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(command_status) }
+    end
+
+    it "exits with a zero status if the command returns an expected non-zero status" do
+      command_status = 53
+      Chef::Config[:knife][:returns] = [0,53]
+      allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+      session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
+      allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
+      allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+      exit_code = @winrm.run
+      expect(exit_code).to be_zero
+    end
+
+    it "exits with a zero status if the command returns an expected non-zero status" do
+      command_status = 53
+      @winrm.config[:returns] = '0,53'
+      allow(@winrm).to receive(:relay_winrm_command).and_return(command_status)
+      session_mock = Chef::Knife::WinrmSession.new({:transport => :plaintext, :host => 'localhost', :port => '5985'})
+      allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session_mock)
+      allow(session_mock).to receive(:exit_codes).and_return({"thishost" => command_status})
+      exit_code = @winrm.run
+      expect(exit_code).to be_zero
+    end
+
+    it "exits with 100 and no hint if command execution raises an exception other than 401" do
+      allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '500'))
+      allow(@winrm.ui).to receive(:error)
+      expect(@winrm.ui).to_not receive(:info)
+      expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
+    end
+
+    it "exits with 100 if command execution raises a 401" do
+      allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
+      allow(@winrm.ui).to receive(:info)
+      allow(@winrm.ui).to receive(:error)
+      expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
+    end
+
+    it "exits with 0 if command execution raises a 401 and suppress_auth_failure is set to true" do
+      @winrm.config[:suppress_auth_failure] = true
+      allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
+      exit_code = @winrm.run_with_pretty_exceptions
+      expect(exit_code).to eq(401)
+    end
+
+    it "prints a hint on failure for negotiate authentication" do
+      @winrm.config[:winrm_authentication_protocol] = "negotiate"
+      @winrm.config[:winrm_transport] = "plaintext"
+      allow(Chef::Platform).to receive(:windows?).and_return(true)
+      allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
+      allow(Chef::Knife::WinrmSession).to receive(:new)
+      allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMAuthorizationError.new)
+      allow(@winrm.ui).to receive(:error)
+      allow(@winrm.ui).to receive(:info)
+      expect(@winrm.ui).to receive(:info).with(Chef::Knife::Winrm::FAILED_NOT_BASIC_HINT)
+      expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
+    end
+
+    it "prints a hint on failure for basic authentication" do
+      @winrm.config[:winrm_authentication_protocol] = "basic"
+      @winrm.config[:winrm_transport] = "plaintext"
+      allow(@winrm).to receive(:relay_winrm_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
+      allow(@winrm.ui).to receive(:error)
+      allow(@winrm.ui).to receive(:info)
+      expect(@winrm.ui).to receive(:info).with(Chef::Knife::Winrm::FAILED_BASIC_HINT)
+      expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
+    end
+
+    context "when winrm_authentication_protocol specified" do
+      before do
+        Chef::Config[:knife] = {:winrm_transport => 'plaintext'}
+        allow(@winrm).to receive(:relay_winrm_command).and_return(0)
+      end
+
+      it "sets sspinegotiate transport on windows for 'negotiate' authentication" do
+        @winrm.config[:winrm_authentication_protocol] = "negotiate"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
+        expect(@winrm).to receive(:create_winrm_session).with({:user=>".\\testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification => false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
+        exit_code = @winrm.run
+      end
+
+      it "does not have winrm opts transport set to sspinegotiate for unix" do
+        @winrm.config[:winrm_authentication_protocol] = "negotiate"
+        allow(Chef::Platform).to receive(:windows?).and_return(false)
+        allow(@winrm).to receive(:exit)
+        expect(@winrm).to receive(:create_winrm_session).with({:user=>".\\testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification=>false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
+        exit_code = @winrm.run
+      end
+
+      it "applies winrm monkey patch on windows if 'negotiate' authentication and 'plaintext' transport is specified", :windows_only => true do
+        @winrm.config[:winrm_authentication_protocol] = "negotiate"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        allow(@winrm.ui).to receive(:warn)
+        expect(@winrm).to receive(:require).with('winrm-s').and_call_original
+        @winrm.run
+      end
+
+      it "raises an error if value is other than [basic, negotiate, kerberos]" do
+        @winrm.config[:winrm_authentication_protocol] = "invalid"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm.ui).to receive(:error)
+        expect { @winrm.run }.to raise_error(SystemExit)
+      end
+
+      it "skips the winrm monkey patch for 'basic' authentication" do
+        @winrm.config[:winrm_authentication_protocol] = "basic"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm).to_not receive(:require).with('winrm-s')
+        @winrm.run
+      end
+
+      it "skips the winrm monkey patch for 'kerberos' authentication" do
+        @winrm.config[:winrm_authentication_protocol] = "kerberos"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm).to_not receive(:require).with('winrm-s')
+        @winrm.run
+      end
+
+      it "skips the winrm monkey patch for 'ssl' transport and 'negotiate' authentication" do
+        @winrm.config[:winrm_authentication_protocol] = "negotiate"
+        @winrm.config[:winrm_transport] = "ssl"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm).to_not receive(:require).with('winrm-s')
+        @winrm.run
+      end
+
+      it "disables sspi and skips the winrm monkey patch for 'ssl' transport and 'basic' authentication" do
+        @winrm.config[:winrm_authentication_protocol] = "basic"
+        @winrm.config[:winrm_transport] = "ssl"
+        @winrm.config[:winrm_port] = "5986"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5986", :no_ssl_peer_verification=>false, :basic_auth_only=>true, :operation_timeout=>1800, :transport=>:ssl, :disable_sspi=>true, :host=>"localhost"})
+        expect(@winrm).to_not receive(:require).with('winrm-s')
+        @winrm.run
+      end
+
+      it "prints a warning on linux for unencrypted negotiate authentication" do
+        @winrm.config[:winrm_authentication_protocol] = "negotiate"
+        @winrm.config[:winrm_transport] = "plaintext"
+        allow(Chef::Platform).to receive(:windows?).and_return(false)
+        expect(@winrm).to_not receive(:require).with('winrm-s')
+        expect(@winrm.ui).to receive(:warn).once
+        expect { @winrm.run }.to_not raise_error(SystemExit)
       end
     end
   end
