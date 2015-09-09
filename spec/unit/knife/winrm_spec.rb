@@ -26,7 +26,7 @@ describe Chef::Knife::Winrm do
     @original_knife_config = Chef::Config[:knife].nil? ? nil : Chef::Config[:knife].dup
   end
 
-  after(:all) do
+  after do
     Chef::Config.configuration = @original_config
     Chef::Config[:knife] = @original_knife_config if @original_knife_config
   end
@@ -82,14 +82,73 @@ describe Chef::Knife::Winrm do
     end
 
     describe Chef::Knife::Winrm do
+      context "when configuring the WinRM user name" do
+        let(:winrm_user) { 'testuser' }
+        let(:knife_args) do
+          [
+            '-m', 'localhost',
+            '-x', winrm_user,
+            '-P', 'testpassword',
+            '-t', 'ssl',
+            '--winrm-authentication-protocol', protocol,
+            'echo helloworld'
+          ]
+        end
+        let(:winrm_session) { double('winrm_session') }
+
+        subject { Chef::Knife::Winrm.new(knife_args) }
+        
+        context "when basic auth is used" do
+          let(:protocol) { 'basic' }
+
+          it "passes user name as given in options" do
+            expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+              expect(opts[:user]).to eq(winrm_user)
+            end.and_return(winrm_session)
+            subject.configure_session
+          end
+        end
+
+        context "when negotiate auth is used" do
+          let(:protocol) { 'negotiate' }
+
+          context "when user is prefixed with realm" do
+            let(:winrm_user) { "my_realm\\myself" }
+
+            it "passes user name as given in options" do
+              expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+                expect(opts[:user]).to eq(winrm_user)
+              end.and_return(winrm_session)
+              subject.configure_session
+            end
+          end
+
+          context "when user realm is included via email format" do
+            let(:winrm_user) { "myself@my_realm.com" }
+
+            it "passes user name as given in options" do
+              expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+                expect(opts[:user]).to eq(winrm_user)
+              end.and_return(winrm_session)
+              subject.configure_session
+            end
+          end
+
+          context "when a local user is given" do
+            it "prefixes user with the dot (local) realm" do
+              expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+                expect(opts[:user]).to eq(".\\#{winrm_user}")
+              end.and_return(winrm_session)
+              subject.configure_session
+            end
+          end
+        end
+      end
+
       context "when configuring the WinRM transport" do
         before(:all) do
           @winrm_session = Object.new
           @winrm_session.define_singleton_method(:set_timeout){|timeout| ""}
-        end
-        after(:each) do
-          Chef::Config.configuration = @original_config
-          Chef::Config[:knife] = @original_knife_config if @original_knife_config
         end
 
         context "kerberos option is set" do
@@ -247,11 +306,6 @@ describe Chef::Knife::Winrm do
           @winrm = Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-authentication-protocol', 'basic', 'echo helloworld'])
         end
 
-        after(:each) do
-          Chef::Config.configuration = @original_config
-          Chef::Config[:knife] = @original_knife_config if @original_knife_config
-        end
-
         it "returns with 0 if the command succeeds" do
           allow(@winrm).to receive(:relay_winrm_command).and_return(0)
           return_code = @winrm.run
@@ -360,7 +414,7 @@ describe Chef::Knife::Winrm do
             @winrm.config[:winrm_authentication_protocol] = "negotiate"
             allow(Chef::Platform).to receive(:windows?).and_return(true)
             allow(@winrm).to receive(:require).with('winrm-s').and_return(true)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification => false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>".\\testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification => false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:sspinegotiate, :disable_sspi=>false, :host=>"localhost"})
             exit_code = @winrm.run
           end
 
@@ -368,7 +422,7 @@ describe Chef::Knife::Winrm do
             @winrm.config[:winrm_authentication_protocol] = "negotiate"
             allow(Chef::Platform).to receive(:windows?).and_return(false)
             allow(@winrm).to receive(:exit)
-            expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification=>false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
+            expect(@winrm).to receive(:create_winrm_session).with({:user=>".\\testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification=>false, :basic_auth_only=>false, :operation_timeout=>1800, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
             exit_code = @winrm.run
           end
 
