@@ -51,6 +51,8 @@ class Chef
                 communication over plaintext with the negotiate authentication protocol.
               eos
             end
+
+            warn_no_ssl_peer_verification if resolve_no_ssl_peer_verification
           end
 
           #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
@@ -59,7 +61,6 @@ class Chef
             validate_options!
             resolve_session_options
             load_windows_specific_gems if @session_opts[:transport] == :sspinegotiate
-            warn_no_ssl_peer_verification if @session_opts[:no_ssl_peer_verification]
             resolve_target_nodes
             session_from_list
           end
@@ -175,7 +176,7 @@ class Chef
           end
 
           def resolve_no_ssl_peer_verification
-            locate_config_value(:ca_trust_file).nil? && (config[:winrm_ssl_verify_mode] == :verify_none)
+            locate_config_value(:ca_trust_file).nil? && config[:winrm_ssl_verify_mode] == :verify_none && resolve_winrm_transport == :ssl
           end
 
           def resolve_winrm_disable_sspi

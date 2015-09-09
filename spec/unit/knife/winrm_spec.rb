@@ -81,18 +81,24 @@ describe Chef::Knife::Winrm do
 
   describe "#configure_session" do
     let(:winrm_user) { 'testuser' }
+    let(:transport) { 'ssl' }
     let(:protocol) { 'basic' }
     let(:knife_args) do
       [
         '-m', 'localhost',
         '-x', winrm_user,
         '-P', 'testpassword',
-        '-t', 'ssl',
+        '-t', transport,
         '--winrm-authentication-protocol', protocol,
         'echo helloworld'
       ]
     end
     let(:winrm_session) { double('winrm_session') }
+    let(:winrm_service) { double('WinRMWebService') }
+
+    before do
+      allow(winrm_service).to receive(:set_timeout)
+    end
 
     subject { Chef::Knife::Winrm.new(knife_args) }
 
@@ -287,6 +293,19 @@ describe Chef::Knife::Winrm do
 
             subject.configure_chef
             subject.configure_session
+          end
+
+          context "when transport is plaintext" do
+            let(:transport) { 'plaintext' }
+
+            it "does not print warning re ssl server validation" do
+              expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
+              expect(WinRM::WinRMWebService).to receive(:new).and_return(winrm_service)
+              expect(subject).to_not receive(:warn_no_ssl_peer_verification)
+
+              subject.configure_chef
+              subject.configure_session
+            end
           end
         end
 
