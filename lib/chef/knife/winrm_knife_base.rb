@@ -32,9 +32,15 @@ class Chef
           include Chef::Knife::WinrmBase
           include Chef::Knife::WinrmSharedOptions
 
-          #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
-          #Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
-          def validate_options
+          def validate_options!
+            winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
+
+            if ! Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
+              ui.error "Invalid value '#{winrm_auth_protocol}' for --winrm-authentication-protocol option."
+              ui.info "Valid values are #{Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.join(",")}."
+              exit 1
+            end
+
             if negotiate_auth? && !Chef::Platform.windows? && !(locate_config_value(:winrm_transport) == 'ssl')
               ui.warn <<-eos.gsub /^\s+/, ""
                 You are using '--winrm-authentication-protocol negotiate' with 
@@ -47,9 +53,13 @@ class Chef
             end
           end
 
+          #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
+          #Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
           def configure_session
-            validate_options
+            validate_options!
             resolve_session_options
+            load_windows_specific_gems if @session_opts[:transport] == :sspinegotiate
+            warn_no_ssl_peer_verification if @session_opts[:no_ssl_peer_verification]
             resolve_target_nodes
             session_from_list
           end
@@ -104,71 +114,72 @@ class Chef
           end
 
           def resolve_session_options
-            resolve_winrm_basic_options
-            resolve_winrm_auth_settings
-            resolve_winrm_kerberos_options
-            resolve_winrm_transport_options
-            resolve_winrm_ssl_options
+            @session_opts = {
+              user: resolve_winrm_user,
+              password: locate_config_value(:winrm_password),
+              port: locate_config_value(:winrm_port),
+              operation_timeout: resolve_winrm_session_timeout,
+              basic_auth_only: resolve_winrm_basic_auth,
+              disable_sspi: resolve_winrm_disable_sspi,
+              transport: resolve_winrm_transport,
+              no_ssl_peer_verification: resolve_no_ssl_peer_verification
+            }
+            if @session_opts[:transport] == :kerberos
+              @session_opts.merge!(resolve_winrm_kerberos_options)
+            end
+            @session_opts[:ca_trust_path] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
           end
 
-          def resolve_winrm_basic_options
-            @session_opts = {}
-            @session_opts[:user] = locate_config_value(:winrm_user)
-            @session_opts[:password] = locate_config_value(:winrm_password)
-            @session_opts[:port] = locate_config_value(:winrm_port)
+          def resolve_winrm_user
+            user = locate_config_value(:winrm_user)
+            
+            # Negotiate Auth may rejects local user access
+            # This can be fixed by the '.\' prefix which domain
+            # qualifies the user to the local machine
+            if resolve_winrm_basic_auth ||
+              resolve_winrm_transport == :kerberos ||
+              user.include?("\\") ||
+              user.include?("@")
+              user
+            else
+              ".\\#{user}"
+            end
+          end
 
+          def resolve_winrm_session_timeout
             #30 min (Default) OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
-            @session_opts[:operation_timeout] = locate_config_value(:session_timeout).to_i * 60 if locate_config_value(:session_timeout)
+            locate_config_value(:session_timeout).to_i * 60 if locate_config_value(:session_timeout)
+          end
+
+          def resolve_winrm_basic_auth
+            locate_config_value(:winrm_authentication_protocol) == "basic"
           end
 
           def resolve_winrm_kerberos_options
+            kerberos_opts = {}
+            kerberos_opts[:keytab] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
+            kerberos_opts[:realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
+            kerberos_opts[:service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
+            kerberos_opts
+          end
+
+          def resolve_winrm_transport
+            transport = locate_config_value(:winrm_transport).to_sym
             if config.any? {|k,v| k.to_s =~ /kerberos/ && !v.nil? }
-              @session_opts[:transport] = :kerberos
-              @session_opts[:keytab] = locate_config_value(:kerberos_keytab_file) if locate_config_value(:kerberos_keytab_file)
-              @session_opts[:realm] = locate_config_value(:kerberos_realm) if locate_config_value(:kerberos_realm)
-              @session_opts[:service] = locate_config_value(:kerberos_service) if locate_config_value(:kerberos_service)
-            end
-          end
-
-          def resolve_winrm_transport_options
-            @session_opts[:disable_sspi] = true
-            @session_opts[:transport] = locate_config_value(:winrm_transport).to_sym unless @session_opts[:transport] == :kerberos
-            if negotiate_auth? && @session_opts[:transport] == :ssl
-                Chef::Log.debug("Trying WinRM communication with negotiate authentication and :ssl transport")
-            elsif use_windows_native_auth?
-              load_windows_specific_gems
-              @session_opts[:transport] = :sspinegotiate
-              @session_opts[:disable_sspi] = false
-            end
-          end
-
-          def resolve_winrm_ssl_options
-            @session_opts[:ca_trust_path] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
-            @session_opts[:no_ssl_peer_verification] = no_ssl_peer_verification?(@session_opts[:ca_trust_path])
-            warn_no_ssl_peer_verification if @session_opts[:no_ssl_peer_verification]
-          end
-
-          def resolve_winrm_auth_settings
-            winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
-            if ! Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
-              ui.error "Invalid value '#{winrm_auth_protocol}' for --winrm-authentication-protocol option."
-              ui.info "Valid values are #{Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.join(",")}."
-              exit 1
+              transport = :kerberos
+            elsif Chef::Platform.windows? && transport != :ssl && negotiate_auth?
+              transport = :sspinegotiate
             end
 
-            if winrm_auth_protocol == "basic"
-              @session_opts[:basic_auth_only] = true
-            else
-              @session_opts[:basic_auth_only] = false
-            end
+            transport
           end
 
-          def no_ssl_peer_verification?(ca_trust_path)
-            ca_trust_path.nil? && (config[:winrm_ssl_verify_mode] == :verify_none)
+          def resolve_no_ssl_peer_verification
+            locate_config_value(:ca_trust_file).nil? && (config[:winrm_ssl_verify_mode] == :verify_none)
           end
 
-          def use_windows_native_auth?
-           Chef::Platform.windows? && @session_opts[:transport] != :ssl && negotiate_auth?
+          def resolve_winrm_disable_sspi
+            !Chef::Platform.windows? || resolve_winrm_transport == :ssl || !negotiate_auth?
           end
 
           def load_windows_specific_gems
