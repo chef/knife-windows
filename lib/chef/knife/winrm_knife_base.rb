@@ -60,7 +60,6 @@ class Chef
           def configure_session
             validate_options!
             resolve_session_options
-            load_windows_specific_gems if @session_opts[:transport] == :sspinegotiate
             resolve_target_nodes
             session_from_list
           end
@@ -182,16 +181,10 @@ class Chef
             !Chef::Platform.windows? || resolve_winrm_transport == :ssl || !negotiate_auth?
           end
 
-          def load_windows_specific_gems
-            require 'winrm-s'
-            Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
-          end
-
           def get_password
             @password ||= ui.ask("Enter your password: ") { |q| q.echo = false }
           end
 
-          # returns true if winrm_authentication_protocol is 'negotiate'
           def negotiate_auth?
             locate_config_value(:winrm_authentication_protocol) == "negotiate"
           end
