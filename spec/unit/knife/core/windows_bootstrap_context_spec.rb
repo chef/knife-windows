@@ -98,4 +98,54 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
     end
   end
 
+  describe "bootstrap_install_command for bootstrap through WinRM" do
+    context "when bootstrap_install_command option is passed on CLI" do
+      let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['--bootstrap-install-command', 'chef-client']) }
+      before do
+        bootstrap.config[:bootstrap_install_command] = "chef-client"
+      end
+
+      it "sets the bootstrap_install_command option under Chef::Config::Knife object" do
+        expect(Chef::Config[:knife][:bootstrap_install_command]).to eq("chef-client")
+      end
+
+      after do
+        bootstrap.config.delete(:bootstrap_install_command)
+        Chef::Config[:knife].delete(:bootstrap_install_command)
+      end
+    end
+
+    context "when bootstrap_install_command option is not passed on CLI" do
+      let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new([]) }
+      it "does not set the bootstrap_install_command option under Chef::Config::Knife object" do
+        expect(Chef::Config[:knife][:bootstrap_install_command]). to eq(nil)
+      end
+    end
+  end
+
+  describe "bootstrap_install_command for bootstrap through SSH" do
+    context "when bootstrap_install_command option is passed on CLI" do
+      let(:bootstrap) { Chef::Knife::BootstrapWindowsSsh.new(['--bootstrap-install-command', 'chef-client']) }
+      before do
+        bootstrap.config[:bootstrap_install_command] = "chef-client"
+      end
+
+      it "sets the bootstrap_install_command option under Chef::Config::Knife object" do
+        expect(Chef::Config[:knife][:bootstrap_install_command]).to eq("chef-client")
+      end
+
+      after do
+        bootstrap.config.delete(:bootstrap_install_command)
+        Chef::Config[:knife].delete(:bootstrap_install_command)
+      end
+    end
+
+    context "when bootstrap_install_command option is not passed on CLI" do
+      let(:bootstrap) { Chef::Knife::BootstrapWindowsSsh.new([]) }
+      it "does not set the bootstrap_install_command option under Chef::Config::Knife object" do
+        expect(Chef::Config[:knife][:bootstrap_install_command]). to eq(nil)
+      end
+    end
+  end
+
 end

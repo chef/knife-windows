@@ -81,13 +81,13 @@ expected: #{expected}
       :winrm_password => :ssh_password,
       :winrm_port => :ssh_port,
       :winrm_ssl_verify_mode => :host_key_verify,
+      :bootstrap_install_command => :bootstrap_install_command,
     }}
 
     # ref_ignore: Options in core that are not implemented here.
     let(:ref_ignore) { [
       # These are irrelevant to WinRM.
       :bootstrap_curl_options,
-      :bootstrap_install_command,
       :bootstrap_wget_options,
       :forward_agent,
       :ssh_gateway,
@@ -123,11 +123,11 @@ expected: #{expected}
       :msi_url => :bootstrap_url,
       :encrypted_data_bag_secret => :secret,
       :encrypted_data_bag_secret_file => :secret_file,
+      :bootstrap_install_command => :bootstrap_install_command,
     }}
     # ref_ignore: Options in core that are not implemented here.
     let(:ref_ignore) { [
       :bootstrap_curl_options,
-      :bootstrap_install_command,
       :bootstrap_wget_options,
       :use_sudo,
       :use_sudo_password,
