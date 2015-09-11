@@ -367,11 +367,6 @@ class Chef
         @bootstrap_bat_file ||= "\"%TEMP%\\bootstrap-#{Process.pid}-#{Time.now.to_i}.bat\""
       end
 
-      def locate_config_value(key)
-        key = key.to_sym
-        config[key] || Chef::Config[:knife][key]
-      end
-
       def warn_chef_config_secret_key
         ui.info "* " * 40
         ui.warn(<<-WARNING)
