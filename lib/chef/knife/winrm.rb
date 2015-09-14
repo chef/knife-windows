@@ -22,12 +22,14 @@ require 'chef/knife/windows_cert_generate'
 require 'chef/knife/windows_cert_install'
 require 'chef/knife/windows_listener_create'
 require 'chef/knife/winrm_session'
+require 'chef/knife/knife_windows_base'
 
 class Chef
   class Knife
     class Winrm < Knife 
 
       include Chef::Knife::WinrmCommandSharedFunctions     
+      include Chef::Knife::KnifeWindowsBase
 
       FAILED_BASIC_HINT ||= "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server."
       FAILED_NOT_BASIC_HINT ||= <<-eos.gsub /^\s+/, ""
