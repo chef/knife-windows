@@ -67,6 +67,11 @@ def chef_lt_12?
   Chef::VERSION.split('.').first.to_i < 12
 end
 
+def sample_data(file_name)
+  file =  File.expand_path(File.dirname("spec/assets/*"))+"/#{file_name}"
+  File.read(file)
+end
+
 RSpec.configure do |config|
   config.filter_run_excluding :windows_only => true unless windows?
   config.filter_run_excluding :windows_2012_only => true unless windows2012?
