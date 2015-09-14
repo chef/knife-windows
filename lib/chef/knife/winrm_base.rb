@@ -113,12 +113,6 @@ class Chef
             :default => 30
         end
       end
-
-      def locate_config_value(key)
-        key = key.to_sym
-        value = config[key] || Chef::Config[:knife][key] || default_config[key]
-        value
-      end
     end
   end
 end
