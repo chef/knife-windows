@@ -147,8 +147,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
   end
 end
 
-
-describe "bootstrap_install_command functionality through WinRM protocol" do
+describe "bootstrap_install_command functionality through WinRM protocol", :if_chef_11 => true do
   context "bootstrap_install_command option is not specified" do
     let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new([]) }
     before do
@@ -182,7 +181,7 @@ describe "bootstrap_install_command functionality through WinRM protocol" do
   end
 end
 
-describe "bootstrap_install_command functionality through SSH protocol" do
+describe "bootstrap_install_command functionality through SSH protocol", :if_chef_11 => true  do
   context "bootstrap_install_command option is not specified" do
     let(:bootstrap) { Chef::Knife::BootstrapWindowsSsh.new([]) }
     before do

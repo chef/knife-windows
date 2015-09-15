@@ -67,6 +67,10 @@ def chef_lt_12?
   Chef::VERSION.split('.').first.to_i < 12
 end
 
+def chef_eq_11?
+  Chef::VERSION.split('.').first.to_i == 11
+end
+
 def sample_data(file_name)
   file =  File.expand_path(File.dirname("spec/assets/*"))+"/#{file_name}"
   File.read(file)
@@ -78,5 +82,6 @@ RSpec.configure do |config|
   config.filter_run_excluding :chef_gte_12_only => true unless chef_gte_12?
   config.filter_run_excluding :chef_gte_12_5_only => true unless chef_gte_12_5?  
   config.filter_run_excluding :chef_lt_12_only => true unless chef_lt_12?
+  config.filter_run_excluding :if_chef_11 => true if chef_eq_11?
 end
 
