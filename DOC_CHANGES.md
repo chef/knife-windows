@@ -63,7 +63,7 @@ override the default behavior and skip the verification of the remote system
 
 Here's an example that disables peer verification:
 
-    knife winrm -m 192.168.0.6 -x 'mydomain\myuser' -P "$PASSWORDVAR" -t ssl --winrm-ssl-verify-mode verify_none ipconfig 
+    knife winrm -m 192.168.0.6 -x 'mydomain\myuser' -P "$PASSWORDVAR" -t ssl --winrm-ssl-verify-mode verify_none ipconfig
 
 This option should be used carefully since disabling the verification of the
 remote system's certificate can subject knife commands to spoofing attacks.
@@ -111,8 +111,8 @@ to remotely access this system.
 This sequence of commands creates a listener -- it assumes the existence of the directory `winrmcerts`
 under the user's profile directory:
 
-    knife windows cert generate --domain myorg.org --output-file $env:userprofile/winrmcerts/winrm-ssl 
-    knife windows listener create --hostname *.myorg.org --cert-install $env:userprofile/winrmcerts/winrm-ssl.pfx 
+    knife windows cert generate --domain myorg.org --output-file $env:userprofile/winrmcerts/winrm-ssl
+    knife windows listener create --hostname *.myorg.org --cert-install $env:userprofile/winrmcerts/winrm-ssl.pfx
 
 The first command, `cert generate`, may be executed on any computer (even one not running the
 Windows operating system) and produces three files. The first two are certificates containing
@@ -155,7 +155,7 @@ may be executed:
 
     ls Cert:\LocalMachine\My
 
-##### Connecting to a configured SSL listener
+##### Connecting to a configured SSL listeners
 
 In order to connect securely to the configured SSL listener via the `knife
 winrm` or `knife bootstrap windows winrm` subcommands, the workstation running
@@ -250,7 +250,7 @@ and unencrypted communication:
 
     si wsman:\localhost\service\allowunencrypted $true
     # Don't set the following if attempting domain authentication
-    si wsman:\localhost\service\auth\basic $true 
+    si wsman:\localhost\service\auth\basic $true
 
 From the client, `knife winrm` can be instructed to explicitly allow basic
 authentication when validating authentication using a non-domain (i.e. local)
@@ -274,12 +274,12 @@ an incorrect or expired password or disabled account.
 If the command succeeds, try the following
 
     si wsman:\localhost\service\allowunencrypted $false
-    
+
 Then retry the earlier `knife winrm` command. If it fails, this may indicate
 an issue with your operating system's ability to encrypt traffic, particularly
 when using the `plaintext` transport, i.e. when not using the `SSL` transport.
 In that case, the Windows platform supports encryption of plaintext traffic
-through native Windows authentication protocols, but such support is often incomplete on other platforms.    
+through native Windows authentication protocols, but such support is often incomplete on other platforms.
 
 If the command succeeds, then there may be a more subtle issue with negotiate
 authentication. It may be necessary to explicitly specify a domain in the user
