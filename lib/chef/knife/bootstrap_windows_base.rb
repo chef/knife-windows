@@ -154,7 +154,7 @@ class Chef
 
           option :install_as_service,
             :long => "--install-as-service",
-            :description => "Install chef-client as service in windows machine",
+            :description => "Install chef-client as a Windows service",
             :default => false
 
           option :bootstrap_vault_file,
