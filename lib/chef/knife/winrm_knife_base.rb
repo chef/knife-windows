@@ -20,6 +20,7 @@
 require 'chef/knife'
 require 'chef/knife/winrm_base'
 require 'chef/knife/winrm_shared_options'
+require 'chef/knife/knife_windows_base'
 
 class Chef
   class Knife
@@ -31,6 +32,7 @@ class Chef
 
           include Chef::Knife::WinrmBase
           include Chef::Knife::WinrmSharedOptions
+          include Chef::Knife::KnifeWindowsBase
 
           def validate_options!
             winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)

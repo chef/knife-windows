@@ -20,6 +20,7 @@ require 'chef/knife'
 require 'chef/knife/bootstrap'
 require 'chef/encrypted_data_bag_item'
 require 'chef/knife/core/windows_bootstrap_context'
+require 'chef/knife/knife_windows_base'
 # Chef 11 PathHelper doesn't have #home
 #require 'chef/util/path_helper'
 
@@ -27,6 +28,8 @@ class Chef
   class Knife
     module BootstrapWindowsBase
 
+      include Chef::Knife::KnifeWindowsBase
+      
       # :nodoc:
       # Would prefer to do this in a rational way, but can't be done b/c of
       # Mixlib::CLI's design :(
@@ -365,11 +368,6 @@ class Chef
 
       def bootstrap_bat_file
         @bootstrap_bat_file ||= "\"%TEMP%\\bootstrap-#{Process.pid}-#{Time.now.to_i}.bat\""
-      end
-
-      def locate_config_value(key)
-        key = key.to_sym
-        config[key] || Chef::Config[:knife][key]
       end
 
       def warn_chef_config_secret_key
