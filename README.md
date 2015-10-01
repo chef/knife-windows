@@ -237,13 +237,16 @@ which the second command can access it.
 
 See previous sections for additional details of the `windows cert generate`, `windows cert install` and `windows listener create` subcommands.
 
-##### Configure SSL using *PowerShell 4.0 or later*
+##### Configure SSL using *Windows Server 2012 or later*
 The following PowerShell commands may be used to create an SSL WinRM
-listener with a self-signed certificate:
+listener with a self-signed certificate on Windows 2012R2 or later systems:
 
 ```powershell
-$cert = New-SelfSignedCertificate -Subject 'myserver.mydomain.org' -Type SSLServerAuthentication -FriendlyName WinRMCert
+$cert = New-SelfSignedCertificate -DnsName 'myserver.mydomain.org' -CertStoreLocation Cert:\LocalMachine\My
 new-item -address * -force -path wsman:\localhost\listener -port 5986 -hostname ($cert.subject -split '=')[1] -transport https -certificatethumbprint $cert.Thumbprint
+# Open the firewall for 5986, the default WinRM SSL port
+netsh advfirewall firewall set rule name="Windows Remote Management (HTTPS-In)" profile=public protocol=tcp localport=5986 remoteip=localsubnet new remoteip=any
+
 ```
 
 Note that the first command which uses the `New-SelfSignedCertificate`
