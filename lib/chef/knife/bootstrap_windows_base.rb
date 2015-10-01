@@ -319,11 +319,11 @@ class Chef
       end
 
       def bootstrap_command
-        @bootstrap_command ||= "cmd.exe /C #{bootstrap_bat_file}"
+        @bootstrap_command ||= "cmd.exe /E:ON /C #{bootstrap_bat_file}"
       end
 
       def bootstrap_render_banner_command(chunk_num)
-        "cmd.exe /C echo Rendering #{bootstrap_bat_file} chunk #{chunk_num}"
+        "cmd.exe /E:ON /C echo Rendering #{bootstrap_bat_file} chunk #{chunk_num}"
       end
 
       def escape_windows_batch_characters(line)

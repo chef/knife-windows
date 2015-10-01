@@ -321,6 +321,14 @@ WGET_PS
           # quotes that will later be converted to double quotes
           command = install_command('\'')
 <<-EOH
+          @rem This script MUST be run with cmd command extensions enabled, i.e.
+          @rem using the /E:ON argument as in
+          @rem
+          @rem   cmd.exe /E:ON /C command
+          @rem
+          @rem Command extensions enabled is the default, but a system can be configured
+          @rem to disable them, and this script will fail without the override at the command line
+          @rem
           @set MSIERRORCODE=!ERRORLEVEL!
           @if ERRORLEVEL 1 (
               @echo WARNING: Failed to install Chef Client MSI package in remote context with status code !MSIERRORCODE!.
