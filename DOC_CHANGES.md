@@ -7,6 +7,22 @@ Description of the required change.
 -->
 # knife-windows 1.0.0 doc changes
 
+### New bootstrap download and installation options
+The following commands enable alternate ways to download and install
+Chef Client during bootstrap:
+
+* `--msi-url URL`: Optional. Used to override the location from which Chef
+  Client is downloaded. If not specified, Chef Client is downloaded
+  from the Internet -- this option allows downloading from a private network
+  location for instance.
+* `--install-as-service`: Optional. Install chef-client as a Windows service
+* `--bootstrap-install-command`: Optional. Instead of downloading Chef
+  Client and installing it using a default installation command,
+  bootstrap will invoke this command. If an image already has
+  Chef Client installed, this command can be specified as empty
+  (`''`), in which case no installation will be done and the rest of
+  bootstrap will proceed as if it's already installed.
+
 ### WinRM default port default change
 The `winrm_port` option specifies the TCP port on the remote system to which
 to connect for WinRM communication for `knife-windows` commands that use

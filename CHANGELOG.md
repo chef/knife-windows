@@ -1,7 +1,9 @@
 # knife-windows Change Log
 
-## Unreleased changes
+## Release 1.0.0
 
+* [knife-windows #281](https://github.com/chef/knife-windows/pull/281) Prevent unencrypted negotiate auth, automatically prefix local usernames with '.' for negotiate
+* [knife-windows #275](https://github.com/chef/knife-windows/pull/275) Added bootstrap\_install\_command option in parity with knife bootstrap
 * [knife-windows #240](https://github.com/chef/knife-windows/pull/240) Change kerberos keytab short option to -T to resolve conflict
 * [knife-windows #232](https://github.com/chef/knife-windows/pull/232) Adding --hint option to bootstrap
 * [knife-windows #227](https://github.com/chef/knife-windows/issues/227) Exception: NoMethodError: undefined method 'gsub' for false:FalseClass
