@@ -16,6 +16,7 @@
 # limitations under the License.
 #
 
+require 'chef/application'
 require 'winrm'
 
 class Chef
@@ -24,6 +25,7 @@ class Chef
       attr_reader :host, :endpoint, :port, :output, :error, :exit_code
 
       def initialize(options)
+        Chef::Application.new.configure_proxy_environment_variables
         @host = options[:host]
         @port = options[:port]
         url = "#{options[:host]}:#{options[:port]}/wsman"
