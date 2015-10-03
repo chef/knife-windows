@@ -94,6 +94,8 @@ expected: #{expected}
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
+      :policy_name, # NYI, issue https://github.com/chef/knife-windows/issues/295
+      :policy_group, #https://github.com/chef/knife-windows/issues/295
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -132,6 +134,8 @@ expected: #{expected}
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
+      :policy_name, # NYI, issue https://github.com/chef/knife-windows/issues/295
+      :policy_group, #https://github.com/chef/knife-windows/issues/295
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
