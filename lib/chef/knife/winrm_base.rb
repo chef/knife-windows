@@ -101,6 +101,10 @@ class Chef
             :default => :verify_peer,
             :proc => Proc.new { |verify_mode| verify_mode.to_sym }
 
+          option :ssl_peer_fingerprint,
+            :long => "--ssl-peer-fingerprint FINGERPRINT",
+            :description => "Ssl Cert Fingerprint to bypass normal cert chain checks"
+
           option :winrm_authentication_protocol,
             :long => "--winrm-authentication-protocol AUTHENTICATION_PROTOCOL",
             :description => "The authentication protocol used during WinRM communication. The supported protocols are #{WINRM_AUTH_PROTOCOL_LIST.join(',')}. Default is 'negotiate'.",
