@@ -26,8 +26,13 @@ describe Chef::Knife::WinrmSession do
   let(:options) { { transport: :plaintext } }
 
   before do
+    @original_config = Chef::Config.hash_dup
     allow(WinRM::WinRMWebService).to receive(:new).and_return(winrm_service)
     allow(winrm_service).to receive(:set_timeout)
+  end
+
+  after do
+    Chef::Config.configuration = @original_config
   end
 
   subject { Chef::Knife::WinrmSession.new(options) }
@@ -39,6 +44,19 @@ describe Chef::Knife::WinrmSession do
       it "uses winrm-s" do
         expect(Chef::Knife::WinrmSession).to receive(:load_windows_specific_gems)
         subject
+      end
+    end
+
+    context "when a proxy is configured" do
+      let(:proxy_uri) { 'blah.com' }
+
+      before do
+        Chef::Config[:http_proxy] = proxy_uri
+      end
+
+      it "sets the http_proxy to the configured proxy" do
+        subject
+        expect(ENV['HTTP_PROXY']).to eq("http://#{proxy_uri}")
       end
     end
   end
