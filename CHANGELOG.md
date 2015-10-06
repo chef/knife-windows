@@ -1,5 +1,8 @@
 # knife-windows Change Log
 
+## Unreleased
+* New feature `--winrm-no-encryption` option for explicit control of WinRM encryption
+
 ## Release 1.0.0
 
 * [knife-windows #281](https://github.com/chef/knife-windows/pull/281) Prevent unencrypted negotiate auth, automatically prefix local usernames with '.' for negotiate
@@ -74,4 +77,3 @@ Release Notes - Knife Windows Plugin - Version 0.5.4
 
 ** New Feature
     * [KNIFE\_WINDOWS-6] - default bootstrap template should support encrypted\_data\_bag\_secret
-

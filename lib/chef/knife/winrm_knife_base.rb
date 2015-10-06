@@ -43,9 +43,18 @@ class Chef
               exit 1
             end
 
+            if locate_config_value(:winrm_no_encryption) &&
+               locate_config_value(:winrm_transport) == 'ssl'
+              ui.error "The value of --winrm-transport cannot be 'ssl'"
+              ui.error "when the --winrm-no-encryption option is specified."
+              ui.info "Please omit the transport option or change it to 'plaintext'"
+              ui.info "if you want to use the no encryption option."
+              exit 1
+            end
+
             if negotiate_auth? && !Chef::Platform.windows? && !(locate_config_value(:winrm_transport) == 'ssl')
               ui.warn <<-eos.gsub /^\s+/, ""
-                You are using '--winrm-authentication-protocol negotiate' with 
+                You are using '--winrm-authentication-protocol negotiate' with
                 '--winrm-transport plaintext' on a non-Windows system which results in
                 unencrypted traffic. To avoid this warning and secure communication,
                 use '--winrm-transport ssl' instead of the plaintext transport,
@@ -80,7 +89,7 @@ class Chef
                      end
                      r
                    end
-             
+
              if @list.length == 0
               if @action_nodes.length == 0
                 ui.fatal("No nodes returned from search!")
@@ -134,7 +143,7 @@ class Chef
 
           def resolve_winrm_user
             user = locate_config_value(:winrm_user)
-            
+
             # Prefixing with '.\' when using negotiate
             # to auth user against local machine domain
             if resolve_winrm_basic_auth ||
@@ -153,7 +162,8 @@ class Chef
           end
 
           def resolve_winrm_basic_auth
-            locate_config_value(:winrm_authentication_protocol) == "basic"
+            locate_config_value(:winrm_authentication_protocol) == "basic" ||
+            locate_config_value(:winrm_no_encryption)
           end
 
           def resolve_winrm_kerberos_options
@@ -165,6 +175,8 @@ class Chef
           end
 
           def resolve_winrm_transport
+            return :plaintext if locate_config_value(:winrm_no_encryption)
+
             transport = locate_config_value(:winrm_transport).to_sym
             if config.any? {|k,v| k.to_s =~ /kerberos/ && !v.nil? }
               transport = :kerberos
@@ -188,7 +200,8 @@ class Chef
           end
 
           def negotiate_auth?
-            locate_config_value(:winrm_authentication_protocol) == "negotiate"
+            locate_config_value(:winrm_authentication_protocol) == "negotiate" &&
+            !locate_config_value(:winrm_no_encryption)
           end
 
           def warn_no_ssl_peer_verification
