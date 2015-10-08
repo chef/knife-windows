@@ -17,11 +17,9 @@
 #
 
 require 'httpclient'
-require 'nokogiri'
 require 'chef/knife'
 require 'chef/knife/winrm_knife_base'
 require 'chef/knife/wsman_endpoint'
-require 'pry'
 
 class Chef
   class Knife
@@ -66,6 +64,7 @@ class Chef
           if response.nil? || output_object.response_status_code != 200
             error_message = "No valid WSMan endoint listening at #{item.endpoint}."
           else
+            require 'nokogiri'
             doc = Nokogiri::XML response.body
             namespace = 'http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd'
             output_object.protocol_version = doc.xpath('//wsmid:ProtocolVersion', 'wsmid' => namespace).text
