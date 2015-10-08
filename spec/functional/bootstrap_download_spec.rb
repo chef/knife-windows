@@ -155,9 +155,17 @@ describe "bootstrap_install_command functionality through WinRM protocol", :if_c
       @template_output = sample_data('win_template_rendered_without_bootstrap_install_command.txt')
     end
 
-    it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil" do
+    it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil", :chef_lt_12_5_only => true do
       expect(bootstrap.send(:render_template,@template_input)).to eq(
         @template_output)
+    end
+
+    context "when running chef-client 12.5.0 or greater" do
+      let(:template_12_5_output) { sample_data('win_template_rendered_without_bootstrap_install_command_on_12_5_client.txt') }
+      it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil"  do
+        expect(bootstrap.send(:render_template,@template_input)).to eq(
+                                                                      template_12_5_output)
+      end
     end
   end
 
@@ -169,9 +177,17 @@ describe "bootstrap_install_command functionality through WinRM protocol", :if_c
       @template_output = sample_data('win_template_rendered_with_bootstrap_install_command.txt')
     end
 
-    it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template" do
+    it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template", :chef_lt_12_5_only => true do
       expect(bootstrap.send(:render_template,@template_input)).to eq(
         @template_output)
+    end
+
+    context "when running chef-client 12.5.0 or greater" do
+      let(:template_12_5_output) { sample_data('win_template_rendered_with_bootstrap_install_command_on_12_5_client.txt') }
+      it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template" do
+        expect(bootstrap.send(:render_template,@template_input)).to eq(
+                                                                      template_12_5_output)
+      end
     end
 
     after do
@@ -181,7 +197,7 @@ describe "bootstrap_install_command functionality through WinRM protocol", :if_c
   end
 end
 
-describe "bootstrap_install_command functionality through SSH protocol", :if_chef_11 => true do
+describe "bootstrap_install_command functionality through SSH protocol", :if_chef_11 => true, :chef_lt_12_5_only => true do
   context "bootstrap_install_command option is not specified" do
     let(:bootstrap) { Chef::Knife::BootstrapWindowsSsh.new([]) }
     before do

@@ -140,9 +140,9 @@ CONFIG
         end
 
         def start_chef
-          bootstrap_environment_option = bootstrap_environment.nil? ? '' : "-E #{bootstrap_environment}"
+          bootstrap_environment_option = bootstrap_environment.nil? ? '' : " -E #{bootstrap_environment}"
           start_chef = "SET \"PATH=%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
-          start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json #{bootstrap_environment_option}\n"
+          start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json#{bootstrap_environment_option}\n"
         end
 
         def latest_current_windows_chef_version_query
