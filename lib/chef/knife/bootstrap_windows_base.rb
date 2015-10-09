@@ -179,6 +179,16 @@ class Chef
               Chef::Config[:knife][:bootstrap_vault_item]
             }
 
+          option :policy_name,
+            :long         => "--policy-name POLICY_NAME",
+            :description  => "Policyfile name to use (--policy-group must also be given)",
+            :default      => nil
+
+          option :policy_group,
+            :long         => "--policy-group POLICY_GROUP",
+            :description  => "Policy group name to use (--policy-name must also be given)",
+            :default      => nil
+
           option :tags,
             :long => "--tags TAGS",
             :description => "Comma separated list of tags to apply to the node",
@@ -263,6 +273,7 @@ class Chef
         end
 
         validate_name_args!
+        validate_options!
 
         @node_name = Array(@name_args).first
         # back compat--templates may use this setting:

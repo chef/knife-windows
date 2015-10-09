@@ -26,6 +26,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   before do
+    bootstrap.config[:run_list] = []
     #    Kernel.stub(:sleep).and_return 10
     allow(bootstrap).to receive(:sleep).and_return(10)
     allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
@@ -173,6 +174,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
+    
     allow(bootstrap.ui).to receive(:info)
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error(SystemExit)

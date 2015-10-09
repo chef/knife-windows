@@ -134,7 +134,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
 
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
     winrm_bootstrapper.config[:template_file] = @template_file_path
-
+    winrm_bootstrapper.config[:run_list] = []
     # Execute the commands locally that would normally be executed via WinRM
     allow(winrm_bootstrapper).to receive(:run_command) do |command|
       system(command)
