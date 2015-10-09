@@ -162,8 +162,8 @@ class Chef
           end
 
           def resolve_winrm_basic_auth
-            locate_config_value(:winrm_authentication_protocol) == "basic" ||
-            locate_config_value(:winrm_no_encryption)
+            (locate_config_value(:winrm_authentication_protocol) == "basic") ||
+            (locate_config_value(:winrm_no_encryption) == true)
           end
 
           def resolve_winrm_kerberos_options
@@ -200,8 +200,8 @@ class Chef
           end
 
           def negotiate_auth?
-            locate_config_value(:winrm_authentication_protocol) == "negotiate" &&
-            !locate_config_value(:winrm_no_encryption)
+            (locate_config_value(:winrm_authentication_protocol) == "negotiate") &&
+            (locate_config_value(:winrm_no_encryption) != true)
           end
 
           def warn_no_ssl_peer_verification
