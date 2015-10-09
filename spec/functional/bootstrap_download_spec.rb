@@ -133,7 +133,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     end
 
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
-    allow(winrm_bootstrapper).to receive(:validate_options)
+    allow(winrm_bootstrapper).to receive(:validate_options!)
     winrm_bootstrapper.config[:template_file] = @template_file_path
     winrm_bootstrapper.config[:run_list] = []
     # Execute the commands locally that would normally be executed via WinRM
