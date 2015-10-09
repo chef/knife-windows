@@ -34,7 +34,7 @@ class Chef
           include Chef::Knife::WinrmSharedOptions
           include Chef::Knife::KnifeWindowsBase
 
-          def validate_options!
+          def validate_winrm_options!
             winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
 
             if ! Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
@@ -60,7 +60,7 @@ class Chef
           #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
           #Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
           def configure_session
-            validate_options!
+            validate_winrm_options!
             resolve_session_options
             resolve_target_nodes
             session_from_list

@@ -47,7 +47,7 @@ class Chef
           end
         end
 
-        validate_options!
+        validate_winrm_options!
         resolve_session_options
         @session_opts[:host] = server_name
         @session = Chef::Knife::WinrmSession.new(@session_opts)
