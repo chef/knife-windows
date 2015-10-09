@@ -59,6 +59,12 @@ class Chef
             :proc => Proc.new { |transport| Chef::Config[:knife][:winrm_port] = '5986' if transport == 'ssl'
                                 Chef::Config[:knife][:winrm_transport] = transport }
 
+          option :winrm_no_encryption,
+            :short => "-n",
+            :long => "--winrm-no-encryption",
+            :description => "Flag to force no encryption and no authentication protocol negotiation for WinRM",
+            :proc => Proc.new { |key| Chef::Config[:knife][:winrm_no_encryption] = true }
+
           option :winrm_port,
             :short => "-p PORT",
             :long => "--winrm-port PORT",

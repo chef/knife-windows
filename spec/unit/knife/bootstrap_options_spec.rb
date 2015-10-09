@@ -109,6 +109,7 @@ expected: #{expected}
       :session_timeout,
       :winrm_authentication_protocol,
       :winrm_transport,
+      :winrm_no_encryption,
     ] }
 
     include_examples 'compare_options'

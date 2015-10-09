@@ -5,6 +5,15 @@ Example Doc Change:
 ### Headline for the required change
 Description of the required change.
 -->
+# Unreleased
+
+### New WinRM option `winrm-no-encryption` to turn off encryption
+If the 'winrm-no-encryption' flag is specified,
+`knife-windows` subcommands that use WinRM will default to using
+plaintext transport, and turn off encryption negotiation on the WinRM
+session. In addition, any warnings regarding use of plaintext transport will
+be suppressed.
+
 # knife-windows 1.0.0 doc changes
 
 ### New bootstrap download and installation options
@@ -156,7 +165,7 @@ be replaced with the `--cert-thumbprint` option to use the generated
 certificate's thumbprint to identify the certificate with which the listener
 should be configured:
 
-    knife windows cert generate --domain myorg.org --output-file $env:userprofile/winrmcerts/winrm-ssl 
+    knife windows cert generate --domain myorg.org --output-file $env:userprofile/winrmcerts/winrm-ssl
     knife windows cert install $env:userprofile/winrmcerts/winrm-ssl
     knife windows listener create --hostname *.myorg.org --cert-thumbprint 1F3A70E2601FA1576BC4850ED2D7EF6587076423
 

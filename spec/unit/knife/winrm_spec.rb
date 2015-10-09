@@ -102,7 +102,7 @@ describe Chef::Knife::Winrm do
 
     subject { Chef::Knife::Winrm.new(knife_args) }
 
-    context "when configuring the WinRM user name" do      
+    context "when configuring the WinRM user name" do
       context "when basic auth is used" do
         let(:protocol) { 'basic' }
 
@@ -159,7 +159,7 @@ describe Chef::Knife::Winrm do
       context "kerberos option is set" do
         let(:winrm_command_http) { Chef::Knife::Winrm.new([
           '-m', 'localhost',
-          '-x', 'testuser', 
+          '-x', 'testuser',
           '-P', 'testpassword',
           '--winrm-authentication-protocol', 'basic',
           '--kerberos-realm', 'realm',
@@ -176,7 +176,7 @@ describe Chef::Knife::Winrm do
       context "kerberos option is set but nil" do
         let(:winrm_command_http) { Chef::Knife::Winrm.new([
           '-m', 'localhost',
-          '-x', 'testuser', 
+          '-x', 'testuser',
           '-P', 'testpassword',
           '--winrm-authentication-protocol', 'basic',
           'echo helloworld'
@@ -498,6 +498,33 @@ describe Chef::Knife::Winrm do
         allow(Chef::Platform).to receive(:windows?).and_return(false)
         expect(@winrm.ui).to receive(:warn).once
         expect { @winrm.run }.to_not raise_error(SystemExit)
+      end
+    end
+
+    context "when winrm_no_encryption is specified" do
+      before do
+        Chef::Config[:knife] = {:winrm_no_encryption => true}
+        allow(@winrm).to receive(:relay_winrm_command).and_return(0)
+      end
+
+      it "sets the transport to plaintext" do
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification => false, :basic_auth_only=>true, :operation_timeout=>1800, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
+        exit_code = @winrm.run
+      end
+
+      it "over-rides authentication protocol negotiation" do
+        @winrm.config[:winrm_authentication_protocol] = "negotiate"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm).to receive(:create_winrm_session).with({:user=>"testuser", :password=>"testpassword", :port=>"5985", :no_ssl_peer_verification => false, :basic_auth_only=>true, :operation_timeout=>1800, :transport=>:plaintext, :disable_sspi=>true, :host=>"localhost"})
+        exit_code = @winrm.run
+      end
+
+      it "fails if the transport is set to ssl" do
+        @winrm.config[:winrm_authentication_protocol] = "ssl"
+        allow(Chef::Platform).to receive(:windows?).and_return(true)
+        expect(@winrm.ui).to receive(:error)
+        expect { @winrm.run }.to raise_error(SystemExit)
       end
     end
   end

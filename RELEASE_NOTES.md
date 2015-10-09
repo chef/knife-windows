@@ -6,6 +6,9 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
+## Unreleased
+* New feature `--winrm-no-encryption` option for explicit control of WinRM encryption
+
 # knife-windows 1.0.0 release notes:
 This release of knife-windows includes new features to improve authentication,
 simplify use of the WinRM SSL transport, install and download Chef
@@ -79,4 +82,3 @@ for the list of issues fixed in this release.
 ## knife-windows on RubyGems and Github
 https://rubygems.org/gems/knife-windows
 https://github.com/chef/knife-windows
-
