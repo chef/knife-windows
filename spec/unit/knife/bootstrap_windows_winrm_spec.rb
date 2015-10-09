@@ -27,6 +27,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   before do
     bootstrap.config[:run_list] = []
+    allow(bootstrap).to receive(:validate_options!).and_return(nil)
     #    Kernel.stub(:sleep).and_return 10
     allow(bootstrap).to receive(:sleep).and_return(10)
     allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
