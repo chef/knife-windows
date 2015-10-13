@@ -273,7 +273,9 @@ class Chef
         end
 
         validate_name_args!
-        validate_options!
+
+        # adding respond_to? so this works with pre 12.4 chef clients
+        validate_options! if respond_to?(:validate_options!)
 
         @node_name = Array(@name_args).first
         # back compat--templates may use this setting:
