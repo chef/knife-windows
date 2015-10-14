@@ -82,7 +82,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       allow(mock_bootstrap_context).to receive(:local_download_path).and_return(@local_file_download_destination.gsub(::File::SEPARATOR, ::File::ALT_SEPARATOR))
 
       # Prevent password prompt during bootstrap process
-      allow(mock_winrm).to receive(:get_password).and_return(nil)
+      allow(mock_winrm.ui).to receive(:ask).and_return(nil)
       allow(Chef::Knife::Winrm).to receive(:new).and_return(mock_winrm)
 
       allow(Chef::Knife::Core::WindowsBootstrapContext).to receive(:new).and_return(mock_bootstrap_context)
@@ -134,6 +134,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
 
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
     allow(winrm_bootstrapper).to receive(:validate_options!)
+    allow(winrm_bootstrapper.ui).to receive(:ask).and_return(nil)
     winrm_bootstrapper.config[:template_file] = @template_file_path
     winrm_bootstrapper.config[:run_list] = []
     # Execute the commands locally that would normally be executed via WinRM

@@ -56,7 +56,6 @@ class Chef
         STDOUT.sync = STDERR.sync = true        
 
         configure_session
-        validate_password
         execute_remote_command        
       end
 

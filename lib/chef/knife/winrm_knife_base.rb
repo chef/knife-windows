@@ -93,12 +93,6 @@ class Chef
             end
           end
 
-          def validate_password
-            if @session_opts[:user] and (not @session_opts[:password])
-              @session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
-            end
-          end
-
           private
 
           def session_from_list
@@ -126,9 +120,15 @@ class Chef
               transport: resolve_winrm_transport,
               no_ssl_peer_verification: resolve_no_ssl_peer_verification
             }
+
+            if @session_opts[:user] and (not @session_opts[:password])
+              @session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
+            end
+
             if @session_opts[:transport] == :kerberos
               @session_opts.merge!(resolve_winrm_kerberos_options)
             end
+
             @session_opts[:ca_trust_path] = locate_config_value(:ca_trust_file) if locate_config_value(:ca_trust_file)
           end
 

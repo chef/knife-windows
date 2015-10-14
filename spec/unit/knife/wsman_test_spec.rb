@@ -23,13 +23,17 @@ describe Chef::Knife::WsmanTest do
     Chef::Config.reset
   end
 
+  before(:each) do
+    allow(subject.ui).to receive(:ask).and_return('prompted_password')
+  end
+
+  subject { Chef::Knife::WsmanTest.new(['-m', 'localhost']) }
 
   context 'when testing the WSMAN endpoint' do
-    let(:wsman_tester) { Chef::Knife::WsmanTest.new(['-m', 'localhost']) }
     let(:http_client_mock) {HTTPClient.new}
 
     before(:each) do
-      wsman_tester.config[:verbosity] = 0
+      subject.config[:verbosity] = 0
       allow(HTTPClient).to receive(:new).and_return(http_client_mock)
     end
 
@@ -42,20 +46,20 @@ describe Chef::Knife::WsmanTest do
       end
 
       it 'exits with a status code of 1' do
-        expect(wsman_tester).to receive(:exit).with(1)
-        wsman_tester.run
+        expect(subject).to receive(:exit).with(1)
+        subject.run
       end
 
       it 'writes a warning message for each node it fails to connect to' do
-        expect(wsman_tester.ui).to receive(:warn)
-        expect(wsman_tester).to receive(:exit).with(1)
-        wsman_tester.run
+        expect(subject.ui).to receive(:warn)
+        expect(subject).to receive(:exit).with(1)
+        subject.run
       end
 
       it 'writes an error message if it fails to connect to any nodes' do
-        expect(wsman_tester.ui).to receive(:error)
-        expect(wsman_tester).to receive(:exit).with(1)
-        wsman_tester.run
+        expect(subject.ui).to receive(:error)
+        expect(subject).to receive(:exit).with(1)
+        subject.run
       end
     end
 
@@ -65,8 +69,8 @@ describe Chef::Knife::WsmanTest do
           response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
           http_response_mock = HTTP::Message.new_response(response_body)
           allow(http_client_mock).to receive(:post).and_return(http_response_mock)
-          expect(wsman_tester.ui).to receive(:msg)
-          wsman_tester.run
+          expect(subject.ui).to receive(:msg)
+          subject.run
         end
       end
 
@@ -75,10 +79,10 @@ describe Chef::Knife::WsmanTest do
           response_body = 'I am invalid'
           http_response_mock = HTTP::Message.new_response(response_body)
           allow(http_client_mock).to receive(:post).and_return(http_response_mock)
-          expect(wsman_tester.ui).to receive(:warn)
-          expect(wsman_tester.ui).to receive(:error)
-          expect(wsman_tester).to receive(:exit).with(1)
-          wsman_tester.run
+          expect(subject.ui).to receive(:warn)
+          expect(subject.ui).to receive(:error)
+          expect(subject).to receive(:exit).with(1)
+          subject.run
         end
       end
 
@@ -87,31 +91,30 @@ describe Chef::Knife::WsmanTest do
           http_response_mock = HTTP::Message.new_response('')
           http_response_mock.status = 404
           allow(http_client_mock).to receive(:post).and_return(http_response_mock)
-          expect(wsman_tester.ui).to receive(:warn)
-          expect(wsman_tester.ui).to receive(:error)
-          expect(wsman_tester).to receive(:exit).with(1)
-          wsman_tester.run
+          expect(subject.ui).to receive(:warn)
+          expect(subject.ui).to receive(:error)
+          expect(subject).to receive(:exit).with(1)
+          subject.run
         end
       end
     end
   end
 
   context 'when testing the WSMAN endpoint with verbose output' do
-    let(:wsman_tester_verbose) { Chef::Knife::WsmanTest.new(['-m', 'localhost']) }
     let(:http_client_mock_verbose) {HTTPClient.new}
 
     before(:each) do
       allow(HTTPClient).to receive(:new).and_return(http_client_mock_verbose)
-      wsman_tester_verbose.config[:verbosity] = 1
+      subject.config[:verbosity] = 1
     end
 
     context 'and the service does not respond' do
       it 'returns an object with an error message' do
         error_message = 'A connection attempt failed because the connected party did not properly respond after a period of time.'
         allow(http_client_mock_verbose).to receive(:post).and_raise(Exception.new(error_message))
-        expect(wsman_tester_verbose).to receive(:output).with(duck_type(:error_message))
-        expect(wsman_tester_verbose).to receive(:exit).with(1)
-        wsman_tester_verbose.run
+        expect(subject).to receive(:output).with(duck_type(:error_message))
+        expect(subject).to receive(:exit).with(1)
+        subject.run
       end
     end
 
@@ -123,24 +126,24 @@ describe Chef::Knife::WsmanTest do
       end
 
       it 'identifies the stack of the product version as 2.0 ' do
-        expect(wsman_tester_verbose).to receive(:output) do |output|
+        expect(subject).to receive(:output) do |output|
           expect(output.product_version).to  eq 'OS: 0.0.0 SP: 0.0 Stack: 2.0'
         end
-        wsman_tester_verbose.run
+        subject.run
       end
 
       it 'identifies the protocol version as the current DMTF standard' do
-        expect(wsman_tester_verbose).to receive(:output) do |output|
+        expect(subject).to receive(:output) do |output|
           expect(output.protocol_version).to  eq 'http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd'
         end
-        wsman_tester_verbose.run
+        subject.run
       end
 
       it 'identifies the vendor as the Microsoft Corporation' do
-        expect(wsman_tester_verbose).to receive(:output) do |output|
+        expect(subject).to receive(:output) do |output|
           expect(output.product_vendor).to  eq 'Microsoft Corporation'
         end
-        wsman_tester_verbose.run
+        subject.run
       end
     end
 
@@ -152,24 +155,24 @@ describe Chef::Knife::WsmanTest do
       end
 
       it 'identifies the stack of the product version as 3.0 ' do
-        expect(wsman_tester_verbose).to receive(:output) do |output|
+        expect(subject).to receive(:output) do |output|
           expect(output.product_version).to  eq 'OS: 0.0.0 SP: 0.0 Stack: 3.0'
         end
-        wsman_tester_verbose.run
+        subject.run
       end
 
       it 'identifies the protocol version as the current DMTF standard' do
-        expect(wsman_tester_verbose).to receive(:output) do |output|
+        expect(subject).to receive(:output) do |output|
           expect(output.protocol_version).to  eq 'http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd'
         end
-        wsman_tester_verbose.run
+        subject.run
       end
 
       it 'identifies the vendor as the Microsoft Corporation' do
-        expect(wsman_tester_verbose).to receive(:output) do |output|
+        expect(subject).to receive(:output) do |output|
           expect(output.product_vendor).to  eq 'Microsoft Corporation'
         end
-        wsman_tester_verbose.run
+        subject.run
       end
     end
   end
