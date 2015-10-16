@@ -82,12 +82,13 @@ describe Chef::Knife::Winrm do
   describe "#configure_session" do
     let(:winrm_user) { 'testuser' }
     let(:transport) { 'plaintext' }
+    let(:password) { 'testpassword' }
     let(:protocol) { 'basic' }
     let(:knife_args) do
       [
         '-m', 'localhost',
         '-x', winrm_user,
-        '-P', 'testpassword',
+        '-P', password,
         '-t', transport,
         '--winrm-authentication-protocol', protocol,
         'echo helloworld'
@@ -146,6 +147,39 @@ describe Chef::Knife::Winrm do
             end.and_return(winrm_session)
             subject.configure_session
           end
+        end
+      end
+    end
+
+    context "when configuring the WinRM password" do
+      it "passes password as given in options" do
+        expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+          expect(opts[:password]).to eq(password)
+        end.and_return(winrm_session)
+        subject.configure_session
+      end
+
+      context "when no password is given in the options" do
+        let(:knife_args) do
+          [
+            '-m', 'localhost',
+            '-x', winrm_user,
+            '-t', transport,
+            '--winrm-authentication-protocol', protocol,
+            'echo helloworld'
+          ]
+        end
+        let(:prompted_password) { 'prompted_password' }
+
+        before do
+          allow(subject.ui).to receive(:ask).and_return(prompted_password)
+        end
+
+        it "passes password prompted" do
+          expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
+            expect(opts[:password]).to eq(prompted_password)
+          end.and_return(winrm_session)
+          subject.configure_session
         end
       end
     end
