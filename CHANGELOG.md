@@ -1,10 +1,10 @@
 # knife-windows Change Log
 
 ## Release 1.1.0
-* [https://github.com/chef/knife-windows/pull/302](Address regression caused by chef client 12.5 environment argument)
-* [https://github.com/chef/knife-windows/issues/295](Bootstrap missing policy_group, policy_name feature from Chef Client 12.5)
-* [https://github.com/chef/knife-windows/issues/296](Installing knife-windows produces warning for _all_ knife commands in Mac OS X with ChefDK 0.8.0)
-* [https://github.com/chef/knife-windows/pull/297](use configured proxy settings for all winrm sessions)
+* [knife-windows #302](https://github.com/chef/knife-windows/pull/302) Address regression caused by chef client 12.5 environment argument
+* [knife-windows #295](https://github.com/chef/knife-windows/issues/295) Bootstrap missing policy_group, policy_name feature from Chef Client 12.5
+* [knife-windows #296](https://github.com/chef/knife-windows/issues/296) Installing knife-windows produces warning for _all_ knife commands in Mac OS X with ChefDK 0.8.0
+* [knife-windows #297](https://github.com/chef/knife-windows/pull/297) use configured proxy settings for all winrm sessions
 
 ## Release 1.0.0
 
