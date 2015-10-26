@@ -25,6 +25,14 @@ require 'chef/knife/knife_windows_base'
 class Chef
   class Knife
     module WinrmCommandSharedFunctions
+
+      FAILED_BASIC_HINT ||= "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server."
+      FAILED_NOT_BASIC_HINT ||= <<-eos.gsub /^\s+/, ""
+        Hint: Make sure to prefix domain usernames with the correct domain name.
+        Hint: Local user names should be prefixed with computer name or IP address.
+        EXAMPLE: my_domain\\user_namer
+      eos
+
       def self.included(includer)
         includer.class_eval do
 
@@ -93,7 +101,90 @@ class Chef
             end
           end
 
+          # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
+          def extract_nested_value(data, nested_value_spec)
+            nested_value_spec.split(".").each do |attr|
+              if data.nil?
+                nil # don't get no method error on nil
+              elsif data.respond_to?(attr.to_sym)
+                data = data.send(attr.to_sym)
+              elsif data.respond_to?(:[])
+                data = data[attr]
+              else
+                data = begin
+                         data.send(attr.to_sym)
+                       rescue NoMethodError
+                         nil
+                       end
+              end
+            end
+            ( !data.kind_of?(Array) && data.respond_to?(:to_hash) ) ? data.to_hash : data
+          end
+
+          def run_command(command = '')
+            relay_winrm_command(command)
+
+            check_for_errors!
+
+            # Knife seems to ignore the return value of this method,
+            # so we exit to force the process exit code for this
+            # subcommand if returns is set
+            exit @exit_code if @exit_code && @exit_code != 0
+            0
+          end
+
+          def relay_winrm_command(command)
+            Chef::Log.debug(command)
+            @winrm_sessions.each do |s|
+              begin
+                s.relay_command(command)
+              rescue WinRM::WinRMHTTPTransportError, WinRM::WinRMAuthorizationError => e
+                if authorization_error?(e)
+                  if ! config[:suppress_auth_failure]
+                    # Display errors if the caller hasn't opted to retry
+                    ui.error "Failed to authenticate to #{s.host} as #{locate_config_value(:winrm_user)}"
+                    ui.info "Response: #{e.message}"
+                    ui.info get_failed_authentication_hint
+                    raise e
+                  end
+                  @exit_code = 401
+                else
+                  raise e
+                end
+              end
+            end
+          end
+
           private
+
+          def get_failed_authentication_hint
+            if @session_opts[:basic_auth_only]
+              FAILED_BASIC_HINT
+            else
+              FAILED_NOT_BASIC_HINT
+            end
+          end
+
+          def authorization_error?(exception)
+            exception.is_a?(WinRM::WinRMAuthorizationError) ||
+              exception.message =~ /401/
+          end
+
+          def check_for_errors!
+            @winrm_sessions.each do |session|
+              session_exit_code = session.exit_code
+              unless success_return_codes.include? session_exit_code.to_i
+                @exit_code = session_exit_code.to_i
+                ui.error "Failed to execute command on #{session.host} return code #{session_exit_code}"
+              end
+            end
+          end
+
+          def success_return_codes
+            #Redundant if the CLI options parsing occurs
+            return [0] unless config[:returns]
+            return @success_return_codes ||= config[:returns].split(',').collect {|item| item.to_i}
+          end
 
           def session_from_list
             @list.each do |item|
