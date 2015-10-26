@@ -28,19 +28,26 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   before do
     bootstrap.config[:run_list] = []
     allow(bootstrap).to receive(:validate_options!).and_return(nil)
-    #    Kernel.stub(:sleep).and_return 10
     allow(bootstrap).to receive(:sleep).and_return(10)
+    allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session)
     allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
   end
 
   after do
-    #    Kernel.unstub(:sleep)
     allow(bootstrap).to receive(:sleep).and_return(10)
   end
 
-  let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-d', 'windows-chef-client-msi',  '-x', 'Administrator', 'localhost']) }
-  let(:session) { Chef::Knife::Winrm::WinrmSession.new({ :host => 'winrm.cloudapp.net', :port => '5986', :transport => :ssl }) }
-
+  let(:session_opts) do
+    {
+      user: "Administrator",
+      password: "testpassword", 
+      port: "5986",
+      transport: :ssl,
+      host: "localhost"
+    }
+  end
+  let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-d', 'windows-chef-client-msi',  '-x', session_opts[:user], '-P', session_opts[:password], session_opts[:host]]) }
+  let(:session) { Chef::Knife::WinrmSession.new(session_opts) } 
   let(:initial_fail_count) { 4 }
 
   context "knife secret-file && knife secret options are passed" do
@@ -135,6 +142,15 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       expect(bootstrap.load_correct_secret).to eq(
         "data_bag_secret_key_passed_under_cli_secret_file_option")
     end
+  end
+
+  it 'should pass exit code from failed winrm call' do
+    allow(session).to receive(:exit_code).and_return(500)
+    allow(bootstrap).to receive(:wait_for_remote_response)
+    allow(bootstrap).to receive(:create_bootstrap_bat_command)
+    allow(session).to receive(:relay_command)
+    allow(bootstrap.ui).to receive(:info)
+    expect { bootstrap.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(500) }
   end
 
   it 'should retry if a 401 is received from WinRM' do

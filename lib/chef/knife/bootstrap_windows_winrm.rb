@@ -47,17 +47,10 @@ class Chef
           end
         end
 
-        validate_winrm_options!
-        resolve_session_options
-        @session_opts[:host] = server_name
-        @session = Chef::Knife::WinrmSession.new(@session_opts)
+        config[:manual] = true
+        configure_session
 
         bootstrap
-      end
-
-      def run_command(command = '')
-        @session.relay_command(command)
-        return @session.exit_code
       end
 
       protected
