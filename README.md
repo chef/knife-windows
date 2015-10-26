@@ -53,6 +53,46 @@ without SSL there are limited options for ensuring the privacy of the
 plaintext transport. See the section on [Platform authentication
 support](#platform-winrm-authentication-support).
 
+If your cloud provides you with an rdp ssl fingerprint, you can
+boostrap with the following to copy the rdp certificate and reuse it
+for winrm ssl.
+
+    knife winrm -t ssl "role:web" "net stats srv" --ssl_peer_fingerprint "AVALIABLE_VIA_EC2_CONSOLE"
+
+```
+winrm quickconfig -q
+winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="300"}'
+winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+
+netsh advfirewall firewall add rule name="WinRM 5986" protocol=TCP dir=in localport=5986 action=allow
+
+$SourceStoreScope = 'LocalMachine'
+$SourceStorename = 'Remote Desktop'
+
+$SourceStore = New-Object  -TypeName System.Security.Cryptography.X509Certificates.X509Store  -ArgumentList $SourceStorename, $SourceStoreScope
+$SourceStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadOnly)
+
+$cert = $SourceStore.Certificates | Where-Object  -FilterScript {
+$_.subject -like '*'
+}
+
+$DestStoreScope = 'LocalMachine'
+$DestStoreName = 'My'
+
+$DestStore = New-Object  -TypeName System.Security.Cryptography.X509Certificates.X509Store  -ArgumentList $DestStoreName, $DestStoreScope
+$DestStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+$DestStore.Add($cert)
+
+$SourceStore.Close()
+$DestStore.Close()
+
+winrm create winrm/config/listener?Address=*+Transport=HTTPS  `@`{Hostname=`"($certId)`"`;CertificateThumbprint=`"($cert.Thumbprint)`"`}
+
+net stop winrm
+sc config winrm start=auto
+net start winrm
+```
+
 SSL will become the default transport in future revisions of
 `knife-windows`.
 
