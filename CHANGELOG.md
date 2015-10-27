@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.1.1
+* [knife-windows #307](https://github.com/chef/knife-windows/pull/307) Ensure prompted password is passed to winrm session
+* [knife-windows #311](https://github.com/chef/knife-windows/issues/311) WinRM bootstrap silently fails
+
 ## Release 1.1.0
 * [knife-windows #302](https://github.com/chef/knife-windows/pull/302) Address regression caused by chef client 12.5 environment argument
 * [knife-windows #295](https://github.com/chef/knife-windows/issues/295) Bootstrap missing policy_group, policy_name feature from Chef Client 12.5
