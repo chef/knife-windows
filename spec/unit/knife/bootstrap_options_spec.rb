@@ -90,6 +90,7 @@ expected: #{expected}
       :bootstrap_curl_options,
       :bootstrap_wget_options,
       :forward_agent,
+      :preserve_home,
       :ssh_gateway,
       :use_sudo,
       :use_sudo_password,
@@ -129,6 +130,7 @@ expected: #{expected}
     let(:ref_ignore) { [
       :bootstrap_curl_options,
       :bootstrap_wget_options,
+      :preserve_home,
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap

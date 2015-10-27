@@ -115,7 +115,13 @@ class Chef
             :long => "--json-attributes",
             :description => "A JSON string to be added to the first run of chef-client",
             :proc => lambda { |o| JSON.parse(o) },
-            :default => {}
+            :default => nil
+
+          option :first_boot_attributes_from_file,
+            :long => "--json-attribute-file FILE",
+            :description => "A JSON file to be used to the first run of chef-client",
+            :proc => lambda { |o| Chef::JSONCompat.parse(File.read(o)) },
+            :default => nil
 
           # Mismatch between option 'encrypted_data_bag_secret' and it's long value '--secret' is by design for compatibility
           option :encrypted_data_bag_secret,
