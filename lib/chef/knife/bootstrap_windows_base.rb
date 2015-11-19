@@ -301,9 +301,8 @@ class Chef
           end
 
           client_builder.run
-          bootstrap_context.client_pem = client_builder.client_path
-
           chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
+          bootstrap_context.client_pem = client_builder.client_path
 
         else
           ui.info("Doing old-style registration with the validation key at #{Chef::Config[:validation_key]}...")
