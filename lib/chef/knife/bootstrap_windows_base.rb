@@ -29,7 +29,7 @@ class Chef
     module BootstrapWindowsBase
 
       include Chef::Knife::KnifeWindowsBase
-      
+
       # :nodoc:
       # Would prefer to do this in a rational way, but can't be done b/c of
       # Mixlib::CLI's design :(
@@ -109,7 +109,7 @@ class Chef
               name, path = h.split("=")
               Chef::Config[:knife][:hints][name] = path ? Chef::JSONCompat.parse(::File.read(path)) : Hash.new
             }
-        
+
           option :first_boot_attributes,
             :short => "-j JSON_ATTRIBS",
             :long => "--json-attributes",
@@ -300,10 +300,11 @@ class Chef
             exit 1
           end
 
-          chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
-
           client_builder.run
           bootstrap_context.client_pem = client_builder.client_path
+
+          chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
+
         else
           ui.info("Doing old-style registration with the validation key at #{Chef::Config[:validation_key]}...")
           ui.info("Delete your validation key in order to use your user credentials instead")
