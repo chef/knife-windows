@@ -67,13 +67,13 @@ class Chef
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
 
           option :identity_file,
-                 :long => "--identity-file IDENTITY_FILE",
-                 :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead."
+            :long => "--identity-file IDENTITY_FILE",
+            :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead."
 
           option :ssh_identity_file,
-                 :short => "-i IDENTITY_FILE",
-                 :long => "--ssh-identity-file IDENTITY_FILE",
-                 :description => "The SSH identity file used for authentication"
+            :short => "-i IDENTITY_FILE",
+            :long => "--ssh-identity-file IDENTITY_FILE",
+            :description => "The SSH identity file used for authentication"
 
           option :kerberos_keytab_file,
             :short => "-T KEYTAB_FILE",
