@@ -103,7 +103,7 @@ class Chef
         ssh.config[:ssh_port] = locate_config_value(:ssh_port)
         ssh.config[:ssh_gateway] =  locate_config_value(:ssh_gateway)
         ssh.config[:identity_file] = config[:identity_file]
-        ssh.config[:ssh_identity_file] = config[:ssh_identity_file]
+        ssh.config[:ssh_identity_file] = config[:ssh_identity_file] || config[:identity_file]
         ssh.config[:forward_agent] = config[:forward_agent]
         ssh.config[:manual] = true
         ssh.config[:host_key_verify] = config[:host_key_verify]
