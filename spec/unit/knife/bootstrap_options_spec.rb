@@ -95,6 +95,8 @@ expected: #{expected}
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
+      :identity_file,
+      :ssh_identity_file,
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
