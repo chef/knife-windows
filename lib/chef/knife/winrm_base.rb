@@ -66,11 +66,6 @@ class Chef
             :default => '5985',
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_port] = key }
 
-          option :identity_file,
-            :short => "-i IDENTITY_FILE",
-            :long => "--identity-file IDENTITY_FILE",
-            :description => "The SSH identity file used for authentication"
-
           option :kerberos_keytab_file,
             :short => "-T KEYTAB_FILE",
             :long => "--keytab-file KEYTAB_FILE",

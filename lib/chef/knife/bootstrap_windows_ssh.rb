@@ -66,8 +66,12 @@ class Chef
         :boolean => true
 
       option :identity_file,
-        :short => "-i IDENTITY_FILE",
         :long => "--identity-file IDENTITY_FILE",
+        :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead."
+
+      option :ssh_identity_file,
+        :short => "-i IDENTITY_FILE",
+        :long => "--ssh-identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
 
       # DEPR: Remove this option for the next release.
@@ -99,6 +103,7 @@ class Chef
         ssh.config[:ssh_port] = locate_config_value(:ssh_port)
         ssh.config[:ssh_gateway] =  locate_config_value(:ssh_gateway)
         ssh.config[:identity_file] = config[:identity_file]
+        ssh.config[:ssh_identity_file] = config[:ssh_identity_file] || config[:identity_file]
         ssh.config[:forward_agent] = config[:forward_agent]
         ssh.config[:manual] = true
         ssh.config[:host_key_verify] = config[:host_key_verify]
