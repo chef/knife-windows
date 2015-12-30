@@ -1,5 +1,8 @@
 # knife-windows Change Log
 
+## Release 1.1.3
+* [knife-windows #329](https://github.com/chef/knife-windows/pull/329) Pin to a minimum winrm-s of 0.3.2 addressing encoding issues in 0.3.1
+
 ## Release 1.1.2
 * [knife-windows #317](https://github.com/chef/knife-windows/pull/317) Update Vault after client is created
 * [knife-windows #325](https://github.com/chef/knife-windows/pull/325) Fix proxy configuration to work with chef client 12.6.0
