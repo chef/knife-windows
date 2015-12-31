@@ -256,4 +256,40 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       end
     end
   end
+
+  context "when doing chef vault", :chef_gte_12_only do
+    let(:vault_handler) { double('vault_handler', :doing_chef_vault? => true) }
+    let(:node_name) { 'foo.example.com' }
+    before do
+      allow(bootstrap).to receive(:wait_for_remote_response)
+      allow(bootstrap).to receive(:create_bootstrap_bat_command)
+      allow(bootstrap).to receive(:run_command).and_return(0)
+      bootstrap.config[:chef_node_name] = node_name
+      bootstrap.chef_vault_handler = vault_handler
+    end
+
+    context "builder does not respond to client" do
+      before do
+        bootstrap.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
+      end
+
+      it "passes a node search query to the handler" do
+        expect(vault_handler).to receive(:run).with(node_name: node_name)
+        bootstrap.bootstrap
+      end
+    end
+
+    context "builder responds to client" do
+      let(:client) { Chef::ApiClient.new }
+
+      before do
+        bootstrap.client_builder = double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil, :client => client)
+      end
+
+      it "passes a node search query to the handler" do
+        expect(vault_handler).to receive(:run).with(client)
+        bootstrap.bootstrap
+      end
+    end
+  end
 end
