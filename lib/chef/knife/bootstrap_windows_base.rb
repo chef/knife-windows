@@ -289,11 +289,13 @@ class Chef
 
         STDOUT.sync = STDERR.sync = true
 
-        if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
-          if Chef::VERSION.split('.').first.to_i == 11
-            ui.error("Unable to find validation key. Please verify your configuration file for validation_key config value.")
-            exit 1
-          end
+        if Chef::VERSION.split('.').first.to_i == 11 && Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key]))
+          ui.error("Unable to find validation key. Please verify your configuration file for validation_key config value.")
+          exit 1
+        end
+
+        if (defined?(chef_vault_handler) && chef_vault_handler.doing_chef_vault?) || 
+            (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
 
           unless locate_config_value(:chef_node_name)
             ui.error("You must pass a node name with -N when bootstrapping with user credentials")
@@ -301,7 +303,13 @@ class Chef
           end
 
           client_builder.run
-          chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
+
+          if client_builder.respond_to?(:client)
+            chef_vault_handler.run(client_builder.client)
+          else
+            chef_vault_handler.run(node_name: config[:chef_node_name])
+          end
+
           bootstrap_context.client_pem = client_builder.client_path
 
         else
