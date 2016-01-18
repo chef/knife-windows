@@ -1,5 +1,20 @@
 # knife-windows Change Log
 
+## Release 1.1.4
+* Bumps winrm-s and winrm dependencies to address a winrm-s incompatibility bug with winrm 1.5
+
+## Release 1.1.3
+* [knife-windows #329](https://github.com/chef/knife-windows/pull/329) Pin to a minimum winrm-s of 0.3.2 addressing encoding issues in 0.3.1
+
+## Release 1.1.2
+* [knife-windows #317](https://github.com/chef/knife-windows/pull/317) Update Vault after client is created
+* [knife-windows #325](https://github.com/chef/knife-windows/pull/325) Fix proxy configuration to work with chef client 12.6.0
+* [knife-windows #326](https://github.com/chef/knife-windows/pull/326) Support new `ssh_identity_file` bootstrap argument
+
+## Release 1.1.1
+* [knife-windows #307](https://github.com/chef/knife-windows/pull/307) Ensure prompted password is passed to winrm session
+* [knife-windows #311](https://github.com/chef/knife-windows/issues/311) WinRM bootstrap silently fails
+
 ## Release 1.1.0
 * [knife-windows #302](https://github.com/chef/knife-windows/pull/302) Address regression caused by chef client 12.5 environment argument
 * [knife-windows #295](https://github.com/chef/knife-windows/issues/295) Bootstrap missing policy_group, policy_name feature from Chef Client 12.5

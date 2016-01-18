@@ -25,7 +25,8 @@ class Chef
       attr_reader :host, :endpoint, :port, :output, :error, :exit_code
 
       def initialize(options)
-        Chef::Application.new.configure_proxy_environment_variables
+        configure_proxy
+        
         @host = options[:host]
         @port = options[:port]
         url = "#{options[:host]}:#{options[:port]}/wsman"
@@ -57,6 +58,8 @@ class Chef
         Chef::Log.debug("#{@host}[#{remote_id}] => :shell_close")
       end
 
+      private
+
       def get_output(remote_id, command_id)
         @winrm_session.get_command_output(remote_id, command_id) do |out,error|
           print_data(@host, out) if out
@@ -70,6 +73,14 @@ class Chef
         elsif !data.nil?
           print Chef::Knife::Winrm.ui.color(host, color)
           puts " #{data}"
+        end
+      end
+
+      def configure_proxy
+        if Chef::Config.respond_to?(:export_proxies)
+          Chef::Config.export_proxies
+        else
+          Chef::Application.new.configure_proxy_environment_variables
         end
       end
 

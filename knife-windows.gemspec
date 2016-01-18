@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.required_ruby_version	= ">= 1.9.1"
-  s.add_dependency "winrm", "~> 1.3"
-  s.add_dependency "winrm-s", "~> 0.3.0"
+  s.add_dependency "winrm", "~> 1.5"
+  s.add_dependency "winrm-s", "~> 0.3.4"
   s.add_dependency "nokogiri"
 
   s.add_development_dependency 'pry'
@@ -25,4 +25,3 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 end
-

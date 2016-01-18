@@ -18,7 +18,7 @@
 
 require 'spec_helper'
 
-describe Chef::Knife::Bootstrap, :chef_gte_12_5_only do
+describe Chef::Knife::Bootstrap, :chef_gte_12_6_only do
   before(:all) do
     Chef::Config.reset
   end
@@ -90,10 +90,13 @@ expected: #{expected}
       :bootstrap_curl_options,
       :bootstrap_wget_options,
       :forward_agent,
+      :preserve_home,
       :ssh_gateway,
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
+      :identity_file,
+      :ssh_identity_file,
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -129,6 +132,7 @@ expected: #{expected}
     let(:ref_ignore) { [
       :bootstrap_curl_options,
       :bootstrap_wget_options,
+      :preserve_home,
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap

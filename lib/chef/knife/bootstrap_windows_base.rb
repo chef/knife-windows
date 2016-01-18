@@ -29,7 +29,7 @@ class Chef
     module BootstrapWindowsBase
 
       include Chef::Knife::KnifeWindowsBase
-      
+
       # :nodoc:
       # Would prefer to do this in a rational way, but can't be done b/c of
       # Mixlib::CLI's design :(
@@ -109,13 +109,19 @@ class Chef
               name, path = h.split("=")
               Chef::Config[:knife][:hints][name] = path ? Chef::JSONCompat.parse(::File.read(path)) : Hash.new
             }
-        
+
           option :first_boot_attributes,
             :short => "-j JSON_ATTRIBS",
             :long => "--json-attributes",
             :description => "A JSON string to be added to the first run of chef-client",
             :proc => lambda { |o| JSON.parse(o) },
-            :default => {}
+            :default => nil
+
+          option :first_boot_attributes_from_file,
+            :long => "--json-attribute-file FILE",
+            :description => "A JSON file to be used to the first run of chef-client",
+            :proc => lambda { |o| Chef::JSONCompat.parse(File.read(o)) },
+            :default => nil
 
           # Mismatch between option 'encrypted_data_bag_secret' and it's long value '--secret' is by design for compatibility
           option :encrypted_data_bag_secret,
@@ -283,21 +289,29 @@ class Chef
 
         STDOUT.sync = STDERR.sync = true
 
-        if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
-          if Chef::VERSION.split('.').first.to_i == 11
-            ui.error("Unable to find validation key. Please verify your configuration file for validation_key config value.")
-            exit 1
-          end
+        if Chef::VERSION.split('.').first.to_i == 11 && Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key]))
+          ui.error("Unable to find validation key. Please verify your configuration file for validation_key config value.")
+          exit 1
+        end
+
+        if (defined?(chef_vault_handler) && chef_vault_handler.doing_chef_vault?) || 
+            (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
 
           unless locate_config_value(:chef_node_name)
             ui.error("You must pass a node name with -N when bootstrapping with user credentials")
             exit 1
           end
 
-          chef_vault_handler.run(node_name: config[:chef_node_name]) if chef_vault_handler.doing_chef_vault?
-
           client_builder.run
+
+          if client_builder.respond_to?(:client)
+            chef_vault_handler.run(client_builder.client)
+          else
+            chef_vault_handler.run(node_name: config[:chef_node_name])
+          end
+
           bootstrap_context.client_pem = client_builder.client_path
+
         else
           ui.info("Doing old-style registration with the validation key at #{Chef::Config[:validation_key]}...")
           ui.info("Delete your validation key in order to use your user credentials instead")
