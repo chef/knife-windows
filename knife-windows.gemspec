@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version	= ">= 1.9.1"
   s.add_dependency "winrm", "~> 1.5"
-  s.add_dependency "winrm-s", "~> 0.3.4"
   s.add_dependency "nokogiri"
 
   s.add_development_dependency 'pry'
