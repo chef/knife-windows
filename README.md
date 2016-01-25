@@ -282,16 +282,12 @@ remote system's certificate can subject knife commands to spoofing attacks.
 ## WinRM authentication
 
 The default authentication protocol for `knife-windows` subcommands that use
-WinRM is the Negotiate protocol. The following commands when executed on a
-Windows system show authentication for domain and local accounts respectively:
+WinRM is the Negotiate protocol. The following commands show authentication for domain and local accounts respectively:
 
     knife bootstrap windows winrm web1.cloudapp.net -r "server::web" -x "proddomain\webuser" -P "super_secret_password"
     knife bootstrap windows winrm db1.cloudapp.net -r "server::db" -x "localadmin" -P "super_secret_password"
 
-The commands above are using the default plaintext transport for WinRM --
-the default of Negotiate authentication may not be fully supported on
-non-Windows systems using the plaintext transport. To work around this, the
-remote system can be configured with an SSL WinRM listener instead of a
+The remote system may also be configured with an SSL WinRM listener instead of a
 plaintext listener. Then the above commands should be modified to use the SSL
 transport as follows using the `-t` (or `--winrm-transport`) option with the
 `ssl` argument:
@@ -299,20 +295,16 @@ transport as follows using the `-t` (or `--winrm-transport`) option with the
     knife bootstrap windows winrm -t ssl web1.cloudapp.net -r "server::web" -x "proddomain\webuser" -P "super_secret_password" -f ~/mycert.crt
     knife bootstrap windows winrm -t ssl db1.cloudapp.net -r "server::db" -x "localadmin" -P "super_secret_password" ~/mycert.crt
 
-The commands using SSL above will work from any operating system, not
-just Windows.
-
 ### Troubleshooting authentication
 
-For development and testing purposes, unencrypted traffic with Basic
-authentication can make it easier to test connectivity. The configuration for
+Unencrypted traffic with Basic authentication should only be used for low level wire protocol debugging. The configuration for plain text connectivity to
 the remote system may be accomplished with the following PowerShell commands:
 
 ```powershell
 set-item wsman:\localhost\service\allowunencrypted $true
 set-item wsman:\localhost\service\auth\basic $true
 ```
-To test connectivity via `knife-windows` from another system, the default
+To use basic authentication connectivity via `knife-windows`, the default
 authentication protocol of Negotiate must be overridden using the
 `--winrm-authentication-protocol` option with the desired protocol, in this
 case Basic:
@@ -325,23 +317,12 @@ authentication; an account local to the remote system must be used.
 ### Platform WinRM authentication support
 
 `knife-windows` supports `Kerberos`, `Negotiate`, and `Basic` authentication
-for WinRM communication. However, some of these protocols
-may not work with `knife-windows` on non-Windows systems because
-`knife-windows` relies on operating system libraries such as GSSAPI to implement
-Windows authentication, and some versions of these libraries do not
-fully implement the protocols.
+for WinRM communication.
 
 The following table shows the authentication protocols that can be used with
 `knife-windows` depending on whether the knife workstation is a Windows
 system, the transport, and whether or not the target user is a domain user or
 local to the target Windows system.
-
-| Workstation OS / Account Scope | SSL                          | Plaintext                  |
-|--------------------------------|------------------------------|----------------------------|
-| Windows / Local                | Kerberos, Negotiate* , Basic | Kerberos, Negotiate, Basic |
-| Windows / Domain               | Kerberos, Negotiate          | Kerberos, Negotiate        |
-| Non-Windows / Local            | Kerberos, [Negotiate*](https://github.com/chef/knife-windows/issues/176) Basic | Kerberos, Basic |
-| Non-Windows / Domain           | Kerberos, Negotiate          | Kerberos                   |
 
 > \* There is a known defect in the `knife winrm` and `knife bootstrap windows
 > winrm` subcommands invoked on any OS  platform when authenticating with the Negotiate protocol over
@@ -354,9 +335,7 @@ local to the target Windows system.
 > This is generally not an issue for bootstrap scenarios, where the
 > system has yet to be joined to any domain, but can be a problem for remote
 > management cases after the system is domain joined. Workarounds include using
-> a domain account instead, or enabling Basic authentication on the remote
-> system (unencrypted communication **does not** need to be enabled to make
-> Basic authentication function over SSL).
+> a domain account instead or bypassing SSL and using Negotiate authentication.
 
 ## General troubleshooting
 

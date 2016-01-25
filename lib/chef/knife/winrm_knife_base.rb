@@ -51,17 +51,6 @@ class Chef
               exit 1
             end
 
-            if negotiate_auth? && !Chef::Platform.windows? && !(locate_config_value(:winrm_transport) == 'ssl')
-              ui.warn <<-eos.gsub /^\s+/, ""
-                You are using '--winrm-authentication-protocol negotiate' with 
-                '--winrm-transport plaintext' on a non-Windows system which results in
-                unencrypted traffic. To avoid this warning and secure communication,
-                use '--winrm-transport ssl' instead of the plaintext transport,
-                or execute this command from a Windows system which enables encrypted
-                communication over plaintext with the negotiate authentication protocol.
-              eos
-            end
-
             warn_no_ssl_peer_verification if resolve_no_ssl_peer_verification
           end
 
@@ -259,8 +248,8 @@ class Chef
             transport = locate_config_value(:winrm_transport).to_sym
             if config.any? {|k,v| k.to_s =~ /kerberos/ && !v.nil? }
               transport = :kerberos
-            elsif Chef::Platform.windows? && transport != :ssl && negotiate_auth?
-              transport = :sspinegotiate
+            elsif transport != :ssl && negotiate_auth?
+              transport = :negotiate
             end
 
             transport
@@ -271,7 +260,7 @@ class Chef
           end
 
           def resolve_winrm_disable_sspi
-            !Chef::Platform.windows? || resolve_winrm_transport == :ssl || !negotiate_auth?
+            resolve_winrm_transport != :negotiate
           end
 
           def get_password

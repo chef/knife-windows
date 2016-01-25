@@ -38,15 +38,6 @@ describe Chef::Knife::WinrmSession do
   subject { Chef::Knife::WinrmSession.new(options) }
 
   describe "#initialize" do
-    context "when using sspinegotiate transport" do
-      let(:options) { { transport: :sspinegotiate } }
-
-      it "uses winrm-s" do
-        expect(Chef::Knife::WinrmSession).to receive(:load_windows_specific_gems)
-        subject
-      end
-    end
-
     context "when a proxy is configured" do
       let(:proxy_uri) { 'blah.com' }
 

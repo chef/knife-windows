@@ -233,7 +233,7 @@ describe Chef::Knife::Winrm do
 
         it "defaults to negotiate when on a Windows host" do
           expect(Chef::Knife::WinrmSession).to receive(:new) do |opts|
-            expect(opts[:transport]).to eq(:sspinegotiate)
+            expect(opts[:transport]).to eq(:negotiate)
           end.and_return(winrm_session)
           subject.configure_session
         end
@@ -471,23 +471,22 @@ describe Chef::Knife::Winrm do
         allow(@winrm).to receive(:relay_winrm_command).and_return(0)
       end
 
-      it "sets sspinegotiate transport on windows for 'negotiate' authentication" do
+      it "sets negotiate transport on windows for 'negotiate' authentication" do
         @winrm.config[:winrm_authentication_protocol] = "negotiate"
         allow(Chef::Platform).to receive(:windows?).and_return(true)
         allow(Chef::Knife::WinrmSession).to receive(:new) do |opts|
           expect(opts[:disable_sspi]).to be(false)
-          expect(opts[:transport]).to be(:sspinegotiate)
+          expect(opts[:transport]).to be(:negotiate)
         end.and_return(session)
         @winrm.run
       end
 
-      it "does not have winrm opts transport set to sspinegotiate for unix" do
+      it "sets negotiate transport on unix for 'negotiate' authentication" do
         @winrm.config[:winrm_authentication_protocol] = "negotiate"
         allow(Chef::Platform).to receive(:windows?).and_return(false)
-        allow(@winrm).to receive(:exit)
         allow(Chef::Knife::WinrmSession).to receive(:new) do |opts|
-          expect(opts[:disable_sspi]).to be(true)
-          expect(opts[:transport]).to be(:plaintext)
+          expect(opts[:disable_sspi]).to be(false)
+          expect(opts[:transport]).to be(:negotiate)
         end.and_return(session)
         @winrm.run
       end
@@ -506,45 +505,11 @@ describe Chef::Knife::Winrm do
         @winrm.run
       end
 
-      it "applies winrm monkey patch on windows if 'negotiate' authentication and 'plaintext' transport is specified", :windows_only => true do
-        @winrm.config[:winrm_authentication_protocol] = "negotiate"
-        allow(Chef::Platform).to receive(:windows?).and_return(true)
-        allow(@winrm.ui).to receive(:warn)
-        @winrm.run
-      end
-
       it "raises an error if value is other than [basic, negotiate, kerberos]" do
         @winrm.config[:winrm_authentication_protocol] = "invalid"
         allow(Chef::Platform).to receive(:windows?).and_return(true)
         expect(@winrm.ui).to receive(:error)
         expect { @winrm.run }.to raise_error(SystemExit)
-      end
-
-      it "skips the winrm monkey patch for 'basic' authentication" do
-        @winrm.config[:winrm_authentication_protocol] = "basic"
-        allow(Chef::Platform).to receive(:windows?).and_return(true)
-        @winrm.run
-      end
-
-      it "skips the winrm monkey patch for 'kerberos' authentication" do
-        @winrm.config[:winrm_authentication_protocol] = "kerberos"
-        allow(Chef::Platform).to receive(:windows?).and_return(true)
-        @winrm.run
-      end
-
-      it "skips the winrm monkey patch for 'ssl' transport and 'negotiate' authentication" do
-        @winrm.config[:winrm_authentication_protocol] = "negotiate"
-        @winrm.config[:winrm_transport] = "ssl"
-        allow(Chef::Platform).to receive(:windows?).and_return(true)
-        @winrm.run
-      end
-
-      it "prints a warning on linux for unencrypted negotiate authentication" do
-        @winrm.config[:winrm_authentication_protocol] = "negotiate"
-        @winrm.config[:winrm_transport] = "plaintext"
-        allow(Chef::Platform).to receive(:windows?).and_return(false)
-        expect(@winrm.ui).to receive(:warn).once
-        expect { @winrm.run }.to_not raise_error(SystemExit)
       end
     end
   end

@@ -41,7 +41,6 @@ class Chef
         Chef::Log.debug("Endpoint: #{endpoint}")
         Chef::Log.debug("Transport: #{options[:transport]}")
         
-        WinrmSession.load_windows_specific_gems if options[:transport] == :sspinegotiate
         @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
         @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
       end
@@ -82,12 +81,6 @@ class Chef
         else
           Chef::Application.new.configure_proxy_environment_variables
         end
-      end
-
-      def self.load_windows_specific_gems
-        #checking for windows in case testing on linux
-        require 'winrm-s'
-        Chef::Log.debug("Applied 'winrm-s' monkey patch and trying WinRM communication with 'sspinegotiate'")
       end
     end
   end
