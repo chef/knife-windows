@@ -8,16 +8,7 @@ environment:
   bundle_gemfile: ci.gemfile
 
   matrix:
-    - ruby_version: "193"
-      chef_version: "< 12"
-
-    - ruby_version: "200"
-      chef_version: "< 12"
-
-    - ruby_version: "200"
-      chef_version: "~> 12.0"
-
-    - ruby_version: "200"
+    - ruby_version: "21"
       chef_version: "master"
 
 clone_folder: c:\projects\knife-windows
@@ -25,6 +16,9 @@ clone_depth: 1
 branches:
   only:
     - master
+
+init:
+- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - winrm quickconfig -q
@@ -40,3 +34,6 @@ build_script:
 
 test_script:
   - bundle exec rake
+
+on_finish:
+- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
