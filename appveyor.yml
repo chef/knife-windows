@@ -8,7 +8,7 @@ environment:
   bundle_gemfile: ci.gemfile
 
   matrix:
-    - ruby_version: "210"
+    - ruby_version: "21"
       chef_version: "master"
 
 clone_folder: c:\projects\knife-windows
