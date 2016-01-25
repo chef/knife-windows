@@ -5,16 +5,10 @@ Example Doc Change:
 ### Headline for the required change
 Description of the required change.
 -->
-# knife-windows 1.1.0 doc changes
+# knife-windows 1.2.0 doc changes
 
-### Support for `http_proxy` setting for `winrm` and `bootstrap windows winrm` subcommands
+### Support for NTLM/Negotiate on both windows and linux
 
-Both the `knife winrm` and `knife bootstrap windows winrm` subcommands
-will honor the `http_proxy` configuration in the `knife.rb`
-configuration file.
+This release makes no changes to the command line interface, but users should now be aware that Negotiate authentication and encryption over plaintext HTTP now works on linux in addition to windows.
 
-When this setting is configured, the `WinRM` traffic between the
-workstation executing `knife` and the remote node will flow through
-the proxy server configured with `http_proxy`. See the specific
-documentation for `http_proxy` for additional details.
-
+Users who use knife-windows to bootstrap nodes over plaintext HTTP should also be aware that they no longer need, and in fact should not, configure base images enabling `basic_auth` or enabling `AllowUnencrypted` in their winrm configuration.
