@@ -200,6 +200,11 @@ class Chef
             :description => "Comma separated list of tags to apply to the node",
             :proc => lambda { |o| o.split(/[\s,]+/) },
             :default => []
+
+          option :fips,
+            :long => "--fips",
+            :description => "Set openssl to run in fips mode",
+            :boolean => true
         end
       end
 
