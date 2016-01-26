@@ -97,6 +97,7 @@ expected: #{expected}
       :encrypt, # irrelevant during bootstrap
       :identity_file,
       :ssh_identity_file,
+      :fips, #until chef 12.7 is released
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -112,6 +113,7 @@ expected: #{expected}
       :session_timeout,
       :winrm_authentication_protocol,
       :winrm_transport,
+      :fips, #until chef 12.7 is released
     ] }
 
     include_examples 'compare_options'
@@ -136,12 +138,14 @@ expected: #{expected}
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
+      :fips, #until chef 12.7 is released
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
       :auth_timeout,
       :install_as_service,
       :host_key_verification,  # Deprecated - remove this when the flag is removed.
+      :fips, #until chef 12.7 is released
     ] }
 
     include_examples 'compare_options'
