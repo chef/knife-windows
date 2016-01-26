@@ -136,6 +136,10 @@ CONFIG
             client_rb << %Q{trusted_certs_dir "c:/chef/trusted_certs"\n}
           end
 
+          if @config[:fips]
+            client_rb << %Q{fips true\n}
+          end
+
           escape_and_echo(client_rb)
         end
 
