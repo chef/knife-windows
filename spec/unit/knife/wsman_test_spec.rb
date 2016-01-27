@@ -111,19 +111,19 @@ describe Chef::Knife::WsmanTest do
       it 'returns an object with an error message' do
         error_message = 'A connection attempt failed because the connected party did not properly respond after a period of time.'
         allow(http_client_mock_verbose).to receive(:post).and_raise(Exception.new(error_message))
-        expect(subject).to receive(:output).with(duck_type(:error_message))
         expect(subject).to receive(:exit).with(1)
+        expect(subject).to receive(:output) do |output|
+          expect(output.error_message).to  match(/#{error_message}/)
+        end
         subject.run
       end
     end
 
     context 'with an invalid body' do
-      let(:http_client_mock) {HTTPClient.new}
-
       it 'includes invalid body in error message' do
         response_body = 'I am invalid'
         http_response_mock = HTTP::Message.new_response(response_body)
-        allow(http_client_mock).to receive(:post).and_return(http_response_mock)
+        allow(http_client_mock_verbose).to receive(:post).and_return(http_response_mock)
         expect(subject).to receive(:output) do |output|
           expect(output.error_message).to  match(/#{response_body}/)
         end

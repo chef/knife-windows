@@ -34,7 +34,10 @@ class Chef
       banner "knife wsman test QUERY (options)"
 
       def run
-        @config[:winrm_authentication_protocol] = 'basic'
+        # pass a dummy password to avoid prompt for password
+        # but it does nothing
+        @config[:winrm_password] = 'cute_little_kittens'
+
         configure_session
         verify_wsman_accessiblity_for_nodes
       end
@@ -62,7 +65,7 @@ class Chef
           end
 
           if response.nil? || output_object.response_status_code != 200
-            error_message = "No valid WSMan endoint listening at #{item.endpoint}."
+            error_message = "No valid WSMan endoint listening at #{item.endpoint}. Error returned from endpoint: #{error_message}"
           else
             doc = REXML::Document.new(response.body)
             output_object.protocol_version = search_xpath(doc, "//wsmid:ProtocolVersion")
