@@ -34,7 +34,10 @@ class Chef
       banner "knife wsman test QUERY (options)"
 
       def run
-        @config[:winrm_authentication_protocol] = 'basic'
+        # pass a dummy password to avoid prompt for password
+        # but it does nothing
+        @config[:winrm_password] = 'cute_little_kittens'
+
         configure_session
         verify_wsman_accessiblity_for_nodes
       end
@@ -53,6 +56,7 @@ class Chef
           error_message = nil
           begin
             client = HTTPClient.new
+            client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE if resolve_no_ssl_peer_verification
             response = client.post(item.endpoint, xml, header)
           rescue Exception => e
             error_message = e.message
@@ -62,16 +66,14 @@ class Chef
           end
 
           if response.nil? || output_object.response_status_code != 200
-            error_message = "No valid WSMan endoint listening at #{item.endpoint}."
+            error_message = "No valid WSMan endoint listening at #{item.endpoint}. Error returned from endpoint: #{error_message}"
           else
-            require 'nokogiri'
-            doc = Nokogiri::XML response.body
-            namespace = 'http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd'
-            output_object.protocol_version = doc.xpath('//wsmid:ProtocolVersion', 'wsmid' => namespace).text
-            output_object.product_version  = doc.xpath('//wsmid:ProductVersion',  'wsmid' => namespace).text
-            output_object.product_vendor  = doc.xpath('//wsmid:ProductVendor',   'wsmid' => namespace).text
+            doc = REXML::Document.new(response.body)
+            output_object.protocol_version = search_xpath(doc, "//wsmid:ProtocolVersion")
+            output_object.product_version  = search_xpath(doc, "//wsmid:ProductVersion")
+            output_object.product_vendor  = search_xpath(doc, "//wsmid:ProductVendor")
             if output_object.protocol_version.to_s.strip.length == 0
-              error_message = "Endpoint #{item.endpoint} on #{item.host} does not appear to be a WSMAN endpoint."
+              error_message = "Endpoint #{item.endpoint} on #{item.host} does not appear to be a WSMAN endpoint. Response body was #{response.body}"
             end
           end
 
@@ -89,6 +91,11 @@ class Chef
           ui.error "Failed to connect to #{error_count} nodes."
           exit 1
         end
+      end
+
+      def search_xpath(document, property_name)
+        result = REXML::XPath.match(document, property_name)
+        result[0].nil? ? '' : result[0].text
       end
     end
   end
