@@ -1,7 +1,10 @@
 # knife-windows Change Log
 
+## Release 1.2.1
+* [knife-windows #341](https://github.com/chef/knife-windows/pull/341) Removes nokogiri dependency and adds UX fixes for `knife wsman test` when probing a SSL endpoint configured with a self signed certificate
+
 ## Release 1.2.0
-* [knife-windows #334](https://github.com/chef/knife-windows/pull/334)Uses Negotiate authentication via winrm 1.6 on both windows and linux and drops winrm-s dependency
+* [knife-windows #334](https://github.com/chef/knife-windows/pull/334) Uses Negotiate authentication via winrm 1.6 on both windows and linux and drops winrm-s dependency
 
 ## Release 1.1.4
 * Bumps winrm-s and winrm dependencies to address a winrm-s incompatibility bug with winrm 1.5
