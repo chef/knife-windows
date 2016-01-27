@@ -24,6 +24,7 @@ describe Chef::Knife::WsmanTest do
   end
 
   before(:each) do
+    subject.config[:verbosity] = 0
     allow(subject.ui).to receive(:ask).and_return('prompted_password')
   end
 
@@ -33,7 +34,6 @@ describe Chef::Knife::WsmanTest do
     let(:http_client_mock) {HTTPClient.new}
 
     before(:each) do
-      subject.config[:verbosity] = 0
       allow(HTTPClient).to receive(:new).and_return(http_client_mock)
     end
 
@@ -87,7 +87,7 @@ describe Chef::Knife::WsmanTest do
 
       context 'with a non-200 code' do
         it 'warns for a failed connection and exits with a status of 1' do
-          http_response_mock = HTTP::Message.new_response('')
+          http_response_mock = HTTP::Message.new_response('<resp></resp>')
           http_response_mock.status = 404
           allow(http_client_mock).to receive(:post).and_return(http_response_mock)
           expect(subject.ui).to receive(:warn)
@@ -96,6 +96,24 @@ describe Chef::Knife::WsmanTest do
           subject.run
         end
       end
+    end
+  end
+
+  context 'when not validating ssl cert' do
+    let(:http_client_mock) { HTTPClient.new }
+
+    before(:each) do
+      allow(HTTPClient).to receive(:new).and_return(http_client_mock)
+      response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
+      allow(http_client_mock).to receive(:post).and_return(HTTP::Message.new_response(response_body))
+      expect(subject.ui).to receive(:msg)
+      subject.config[:winrm_ssl_verify_mode] = :verify_none
+      subject.config[:winrm_transport] = :ssl
+    end
+
+    it 'sets verify_mode to verify_none' do
+      subject.run
+      expect(http_client_mock.ssl_config.verify_mode).to eq(OpenSSL::SSL::VERIFY_NONE)
     end
   end
 
@@ -124,6 +142,7 @@ describe Chef::Knife::WsmanTest do
         response_body = 'I am invalid'
         http_response_mock = HTTP::Message.new_response(response_body)
         allow(http_client_mock_verbose).to receive(:post).and_return(http_response_mock)
+        expect(subject).to receive(:exit).with(1)
         expect(subject).to receive(:output) do |output|
           expect(output.error_message).to  match(/#{response_body}/)
         end

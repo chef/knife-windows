@@ -56,6 +56,7 @@ class Chef
           error_message = nil
           begin
             client = HTTPClient.new
+            client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE if resolve_no_ssl_peer_verification
             response = client.post(item.endpoint, xml, header)
           rescue Exception => e
             error_message = e.message
