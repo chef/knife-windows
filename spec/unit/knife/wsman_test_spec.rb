@@ -19,11 +19,14 @@
 require 'spec_helper'
 
 describe Chef::Knife::WsmanTest do
+  let(:http_client_mock) { HTTPClient.new }
+
   before(:all) do
     Chef::Config.reset
   end
 
   before(:each) do
+    allow(HTTPClient).to receive(:new).and_return(http_client_mock)
     subject.config[:verbosity] = 0
     allow(subject.ui).to receive(:ask).and_return('prompted_password')
   end
@@ -31,12 +34,6 @@ describe Chef::Knife::WsmanTest do
   subject { Chef::Knife::WsmanTest.new(['-m', 'localhost']) }
 
   context 'when testing the WSMAN endpoint' do
-    let(:http_client_mock) {HTTPClient.new}
-
-    before(:each) do
-      allow(HTTPClient).to receive(:new).and_return(http_client_mock)
-    end
-
     context 'and the service does not respond' do
       error_message = 'A connection attempt failed because the connected party did not properly respond after a period of time.'
 
@@ -100,10 +97,7 @@ describe Chef::Knife::WsmanTest do
   end
 
   context 'when not validating ssl cert' do
-    let(:http_client_mock) { HTTPClient.new }
-
     before(:each) do
-      allow(HTTPClient).to receive(:new).and_return(http_client_mock)
       response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
       allow(http_client_mock).to receive(:post).and_return(HTTP::Message.new_response(response_body))
       expect(subject.ui).to receive(:msg)
@@ -118,17 +112,14 @@ describe Chef::Knife::WsmanTest do
   end
 
   context 'when testing the WSMAN endpoint with verbose output' do
-    let(:http_client_mock_verbose) {HTTPClient.new}
-
     before(:each) do
-      allow(HTTPClient).to receive(:new).and_return(http_client_mock_verbose)
       subject.config[:verbosity] = 1
     end
 
     context 'and the service does not respond' do
       it 'returns an object with an error message' do
         error_message = 'A connection attempt failed because the connected party did not properly respond after a period of time.'
-        allow(http_client_mock_verbose).to receive(:post).and_raise(Exception.new(error_message))
+        allow(http_client_mock).to receive(:post).and_raise(Exception.new(error_message))
         expect(subject).to receive(:exit).with(1)
         expect(subject).to receive(:output) do |output|
           expect(output.error_message).to  match(/#{error_message}/)
@@ -141,7 +132,7 @@ describe Chef::Knife::WsmanTest do
       it 'includes invalid body in error message' do
         response_body = 'I am invalid'
         http_response_mock = HTTP::Message.new_response(response_body)
-        allow(http_client_mock_verbose).to receive(:post).and_return(http_response_mock)
+        allow(http_client_mock).to receive(:post).and_return(http_response_mock)
         expect(subject).to receive(:exit).with(1)
         expect(subject).to receive(:output) do |output|
           expect(output.error_message).to  match(/#{response_body}/)
@@ -154,7 +145,7 @@ describe Chef::Knife::WsmanTest do
       before(:each) do
         ws2008r2_response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
         http_response_mock = HTTP::Message.new_response(ws2008r2_response_body)
-        allow(http_client_mock_verbose).to receive(:post).and_return(http_response_mock)
+        allow(http_client_mock).to receive(:post).and_return(http_response_mock)
       end
 
       it 'identifies the stack of the product version as 2.0 ' do
@@ -183,7 +174,7 @@ describe Chef::Knife::WsmanTest do
       before(:each) do
         ws2012_response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 3.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
         http_response_mock = HTTP::Message.new_response(ws2012_response_body)
-        allow(http_client_mock_verbose).to receive(:post).and_return(http_response_mock)
+        allow(http_client_mock).to receive(:post).and_return(http_response_mock)
       end
 
       it 'identifies the stack of the product version as 3.0 ' do
