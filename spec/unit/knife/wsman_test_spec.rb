@@ -117,6 +117,20 @@ describe Chef::Knife::WsmanTest do
       end
     end
 
+    context 'with an invalid body' do
+      let(:http_client_mock) {HTTPClient.new}
+
+      it 'includes invalid body in error message' do
+        response_body = 'I am invalid'
+        http_response_mock = HTTP::Message.new_response(response_body)
+        allow(http_client_mock).to receive(:post).and_return(http_response_mock)
+        expect(subject).to receive(:output) do |output|
+          expect(output.error_message).to  match(/#{response_body}/)
+        end
+        subject.run
+      end
+    end
+
     context 'and the target node is Windows Server 2008 R2' do
       before(:each) do
         ws2008r2_response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'

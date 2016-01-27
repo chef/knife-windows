@@ -69,7 +69,7 @@ class Chef
             output_object.product_version  = search_xpath(doc, "//wsmid:ProductVersion")
             output_object.product_vendor  = search_xpath(doc, "//wsmid:ProductVendor")
             if output_object.protocol_version.to_s.strip.length == 0
-              error_message = "Endpoint #{item.endpoint} on #{item.host} does not appear to be a WSMAN endpoint."
+              error_message = "Endpoint #{item.endpoint} on #{item.host} does not appear to be a WSMAN endpoint. Response body was #{response.body}"
             end
           end
 
