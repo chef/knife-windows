@@ -41,7 +41,6 @@ describe Chef::Knife::WsmanTest do
       error_message = 'A connection attempt failed because the connected party did not properly respond after a period of time.'
 
       before(:each) do
-        allow(HTTPClient).to receive(:new).and_return(http_client_mock)
         allow(http_client_mock).to receive(:post).and_raise(Exception.new(error_message))
       end
 

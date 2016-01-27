@@ -64,12 +64,10 @@ class Chef
           if response.nil? || output_object.response_status_code != 200
             error_message = "No valid WSMan endoint listening at #{item.endpoint}."
           else
-            require 'nokogiri'
-            doc = Nokogiri::XML response.body
-            namespace = 'http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd'
-            output_object.protocol_version = doc.xpath('//wsmid:ProtocolVersion', 'wsmid' => namespace).text
-            output_object.product_version  = doc.xpath('//wsmid:ProductVersion',  'wsmid' => namespace).text
-            output_object.product_vendor  = doc.xpath('//wsmid:ProductVendor',   'wsmid' => namespace).text
+            doc = REXML::Document.new(response.body)
+            output_object.protocol_version = search_xpath(doc, "//wsmid:ProtocolVersion")
+            output_object.product_version  = search_xpath(doc, "//wsmid:ProductVersion")
+            output_object.product_vendor  = search_xpath(doc, "//wsmid:ProductVendor")
             if output_object.protocol_version.to_s.strip.length == 0
               error_message = "Endpoint #{item.endpoint} on #{item.host} does not appear to be a WSMAN endpoint."
             end
@@ -89,6 +87,11 @@ class Chef
           ui.error "Failed to connect to #{error_count} nodes."
           exit 1
         end
+      end
+
+      def search_xpath(document, property_name)
+        result = REXML::XPath.match(document, property_name)
+        result[0].nil? ? '' : result[0].text
       end
     end
   end
