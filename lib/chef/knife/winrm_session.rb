@@ -34,7 +34,7 @@ class Chef
         @endpoint = "#{scheme}://#{url}"
         
         opts = Hash.new
-        opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi], :no_ssl_peer_verification => options[:no_ssl_peer_verification]}
+        opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi], :no_ssl_peer_verification => options[:no_ssl_peer_verification], :ssl_peer_fingerprint => options[:ssl_peer_fingerprint]}
         options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
 
         Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
