@@ -54,10 +54,13 @@ class Chef
           }
           output_object = Chef::Knife::WsmanEndpoint.new(item.host, item.port, item.endpoint)
           error_message = nil
+          ssl_error = nil
           begin
             client = HTTPClient.new
             client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE if resolve_no_ssl_peer_verification
             response = client.post(item.endpoint, xml, header)
+          rescue OpenSSL::SSL::SSLError => ssl_error
+            error_message = ssl_error.message
           rescue Exception => e
             error_message = e.message
           else
@@ -79,6 +82,10 @@ class Chef
 
           unless error_message.nil?
             ui.warn "Failed to connect to #{item.host} at #{item.endpoint}."
+            if ssl_error
+              ui.warn "Failure due to an issue with SSL likely cause would be unsuccesful certificate verification."
+              ui.warn "Either ensure your certificate is valid or use '--winrm-ssl-verify-mode verify_none' to ignore verification failures."
+            end
             output_object.error_message = error_message
             error_count += 1
           end
