@@ -53,46 +53,6 @@ without SSL there are limited options for ensuring the privacy of the
 plaintext transport. See the section on [Platform authentication
 support](#platform-winrm-authentication-support).
 
-If your cloud provides you with an rdp ssl fingerprint, you can
-boostrap with the following to copy the rdp certificate and reuse it
-for winrm ssl.
-
-    knife winrm -t ssl "role:web" "net stats srv" --ssl_peer_fingerprint "AVALIABLE_VIA_EC2_CONSOLE"
-
-```
-winrm quickconfig -q
-winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="300"}'
-winrm set winrm/config '@{MaxTimeoutms="1800000"}'
-
-netsh advfirewall firewall add rule name="WinRM 5986" protocol=TCP dir=in localport=5986 action=allow
-
-$SourceStoreScope = 'LocalMachine'
-$SourceStorename = 'Remote Desktop'
-
-$SourceStore = New-Object  -TypeName System.Security.Cryptography.X509Certificates.X509Store  -ArgumentList $SourceStorename, $SourceStoreScope
-$SourceStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadOnly)
-
-$cert = $SourceStore.Certificates | Where-Object  -FilterScript {
-$_.subject -like '*'
-}
-
-$DestStoreScope = 'LocalMachine'
-$DestStoreName = 'My'
-
-$DestStore = New-Object  -TypeName System.Security.Cryptography.X509Certificates.X509Store  -ArgumentList $DestStoreName, $DestStoreScope
-$DestStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-$DestStore.Add($cert)
-
-$SourceStore.Close()
-$DestStore.Close()
-
-winrm create winrm/config/listener?Address=*+Transport=HTTPS  `@`{Hostname=`"($certId)`"`;CertificateThumbprint=`"($cert.Thumbprint)`"`}
-
-net stop winrm
-sc config winrm start=auto
-net start winrm
-```
-
 SSL will become the default transport in future revisions of
 `knife-windows`.
 
@@ -318,6 +278,23 @@ example:
 
 This option should be used carefully since disabling the verification of the
 remote system's certificate can subject knife commands to spoofing attacks.
+
+##### Connecting securely to self-signed certs
+If you generate a self-signed cert, it is likely that the fqdn / ip do not match.
+In order to securely connect you must use the fingerprint which can be extracted from
+a listening server via the openssl s_client:
+
+    openssl s_client -showcerts -connect $IP:5986 < /dev/null 2>/dev/null | \
+						openssl x509 -sha1 -fingerprint -noout | sed -e 's/^.*=//;s/://g'
+						89255929FB4B5E1BFABF7E7F01AFAFC5E7003C3F
+
+The fingerprint can then be supplied to ```--ssl-peer-fingerprint``` and instead of
+using a certificate chain and comparing the CommonName, it will only verify that the
+fingerprint matches:
+
+    knife winrm --ssl-peer-fingerprint 89255929FB4B5E1BFABF7E7F01AFAFC5E7003C3F \
+		      -m $IP -x Administrator -P $PASSWD-t ssl --winrm-port 5986 hostname
+		10.113.4.54 ip-0A710436
 
 ## WinRM authentication
 
