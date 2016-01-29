@@ -92,6 +92,7 @@ expected: #{expected}
       :forward_agent,
       :preserve_home,
       :ssh_gateway,
+      :ssl_peer_fingerprint,
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
