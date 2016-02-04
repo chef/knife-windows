@@ -25,6 +25,32 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
      allow(Chef::Knife::Core::WindowsBootstrapContext).to receive(:new).and_return(mock_bootstrap_context)
    end
 
+  describe "fips" do
+    before do
+      Chef::Config[:fips] = fips_mode
+    end
+
+    after do
+      Chef::Config.reset!
+    end
+
+    context "when fips is set" do
+      let(:fips_mode) { true }
+
+      it "sets fips mode in the client.rb" do
+        expect(mock_bootstrap_context.config_content).to match(/fips true/)
+      end
+    end
+
+    context "when fips is not set" do
+      let(:fips_mode) { false }
+
+      it "sets fips mode in the client.rb" do
+        expect(mock_bootstrap_context.config_content).not_to match(/fips true/)
+      end
+    end
+  end
+
   describe "validation_key", :chef_gte_12_only do
     before do
       mock_bootstrap_context.instance_variable_set(:@config, Mash.new(:validation_key => "C:\\chef\\key.pem"))
