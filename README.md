@@ -279,6 +279,23 @@ example:
 This option should be used carefully since disabling the verification of the
 remote system's certificate can subject knife commands to spoofing attacks.
 
+##### Connecting securely to self-signed certs
+If you generate a self-signed cert, it is likely that the fqdn / ip do not match.
+In order to securely connect you must use the fingerprint which can be extracted from
+a listening server via the openssl s_client:
+
+    openssl s_client -showcerts -connect $IP:5986 < /dev/null 2>/dev/null | \
+						openssl x509 -sha1 -fingerprint -noout | sed -e 's/^.*=//;s/://g'
+						89255929FB4B5E1BFABF7E7F01AFAFC5E7003C3F
+
+The fingerprint can then be supplied to ```--ssl-peer-fingerprint``` and instead of
+using a certificate chain and comparing the CommonName, it will only verify that the
+fingerprint matches:
+
+    knife winrm --ssl-peer-fingerprint 89255929FB4B5E1BFABF7E7F01AFAFC5E7003C3F \
+		      -m $IP -x Administrator -P $PASSWD-t ssl --winrm-port 5986 hostname
+		10.113.4.54 ip-0A710436
+
 ## WinRM authentication
 
 The default authentication protocol for `knife-windows` subcommands that use

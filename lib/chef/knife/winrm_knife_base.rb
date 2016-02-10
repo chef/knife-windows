@@ -198,7 +198,8 @@ class Chef
               basic_auth_only: resolve_winrm_basic_auth,
               disable_sspi: resolve_winrm_disable_sspi,
               transport: resolve_winrm_transport,
-              no_ssl_peer_verification: resolve_no_ssl_peer_verification
+              no_ssl_peer_verification: resolve_no_ssl_peer_verification,
+              ssl_peer_fingerprint: resolve_ssl_peer_fingerprint
             }
 
             if @session_opts[:user] and (not @session_opts[:password])
@@ -257,6 +258,10 @@ class Chef
 
           def resolve_no_ssl_peer_verification
             locate_config_value(:ca_trust_file).nil? && config[:winrm_ssl_verify_mode] == :verify_none && resolve_winrm_transport == :ssl
+          end
+
+          def resolve_ssl_peer_fingerprint
+            locate_config_value(:ssl_peer_fingerprint)
           end
 
           def resolve_winrm_disable_sspi
