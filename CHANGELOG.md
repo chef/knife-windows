@@ -1,5 +1,8 @@
 # knife-windows Change Log
 
+## Release 1.3.0
+* Pulls in Winrm 1.7.0 which now consumes rubyntlm 0.6.0 to support Extended Protection for Authentication (aka channel binding) for NTLM over TLS
+
 ## Release 1.2.1
 * [knife-windows #341](https://github.com/chef/knife-windows/pull/341) Removes nokogiri dependency and adds UX fixes for `knife wsman test` when probing a SSL endpoint configured with a self signed certificate
 
