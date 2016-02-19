@@ -92,7 +92,6 @@ expected: #{expected}
       :forward_agent,
       :preserve_home,
       :ssh_gateway,
-      :ssl_peer_fingerprint,
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
@@ -112,6 +111,7 @@ expected: #{expected}
       :kerberos_service,
       :manual,
       :session_timeout,
+      :ssl_peer_fingerprint,
       :winrm_authentication_protocol,
       :winrm_transport,
       :fips, #until chef 12.7 is released
