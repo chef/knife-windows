@@ -111,6 +111,7 @@ expected: #{expected}
       :kerberos_service,
       :manual,
       :session_timeout,
+      :ssl_peer_fingerprint,
       :winrm_authentication_protocol,
       :winrm_transport,
       :fips, #until chef 12.7 is released

@@ -279,6 +279,15 @@ example:
 This option should be used carefully since disabling the verification of the
 remote system's certificate can subject knife commands to spoofing attacks.
 
+##### Connecting securely to self-signed certs
+If you generate a self-signed cert, the fqdn and ip may not match which will result in a certificate validation failure. In order to securely connect and reduce the risk of a "Man In The Middle" attack, you may use the certificate's fingerprint to precisely identify the known certificate on the WinRM endpoint. 
+
+The fingerprint can be supplied to ```--ssl-peer-fingerprint``` and instead of using a certificate chain and comparing the CommonName, it will only verify that the fingerprint matches:
+
+    knife winrm --ssl-peer-fingerprint 89255929FB4B5E1BFABF7E7F01AFAFC5E7003C3F \
+		      -m $IP -x Administrator -P $PASSWD-t ssl --winrm-port 5986 hostname
+		10.113.4.54 ip-0A710436
+
 ## WinRM authentication
 
 The default authentication protocol for `knife-windows` subcommands that use
