@@ -21,3 +21,6 @@ matrix:
   - rvm: 1.9.3
     env: CHEF_VERSION="~> 12.0"
 
+branches:
+  only:
+  - master
