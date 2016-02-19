@@ -98,7 +98,7 @@ class Chef
 
           option :ssl_peer_fingerprint,
             :long => "--ssl-peer-fingerprint FINGERPRINT",
-            :description => "Ssl Cert Fingerprint to bypass normal cert chain checks"
+            :description => "ssl Cert Fingerprint to bypass normal cert chain checks"
 
           option :winrm_authentication_protocol,
             :long => "--winrm-authentication-protocol AUTHENTICATION_PROTOCOL",
