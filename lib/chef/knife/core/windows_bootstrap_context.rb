@@ -137,7 +137,13 @@ CONFIG
           end
 
           if Chef::Config[:fips]
-            client_rb << %Q{fips true\n}
+            client_rb << <<-CONFIG
+fips true
+chef_version = ::Chef::VERSION.split(".")
+unless chef_version[0].to_i > 12 || (chef_version[0].to_i == 12 && chef_version[1].to_i >= 8)
+  raise "FIPS Mode requested but not supported by this client"
+end
+CONFIG
           end
 
           escape_and_echo(client_rb)
