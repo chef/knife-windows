@@ -1,6 +1,6 @@
 #
 # Author:: Mukta Aphale <mukta.aphale@clogeny.com>
-# Copyright:: Copyright (c) 2014 Opscode, Inc.
+# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ describe Chef::Knife::WindowsListenerCreate do
       allow(Chef::Platform).to receive(:windows?).and_return(true)
       @listener = Chef::Knife::WindowsListenerCreate.new
     end
-  
+
     it "creates winrm listener" do
       @listener.config[:hostname] = "host"
       @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
@@ -34,7 +34,7 @@ describe Chef::Knife::WindowsListenerCreate do
       expect(@listener.ui).to receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
       @listener.run
     end
-  
+
     it "raise an error on command failure" do
       @listener.config[:hostname] = "host"
       @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
@@ -46,7 +46,7 @@ describe Chef::Knife::WindowsListenerCreate do
       expect(@listener.ui).to_not receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
       expect { @listener.run }.to raise_error(SystemExit)
     end
-  
+
     it "creates winrm listener with cert install option" do
       @listener.config[:hostname] = "host"
       @listener.config[:cert_thumbprint] = "CERT-THUMBPRINT"
@@ -73,4 +73,4 @@ describe Chef::Knife::WindowsListenerCreate do
       expect { @listener.run }.to raise_error(SystemExit)
     end
   end
-end  
+end

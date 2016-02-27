@@ -1,6 +1,6 @@
 #
-# Author:: Bryan McLellan <btm@opscode.com>
-# Copyright:: Copyright (c) 2013 Opscode, Inc.
+# Author:: Bryan McLellan <btm@chef.io>
+# Copyright:: Copyright (c) 2013-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -103,7 +103,7 @@ describe Chef::Knife::Winrm do
 
     subject { Chef::Knife::Winrm.new(knife_args) }
 
-    context "when configuring the WinRM user name" do      
+    context "when configuring the WinRM user name" do
       context "when basic auth is used" do
         let(:protocol) { 'basic' }
 
@@ -193,7 +193,7 @@ describe Chef::Knife::Winrm do
       context "kerberos option is set" do
         let(:winrm_command_http) { Chef::Knife::Winrm.new([
           '-m', 'localhost',
-          '-x', 'testuser', 
+          '-x', 'testuser',
           '-P', 'testpassword',
           '--winrm-authentication-protocol', 'basic',
           '--kerberos-realm', 'realm',
@@ -210,7 +210,7 @@ describe Chef::Knife::Winrm do
       context "kerberos option is set but nil" do
         let(:winrm_command_http) { Chef::Knife::Winrm.new([
           '-m', 'localhost',
-          '-x', 'testuser', 
+          '-x', 'testuser',
           '-P', 'testpassword',
           '--winrm-authentication-protocol', 'basic',
           'echo helloworld'
@@ -364,14 +364,14 @@ describe Chef::Knife::Winrm do
     let(:session_opts) do
       {
         user: ".\\testuser",
-        password: "testpassword", 
+        password: "testpassword",
         port: "5985",
         transport: :plaintext,
         host: "localhost"
       }
     end
     let(:session) { Chef::Knife::WinrmSession.new(session_opts) }
-    
+
     before(:each) do
       allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session)
       Chef::Config[:knife] = {:winrm_transport => 'plaintext'}

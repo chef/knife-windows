@@ -1,6 +1,6 @@
 #
 # Author:: Mukta Aphale <mukta.aphale@clogeny.com>
-# Copyright:: Copyright (c) 2014 Opscode, Inc.
+# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,12 +63,12 @@ describe Chef::Knife::WindowsCertGenerate do
 
     it "writes out certificates" do
       @certgen.config[:output_file] = 'winrmcert'
-  
+
       expect(@certgen).to receive(:certificates_already_exist?).and_return(false)
       expect(@certgen).to receive(:write_certificate_to_file)
       @certgen.run
     end
-  
+
     it "prompts when certificates already exist" do
       file_path = 'winrmcert'
       @certgen.config[:output_file] = file_path
@@ -78,7 +78,7 @@ describe Chef::Knife::WindowsCertGenerate do
       expect(@certgen).to receive(:write_certificate_to_file)
       @certgen.run
     end
-  
+
     it "creates certificate on specified file path" do
       file_path = "/tmp/winrmcert"
       @certgen.name_args = [file_path]

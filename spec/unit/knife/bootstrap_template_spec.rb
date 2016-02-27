@@ -58,17 +58,17 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     let(:options){ ["--bootstrap-proxy", "", "--bootstrap-no-proxy", setting] }
 
     context "via --bootstrap-no-proxy" do
-      let(:setting) { "api.opscode.com" }
+      let(:setting) { "api.chef.io" }
 
       it "renders the client.rb with a single FQDN no_proxy entry" do
-        expect(rendered_template).to match(%r{.*no_proxy\s*\"api.opscode.com\".*})
+        expect(rendered_template).to match(%r{.*no_proxy\s*\"api.chef.io\".*})
       end
     end
     context "via --bootstrap-no-proxy multiple" do
-      let(:setting) { "api.opscode.com,172.16.10.*" }
+      let(:setting) { "api.chef.io,172.16.10.*" }
 
       it "renders the client.rb with comma-separated FQDN and wildcard IP address no_proxy entries" do
-        expect(rendered_template).to match(%r{.*no_proxy\s*"api.opscode.com,172.16.10.\*".*})
+        expect(rendered_template).to match(%r{.*no_proxy\s*"api.chef.io,172.16.10.\*".*})
       end
     end
   end

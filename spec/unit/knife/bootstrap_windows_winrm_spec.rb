@@ -1,6 +1,6 @@
 #
-# Author:: Adam Edwards(<adamed@getchef.com>)
-# Copyright:: Copyright (c) 2014 Chef Software, Inc.
+# Author:: Adam Edwards(<adamed@chef.io>)
+# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,14 +40,14 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   let(:session_opts) do
     {
       user: "Administrator",
-      password: "testpassword", 
+      password: "testpassword",
       port: "5986",
       transport: :ssl,
       host: "localhost"
     }
   end
   let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-d', 'windows-chef-client-msi',  '-x', session_opts[:user], '-P', session_opts[:password], session_opts[:host]]) }
-  let(:session) { Chef::Knife::WinrmSession.new(session_opts) } 
+  let(:session) { Chef::Knife::WinrmSession.new(session_opts) }
   let(:initial_fail_count) { 4 }
 
   context "knife secret-file && knife secret options are passed" do
@@ -191,7 +191,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
     allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
-    
+
     allow(bootstrap.ui).to receive(:info)
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
     expect { bootstrap.bootstrap }.to raise_error(SystemExit)

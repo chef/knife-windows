@@ -1,6 +1,6 @@
 #
 # Author:: Mukta Aphale <mukta.aphale@clogeny.com>
-# Copyright:: Copyright (c) 2014 Opscode, Inc.
+# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ describe Chef::Knife::WindowsCertInstall do
       allow(Chef::Platform).to receive(:windows?).and_return(true)
       @certinstall = Chef::Knife::WindowsCertInstall.new
     end
-  
+
     it "installs certificate" do
       @certinstall.name_args = ["test-path"]
       @certinstall.config[:cert_passphrase] = "your-secret!"

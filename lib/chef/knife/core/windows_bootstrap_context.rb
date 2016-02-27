@@ -1,6 +1,6 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2011 Opscode, Inc.
+# Author:: Seth Chisamore (<schisamo@chef.io>)
+# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -307,7 +307,7 @@ WGET_PS
         def install_command(executor_quote)
           if @config[:install_as_service]
             "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote} ADDLOCAL=#{executor_quote}ChefClientFeature,ChefServiceFeature#{executor_quote}"
-          else              
+          else
             "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote}"
           end
         end

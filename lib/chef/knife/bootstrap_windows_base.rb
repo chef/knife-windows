@@ -1,6 +1,6 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2011 Opscode, Inc.
+# Author:: Seth Chisamore (<schisamo@chef.io>)
+# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -294,7 +294,7 @@ class Chef
           exit 1
         end
 
-        if (defined?(chef_vault_handler) && chef_vault_handler.doing_chef_vault?) || 
+        if (defined?(chef_vault_handler) && chef_vault_handler.doing_chef_vault?) ||
             (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
 
           unless locate_config_value(:chef_node_name)

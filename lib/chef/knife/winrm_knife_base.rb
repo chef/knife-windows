@@ -1,6 +1,6 @@
 #
 # Author:: Steven Murawski (<smurawski@chef.io)
-# Copyright:: Copyright (c) 2015 Chef Software, Inc.
+# Copyright:: Copyright (c) 2015-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,7 +77,7 @@ class Chef
                      end
                      r
                    end
-             
+
              if @list.length == 0
               if @action_nodes.length == 0
                 ui.fatal("No nodes returned from search!")
@@ -215,7 +215,7 @@ class Chef
 
           def resolve_winrm_user
             user = locate_config_value(:winrm_user)
-            
+
             # Prefixing with '.\' when using negotiate
             # to auth user against local machine domain
             if resolve_winrm_basic_auth ||

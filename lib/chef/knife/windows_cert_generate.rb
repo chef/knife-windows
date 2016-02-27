@@ -1,5 +1,5 @@
 # Author:: Mukta Aphale (<mukta.aphale@clogeny.com>)
-# Copyright:: Copyright (c) 2014 Opscode, Inc.
+# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -141,7 +141,7 @@ class Chef
           write_certificate_to_file cert, file_path, rsa_key
           ui.info "Generated Certificates:"
           ui.info "- #{filename}.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server."
-          ui.info "- #{filename}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers." 
+          ui.info "- #{filename}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers."
           ui.info "- #{filename}.pem - Base64 encoded public certificate only. Required by the client to connect to the server."
           ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e

@@ -1,6 +1,6 @@
 #
 # Author:: Steven Murawski <smurawski@chef.io>
-# Copyright:: Copyright (c) 2015 Chef Software, Inc.
+# Copyright:: Copyright (c) 2015-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,13 +26,13 @@ class Chef
 
       def initialize(options)
         configure_proxy
-        
+
         @host = options[:host]
         @port = options[:port]
         url = "#{options[:host]}:#{options[:port]}/wsman"
         scheme = options[:transport] == :ssl ? 'https' : 'http'
         @endpoint = "#{scheme}://#{url}"
-        
+
         opts = Hash.new
         opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi], :no_ssl_peer_verification => options[:no_ssl_peer_verification], :ssl_peer_fingerprint => options[:ssl_peer_fingerprint]}
         options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
@@ -40,7 +40,7 @@ class Chef
         Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
         Chef::Log.debug("Endpoint: #{endpoint}")
         Chef::Log.debug("Transport: #{options[:transport]}")
-        
+
         @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
         @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
       end

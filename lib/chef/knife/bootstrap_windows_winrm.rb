@@ -1,6 +1,6 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2011 Opscode, Inc.
+# Author:: Seth Chisamore (<schisamo@chef.io>)
+# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ class Chef
 
       banner 'knife bootstrap windows winrm FQDN (options)'
 
-      def run       
+      def run
         if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
           if !negotiate_auth? && !(locate_config_value(:winrm_transport) == 'ssl')
             ui.error('Validatorless bootstrap over unsecure winrm channels could expose your key to network sniffing')
