@@ -280,7 +280,7 @@ This option should be used carefully since disabling the verification of the
 remote system's certificate can subject knife commands to spoofing attacks.
 
 ##### Connecting securely to self-signed certs
-If you generate a self-signed cert, the fqdn and ip may not match which will result in a certificate validation failure. In order to securely connect and reduce the risk of a "Man In The Middle" attack, you may use the certificate's fingerprint to precisely identify the known certificate on the WinRM endpoint. 
+If you generate a self-signed cert, the fqdn and ip may not match which will result in a certificate validation failure. In order to securely connect and reduce the risk of a "Man In The Middle" attack, you may use the certificate's fingerprint to precisely identify the known certificate on the WinRM endpoint.
 
 The fingerprint can be supplied to ```--ssl-peer-fingerprint``` and instead of using a certificate chain and comparing the CommonName, it will only verify that the fingerprint matches:
 
@@ -369,7 +369,7 @@ More information on the contribution process for Chef projects can be found in t
 # LICENSE:
 
 Author:: Seth Chisamore (<schisamo@chef.io>)
-Copyright:: Copyright (c) 2015 Chef Software, Inc.
+Copyright:: Copyright (c) 2015-2016 Chef Software, Inc.
 License:: Apache License, Version 2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");

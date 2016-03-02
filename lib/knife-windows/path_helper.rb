@@ -1,6 +1,6 @@
 #
 # Author:: Bryan McLellan <btm@loftninjas.org>
-# Copyright:: Copyright (c) 2014 Chef Software, Inc.
+# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-# Sourced from Chef::Util::PathHelper. 
+# Sourced from Chef::Util::PathHelper.
 # Should be removed when Chef 11 catches up or we stop supporting Chef 11
 
 module Knife
@@ -152,10 +152,10 @@ module Knife
       # Retrieves the "home directory" of the current user while trying to ascertain the existence
       # of said directory.  The path returned uses / for all separators (the ruby standard format).
       # If the home directory doesn't exist or an error is otherwise encountered, nil is returned.
-      # 
+      #
       # If a set of path elements is provided, they are appended as-is to the home path if the
-      # homepath exists. 
-      # 
+      # homepath exists.
+      #
       # If an optional block is provided, the joined path is passed to that block if the home path is
       # valid and the result of the block is returned instead.
       #
@@ -210,11 +210,11 @@ module Knife
         # the particular brand of kool-aid you consume.  This code assumes that \ and / are both
         # path separators on any system being used.
         paths = paths.map { |home_path| home_path.gsub(path_separator, ::File::SEPARATOR) if home_path }
-        
+
         # Filter out duplicate paths and paths that don't exist.
         valid_paths = paths.select { |home_path| home_path && Dir.exists?(home_path) }
         valid_paths = valid_paths.uniq
-        
+
         # Join all optional path elements at the end.
         # If a block is provided, invoke it - otherwise just return what we've got.
         joined_paths = valid_paths.map { |home_path| File.join(home_path, *args) }

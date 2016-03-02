@@ -1,6 +1,6 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2011 Opscode, Inc.
+# Author:: Seth Chisamore (<schisamo@chef.io>)
+# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,9 +26,9 @@ require 'chef/knife/knife_windows_base'
 
 class Chef
   class Knife
-    class Winrm < Knife 
+    class Winrm < Knife
 
-      include Chef::Knife::WinrmCommandSharedFunctions     
+      include Chef::Knife::WinrmCommandSharedFunctions
       include Chef::Knife::KnifeWindowsBase
 
       deps do
@@ -38,18 +38,18 @@ class Chef
 
       attr_writer :password
 
-      banner "knife winrm QUERY COMMAND (options)"      
+      banner "knife winrm QUERY COMMAND (options)"
 
       option :returns,
        :long => "--returns CODES",
        :description => "A comma delimited list of return codes which indicate success",
-       :default => "0"      
+       :default => "0"
 
       def run
-        STDOUT.sync = STDERR.sync = true        
+        STDOUT.sync = STDERR.sync = true
 
         configure_session
-        execute_remote_command        
+        execute_remote_command
       end
 
       def execute_remote_command
@@ -114,7 +114,7 @@ class Chef
         end
       end
 
-      def reader        
+      def reader
         Readline
       end
     end
