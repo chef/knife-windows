@@ -65,6 +65,12 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
   describe "running on any version of the Windows OS", :windows_only do
     let(:mock_bootstrap_context) { Chef::Knife::Core::WindowsBootstrapContext.new({ }, nil, { :knife => {} }) }
     let(:mock_winrm) { Chef::Knife::Winrm.new }
+    let(:arch_session_result) {
+      o = WinRM::Output.new
+      o[:data] << {stdout: "X86\r\n"}
+      o
+    }
+    let(:arch_session_results) { [arch_session_result] }
 
     before do
       # Stub the bootstrap context and prevent config related sections
@@ -132,6 +138,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
     end
 
+    expect(winrm_bootstrapper).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
     allow(winrm_bootstrapper).to receive(:validate_options!)
     allow(winrm_bootstrapper.ui).to receive(:ask).and_return(nil)

@@ -55,6 +55,7 @@ class Chef
         @exit_code = session_result[:exitcode]
         @winrm_session.close_shell(remote_id)
         Chef::Log.debug("#{@host}[#{remote_id}] => :shell_close")
+        session_result
       end
 
       private
