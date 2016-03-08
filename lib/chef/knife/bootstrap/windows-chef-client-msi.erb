@@ -87,21 +87,7 @@ goto architecture_select
 goto Version6.2
 
 :architecture_select
-goto Architecture%PROCESSOR_ARCHITEW6432%
-
-:Architecture
-goto Architecture%PROCESSOR_ARCHITECTURE%
-
-@rem If this is an unknown architecture set the default
-@set MACHINE_ARCH=i686
-goto install
-
-:Architecturex86
-@set MACHINE_ARCH=i686
-goto install
-
-:Architectureamd64
-@set MACHINE_ARCH=x86_64
+@set MACHINE_ARCH=<%= knife_config[:architecture] %>
 goto install
 
 :install

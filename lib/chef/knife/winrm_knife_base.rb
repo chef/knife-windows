@@ -124,9 +124,10 @@ class Chef
 
           def relay_winrm_command(command)
             Chef::Log.debug(command)
+            session_results = []
             @winrm_sessions.each do |s|
               begin
-                s.relay_command(command)
+                session_results << s.relay_command(command)
               rescue WinRM::WinRMHTTPTransportError, WinRM::WinRMAuthorizationError => e
                 if authorization_error?(e)
                   if ! config[:suppress_auth_failure]
@@ -142,6 +143,7 @@ class Chef
                 end
               end
             end
+            session_results
           end
 
           private

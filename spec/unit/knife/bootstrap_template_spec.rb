@@ -30,6 +30,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     template = IO.read(template_file).chomp
     knife.render_template(template)
   end
+  subject(:knife) { described_class.new }
 
   before(:all) do
     @original_config = Chef::Config.hash_dup
@@ -54,7 +55,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   describe "specifying no_proxy with various entries" do
-    subject(:knife) { described_class.new }
     let(:options){ ["--bootstrap-proxy", "", "--bootstrap-no-proxy", setting] }
 
     context "via --bootstrap-no-proxy" do
@@ -74,8 +74,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   describe "specifying --msi-url" do
-    subject(:knife) { described_class.new }
-
     context "with explicitly provided --msi-url" do
       let(:options) { ["--msi-url", "file:///something.msi"] }
 
@@ -89,4 +87,12 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       end
     end
   end
+
+  describe "specifying knife_config[:architecture]" do
+    it "puts the target architecture into the msi_url" do
+      Chef::Config[:knife][:architecture] = :x86_64
+      expect(rendered_template).to match(/MACHINE_ARCH=x86_64/)
+    end
+  end
+
 end

@@ -81,6 +81,8 @@ def sample_data(file_name)
 end
 
 RSpec.configure do |config|
+  config.run_all_when_everything_filtered = true
+  config.filter_run :focus => true
   config.filter_run_excluding :windows_only => true unless windows?
   config.filter_run_excluding :windows_2012_only => true unless windows2012?
   config.filter_run_excluding :chef_gte_12_only => true unless chef_gte_12?
@@ -90,4 +92,3 @@ RSpec.configure do |config|
   config.filter_run_excluding :chef_lt_12_only => true unless chef_lt_12?
   config.filter_run_excluding :if_chef_11 => true if chef_eq_11?
 end
-

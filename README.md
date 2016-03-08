@@ -56,6 +56,12 @@ support](#platform-winrm-authentication-support).
 SSL will become the default transport in future revisions of
 `knife-windows`.
 
+#### Specifying the package architecture
+
+You can configure which package architecture (32 bit or 64 bit) to install on the bootstrapped system.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `:x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error, but installing a 32 bit package on a 64 bit system is supported.
+
+Currently (March 2016) the `stable` channel of omnibus (where downloads using the install script fetch) only has 32 bit packages but this will be updated soon to include both 32 and 64 bit packages.  Until then you will need to access the `current` channel by specifying `--prerelease` in your `knife bootstrap windows` if you want 64 bit packages.
+
 ### knife wsman test
 
 Connects to the remote WSMan/WinRM endpoint and verifies the remote node is listening.  This is the equivalent of running Test-Wsman from PowerShell.  Endpoints to test can be specified manually, or be driven by search and use many of the same connection options as knife winrm.
@@ -125,7 +131,7 @@ which does the following:
 * Writes a default config file for Chef (`C:\chef\client.rb`) using values from the `knife.rb`.
 * Creates a JSON attributes file containing the specified run list and run Chef.
 
-This template is used by both `knife windows bootstrap winrm` and `knife windows bootstrap ssh` subcommands.
+This template is used by both `knife bootstrap windows winrm` and `knife bootstrap windows ssh` subcommands.
 
 ## Requirements / setup
 

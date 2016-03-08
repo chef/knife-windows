@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Unreleased
+
+* [knife-windows #354](https://github.com/chef/knife-windows/pull/354) Allows the user to specify the architecture they want to install on the target system during `knife bootstrap windows`.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error.
+
 ## Release 1.3.0
 * [knife-windows #349](https://github.com/chef/knife-windows/pull/349) Pulls in Winrm 1.7.0 which now consumes rubyntlm 0.6.0 to support Extended Protection for Authentication (aka channel binding) for NTLM over TLS
 * [knife-windows #350](https://github.com/chef/knife-windows/pull/350) Adding a `--ssl-peer-fingerprint` option as an alternative to `--winrm-ssl-verify-mode verify_none` in self signed scenarios
@@ -39,7 +43,7 @@
 * [knife-windows #232](https://github.com/chef/knife-windows/pull/232) Adding --hint option to bootstrap
 * [knife-windows #227](https://github.com/chef/knife-windows/issues/227) Exception: NoMethodError: undefined method 'gsub' for false:FalseClass
 * [knife-windows #222](https://github.com/chef/knife-windows/issues/222) Validatorless bootstrap support
-* [knife-windows #202](https://github.com/chef/knife-windows/issues/202) knife windows bootstrap should support enabling the service
+* [knife-windows #202](https://github.com/chef/knife-windows/issues/202) knife bootstrap windows should support enabling the service
 * [knife-windows #213](https://github.com/chef/knife-windows/pull/213) Search possibilities of HOME for bootstrap templates
 * [knife-windows #206](https://github.com/chef/knife-windows/pull/206) Add a flag msi_url that allows one to fetch the Chef client msi from a non-chef.io path
 * [knife-windows #192](https://github.com/chef/knife-windows/issues/192) deprecate knife bootstrap --distro
@@ -105,4 +109,3 @@ Release Notes - Knife Windows Plugin - Version 0.5.4
 
 ** New Feature
     * [KNIFE\_WINDOWS-6] - default bootstrap template should support encrypted\_data\_bag\_secret
-

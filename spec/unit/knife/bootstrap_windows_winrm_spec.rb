@@ -17,15 +17,13 @@
 #
 
 require 'spec_helper'
+require 'winrm/output'
 
 Chef::Knife::Winrm.load_deps
 
 describe Chef::Knife::BootstrapWindowsWinrm do
-  before(:all) do
-    Chef::Config.reset
-  end
-
   before do
+    Chef::Config.reset
     bootstrap.config[:run_list] = []
     allow(bootstrap).to receive(:validate_options!).and_return(nil)
     allow(bootstrap).to receive(:sleep).and_return(10)
@@ -48,6 +46,12 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
   let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-d', 'windows-chef-client-msi',  '-x', session_opts[:user], '-P', session_opts[:password], session_opts[:host]]) }
   let(:session) { Chef::Knife::WinrmSession.new(session_opts) }
+  let(:arch_session_result) {
+    o = WinRM::Output.new
+    o[:data] << {stdout: "X86\r\n"}
+    o
+  }
+  let(:arch_session_results) { [arch_session_result] }
   let(:initial_fail_count) { 4 }
 
   context "knife secret-file && knife secret options are passed" do
@@ -144,13 +148,27 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     end
   end
 
+  it 'should raise an error if the relay_command returns an unknown response' do
+    allow(session).to receive(:exit_code).and_return(500)
+    allow(bootstrap).to receive(:wait_for_remote_response)
+    allow(session).to receive(:relay_command).and_return(WinRM::Output.new)
+    allow(bootstrap.ui).to receive(:info)
+    expect {
+      bootstrap.run
+    }.to raise_error(/Response to 'echo %PROCESSOR_ARCHITECTURE%' command was invalid:/)
+  end
+
   it 'should pass exit code from failed winrm call' do
     allow(session).to receive(:exit_code).and_return(500)
     allow(bootstrap).to receive(:wait_for_remote_response)
     allow(bootstrap).to receive(:create_bootstrap_bat_command)
-    allow(session).to receive(:relay_command)
+    allow(session).to receive(:relay_command).and_return(arch_session_result)
     allow(bootstrap.ui).to receive(:info)
-    expect { bootstrap.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(500) }
+    expect {
+      bootstrap.run_with_pretty_exceptions
+    }.to raise_error(SystemExit) { |e|
+      expect(e.status).to eq(500)
+    }
   end
 
   it 'should retry if a 401 is received from WinRM' do
@@ -187,6 +205,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should have a wait timeout of 2 minutes by default' do
+    expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
     allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError.new('','500'))
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
@@ -219,7 +238,33 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap.ui).to receive(:error)
     expect(bootstrap).to receive(:run_command).exactly(1).times
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
-    expect { bootstrap.bootstrap }.to raise_error RuntimeError
+    expect { bootstrap.bootstrap }.to raise_error /Command execution failed./
+  end
+
+  it 'successfully bootstraps' do
+    allow(bootstrap).to receive(:wait_for_remote_response)
+    expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
+    allow(bootstrap).to receive(:create_bootstrap_bat_command)
+    allow(bootstrap).to receive(:run_command).and_return(0)
+    expect(bootstrap.bootstrap).to eq(0)
+    expect(Chef::Config[:knife][:architecture]).to eq(:i686)
+  end
+
+  context "when the target node is 64 bit" do
+    let(:arch_session_result) {
+      o = WinRM::Output.new
+      o[:data] << {stdout: "AMD64\r\n"}
+      o
+    }
+
+    it 'successfully bootstraps' do
+      allow(bootstrap).to receive(:wait_for_remote_response)
+      expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
+      allow(bootstrap).to receive(:create_bootstrap_bat_command)
+      allow(bootstrap).to receive(:run_command).and_return(0)
+      expect(bootstrap.bootstrap).to eq(0)
+      expect(Chef::Config[:knife][:architecture]).to eq(:x86_64)
+    end
   end
 
   context "when validation_key is not present" do
@@ -262,6 +307,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     let(:node_name) { 'foo.example.com' }
     before do
       allow(bootstrap).to receive(:wait_for_remote_response)
+      expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
       allow(bootstrap).to receive(:create_bootstrap_bat_command)
       allow(bootstrap).to receive(:run_command).and_return(0)
       bootstrap.config[:chef_node_name] = node_name
