@@ -58,9 +58,9 @@ SSL will become the default transport in future revisions of
 
 #### Specifying the package architecture
 
-You can configure which package architecture (32 bit or 64 bit) to install on the bootstrapped system.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error, but installing a 32 bit package on a 64 bit system is supported.
+You can configure which package architecture (32 bit or 64 bit) to install on the bootstrapped system.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `:x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error, but installing a 32 bit package on a 64 bit system is supported.
 
-Currently (March 2016) the `stable` channel of omnibus (where downloads using the install script fetch) only has 32 bit packages but this will be updated soon to include both 32 and 64 bit packages.  Until then you will need to access the `current` channel by specifying `--prerelease` in your `knife bootstrap windows`.
+Currently (March 2016) the `stable` channel of omnibus (where downloads using the install script fetch) only has 32 bit packages but this will be updated soon to include both 32 and 64 bit packages.  Until then you will need to access the `current` channel by specifying `--prerelease` in your `knife bootstrap windows` if you want 64 bit packages.
 
 ### knife wsman test
 
