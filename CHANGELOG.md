@@ -2,7 +2,7 @@
 
 ## Release 1.4.0
 
-* [knife-windows #354](https://github.com/chef/knife-windows/pull/354) Allows the user to specify the architecture they want to install on the target system during `knife bootstrap windows`.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error.
+* [knife-windows #354](https://github.com/chef/knife-windows/pull/354) Allows the user to specify the architecture they want to install on the target system during `knife bootstrap windows`.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `:x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error.
 * [knife-windows #352](https://github.com/chef/knife-windows/pull/352) Have client.rb verify that FIPS mode can be enforced
 
 ## Release 1.3.0
