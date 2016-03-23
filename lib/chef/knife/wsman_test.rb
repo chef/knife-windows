@@ -62,7 +62,7 @@ class Chef
           unless output_object.error_message.nil?
             ui.warn "Failed to connect to #{item.host} at #{item.endpoint}."
             if err && err.is_a?(OpenSSL::SSL::SSLError)
-              ui.warn "Failure due to an issue with SSL; likely cause would be unsuccesful certificate verification."
+              ui.warn "Failure due to an issue with SSL; likely cause would be unsuccessful certificate verification."
               ui.warn "Either ensure your certificate is valid or use '--winrm-ssl-verify-mode verify_none' to ignore verification failures."
             end
             error_count += 1
