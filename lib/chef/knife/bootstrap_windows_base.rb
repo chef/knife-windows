@@ -103,7 +103,7 @@ class Chef
 
           option :hint,
             :long => "--hint HINT_NAME[=HINT_FILE]",
-            :description => "Specify Ohai Hint to be set on the bootstrap target.  Use multiple --hint options to specify multiple hints.",
+            :description => "Specify Ohai Hint to be set on the bootstrap target. Use multiple --hint options to specify multiple hints.",
             :proc => Proc.new { |h|
               Chef::Config[:knife][:hints] ||= Hash.new
               name, path = h.split("=")
@@ -127,7 +127,7 @@ class Chef
           option :encrypted_data_bag_secret,
             :short => "-s SECRET",
             :long  => "--secret ",
-            :description => "The secret key to use to decrypt data bag item values.  Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config.",
+            :description => "The secret key to use to decrypt data bag item values. Will be rendered on the node at c:/chef/encrypted_data_bag_secret and set in the rendered client config.",
             :default => false
 
           # Mismatch between option 'encrypted_data_bag_secret_file' and it's long value '--secret-file' is by design for compatibility
@@ -280,7 +280,7 @@ class Chef
 
         bootstrap_architecture = Chef::Config[:knife][:bootstrap_architecture]
         if bootstrap_architecture && ![:x86_64, :i386].include?(bootstrap_architecture.to_sym)
-          raise "Valid values for the knife config :bootstrap_architecture are i386 or x86_64.  Supplied value is #{bootstrap_architecture}"
+          raise "Valid values for the knife config :bootstrap_architecture are i386 or x86_64. Supplied value is #{bootstrap_architecture}"
         end
         if Chef::Config[:knife][:architecture]
           raise "Do not set :architecture in your knife config, use :bootstrap_architecture."
@@ -435,7 +435,7 @@ behavior will be removed and any 'encrypted_data_bag_secret' entries in
         if bootstrap_architecture.nil?
           architecture = current_architecture
         elsif bootstrap_architecture == :x86_64 && current_architecture == :i386
-          raise "You specified bootstrap_architecture as x86_64 but the target machine is i386.  A 64 bit program cannot run on a 32 bit machine."
+          raise "You specified bootstrap_architecture as x86_64 but the target machine is i386. A 64 bit program cannot run on a 32 bit machine."
         else
           architecture = bootstrap_architecture
         end
