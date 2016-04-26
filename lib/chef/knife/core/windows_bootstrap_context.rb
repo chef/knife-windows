@@ -254,7 +254,13 @@ param(
    [String] $localPath
 )
 
+$ProxyUrl = $env:http_proxy;
 $webClient = new-object System.Net.WebClient;
+
+if ($ProxyUrl -ne '') {
+  $WebProxy = New-Object System.Net.WebProxy($ProxyUrl,$true)
+  $WebClient.Proxy = $WebProxy
+}
 
 $webClient.DownloadFile($remoteUrl, $localPath);
 WGET_PS
