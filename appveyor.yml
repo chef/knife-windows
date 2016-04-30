@@ -8,16 +8,13 @@ environment:
   bundle_gemfile: ci.gemfile
 
   matrix:
-    - ruby_version: "193"
+    - ruby_version: "20"
       chef_version: "< 12"
 
-    - ruby_version: "200"
-      chef_version: "< 12"
-
-    - ruby_version: "200"
+    - ruby_version: "21"
       chef_version: "~> 12.0"
 
-    - ruby_version: "200"
+    - ruby_version: "21"
       chef_version: "master"
 
 clone_folder: c:\projects\knife-windows
@@ -32,7 +29,7 @@ install:
   - echo %PATH%
   - ruby --version
   - gem --version
-  - gem install bundler --quiet --no-ri --no-rdoc
+  - gem install bundler -v 1.11.2 --quiet --no-ri --no-rdoc
   - bundler --version
 
 build_script:
