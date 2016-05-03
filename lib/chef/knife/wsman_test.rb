@@ -86,6 +86,7 @@ class Chef
         }
 
         client = HTTPClient.new
+        Chef::HTTP::DefaultSSLPolicy.apply_to(client.ssl_config)
         client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE if resolve_no_ssl_peer_verification
         client.post(endpoint, xml, header)
       end

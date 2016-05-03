@@ -26,6 +26,9 @@ describe Chef::Knife::WsmanTest do
   end
 
   before(:each) do
+    response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
+    http_response_mock = HTTP::Message.new_response(response_body)
+    allow(http_client_mock).to receive(:post).and_return(http_response_mock)
     allow(HTTPClient).to receive(:new).and_return(http_client_mock)
     subject.config[:verbosity] = 0
     allow(subject.ui).to receive(:ask).and_return('prompted_password')
@@ -33,38 +36,15 @@ describe Chef::Knife::WsmanTest do
 
   subject { Chef::Knife::WsmanTest.new(['-m', 'localhost']) }
 
+  it 'sets the ssl policy' do
+    expect(Chef::HTTP::DefaultSSLPolicy).to receive(:apply_to).with(http_client_mock.ssl_config).twice
+    subject.run
+  end
+
   context 'when testing the WSMAN endpoint' do
-    context 'and the service does not respond' do
-      error_message = 'A connection attempt failed because the connected party did not properly respond after a period of time.'
-
-      before(:each) do
-        allow(http_client_mock).to receive(:post).and_raise(Exception.new(error_message))
-      end
-
-      it 'exits with a status code of 1' do
-        expect(subject).to receive(:exit).with(1)
-        subject.run
-      end
-
-      it 'writes a warning message for each node it fails to connect to' do
-        expect(subject.ui).to receive(:warn)
-        expect(subject).to receive(:exit).with(1)
-        subject.run
-      end
-
-      it 'writes an error message if it fails to connect to any nodes' do
-        expect(subject.ui).to receive(:error)
-        expect(subject).to receive(:exit).with(1)
-        subject.run
-      end
-    end
-
     context 'and the service responds' do
       context 'successfully' do
         it 'writes a message about a successful connection' do
-          response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
-          http_response_mock = HTTP::Message.new_response(response_body)
-          allow(http_client_mock).to receive(:post).and_return(http_response_mock)
           expect(subject.ui).to receive(:msg)
           subject.run
         end
@@ -94,12 +74,35 @@ describe Chef::Knife::WsmanTest do
         end
       end
     end
+
+    context 'and the service does not respond' do
+      error_message = 'A connection attempt failed because the connected party did not properly respond after a period of time.'
+
+      before(:each) do
+        allow(http_client_mock).to receive(:post).and_raise(Exception.new(error_message))
+      end
+
+      it 'exits with a status code of 1' do
+        expect(subject).to receive(:exit).with(1)
+        subject.run
+      end
+
+      it 'writes a warning message for each node it fails to connect to' do
+        expect(subject.ui).to receive(:warn)
+        expect(subject).to receive(:exit).with(1)
+        subject.run
+      end
+
+      it 'writes an error message if it fails to connect to any nodes' do
+        expect(subject.ui).to receive(:error)
+        expect(subject).to receive(:exit).with(1)
+        subject.run
+      end
+    end
   end
 
   context 'when not validating ssl cert' do
     before(:each) do
-      response_body = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header/><s:Body><wsmid:IdentifyResponse xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><wsmid:ProtocolVersion>http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd</wsmid:ProtocolVersion><wsmid:ProductVendor>Microsoft Corporation</wsmid:ProductVendor><wsmid:ProductVersion>OS: 0.0.0 SP: 0.0 Stack: 2.0</wsmid:ProductVersion></wsmid:IdentifyResponse></s:Body></s:Envelope>'
-      allow(http_client_mock).to receive(:post).and_return(HTTP::Message.new_response(response_body))
       expect(subject.ui).to receive(:msg)
       subject.config[:winrm_ssl_verify_mode] = :verify_none
       subject.config[:winrm_transport] = :ssl

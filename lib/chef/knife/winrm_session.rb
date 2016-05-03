@@ -42,6 +42,9 @@ class Chef
         Chef::Log.debug("Transport: #{options[:transport]}")
 
         @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
+        transport = @winrm_session.instance_variable_get(:@xfer)
+        http_client = transport.instance_variable_get(:@httpcli)
+        Chef::HTTP::DefaultSSLPolicy.apply_to(http_client.ssl_config)
         @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
       end
 
