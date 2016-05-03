@@ -28,6 +28,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:validate_options!).and_return(nil)
     allow(bootstrap).to receive(:sleep).and_return(10)
     allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session)
+    allow(File).to receive(:exist?).with(anything).and_call_original
     allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
   end
 
