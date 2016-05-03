@@ -1,8 +1,8 @@
 language: ruby
 
 rvm:
-  - 1.9.3
-  - 2.0.0
+  - 2.1
+  - 2.2
 
 before_install:
   - gem install bundler
@@ -16,9 +16,9 @@ env:
 
 matrix:
   exclude:
-  - rvm: 1.9.3
+  - rvm: 2.1
     env: CHEF_VERSION="master"
-  - rvm: 1.9.3
+  - rvm: 2.1
     env: CHEF_VERSION="~> 12.0"
 
 branches:
