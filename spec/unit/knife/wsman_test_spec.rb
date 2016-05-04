@@ -20,6 +20,7 @@ require 'spec_helper'
 
 describe Chef::Knife::WsmanTest do
   let(:http_client_mock) { HTTPClient.new }
+  let(:ssl_policy) { double('DefaultSSLPolicy', :set_custom_certs => nil) }
 
   before(:all) do
     Chef::Config.reset
@@ -32,12 +33,15 @@ describe Chef::Knife::WsmanTest do
     allow(HTTPClient).to receive(:new).and_return(http_client_mock)
     subject.config[:verbosity] = 0
     allow(subject.ui).to receive(:ask).and_return('prompted_password')
+    allow(Chef::HTTP::DefaultSSLPolicy).to receive(:new)
+      .with(http_client_mock.ssl_config)
+      .and_return(ssl_policy)
   end
 
   subject { Chef::Knife::WsmanTest.new(['-m', 'localhost']) }
 
   it 'sets the ssl policy' do
-    expect(Chef::HTTP::DefaultSSLPolicy).to receive(:apply_to).with(http_client_mock.ssl_config).twice
+    expect(ssl_policy).to receive(:set_custom_certs).twice
     subject.run
   end
 

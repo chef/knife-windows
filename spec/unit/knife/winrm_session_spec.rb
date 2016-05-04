@@ -41,6 +41,7 @@ describe Chef::Knife::WinrmSession do
   describe "#initialize" do
     context "when a proxy is configured" do
       let(:proxy_uri) { 'blah.com' }
+      let(:ssl_policy) { double('DefaultSSLPolicy', :set_custom_certs => nil) }
 
       before do
         Chef::Config[:http_proxy] = proxy_uri
@@ -52,8 +53,10 @@ describe Chef::Knife::WinrmSession do
       end
 
       it "sets the ssl policy on the winrm client" do
-        expect(Chef::HTTP::DefaultSSLPolicy).to receive(:apply_to)
+        expect(Chef::HTTP::DefaultSSLPolicy).to receive(:new)
           .with(winrm_service.xfer.httpcli.ssl_config)
+          .and_return(ssl_policy)
+        expect(ssl_policy).to receive(:set_custom_certs)
         subject
       end
 
