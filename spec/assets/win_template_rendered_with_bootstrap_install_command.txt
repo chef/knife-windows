@@ -104,7 +104,13 @@ echo.   [String] $remoteUrl,
 echo.   [String] $localPath
 echo.^)
 echo.
+echo.$ProxyUrl = $env:http_proxy;
 echo.$webClient = new-object System.Net.WebClient;
+echo.
+echo.if ^($ProxyUrl -ne ''^) {
+echo.  $WebProxy = New-Object System.Net.WebProxy^($ProxyUrl,$true^)
+echo.  $WebClient.Proxy = $WebProxy
+echo.}
 echo.
 echo.$webClient.DownloadFile^($remoteUrl, $localPath^);
  
