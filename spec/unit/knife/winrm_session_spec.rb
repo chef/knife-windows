@@ -17,12 +17,13 @@
 #
 
 require 'spec_helper'
+require 'dummy_winrm_service'
 
 Chef::Knife::Winrm.load_deps
 
 
 describe Chef::Knife::WinrmSession do
-  let(:winrm_service) { double('WinRMWebService') }
+  let(:winrm_service) { Dummy::WinRMService.new }
   let(:options) { { transport: :plaintext } }
 
   before do
@@ -40,6 +41,7 @@ describe Chef::Knife::WinrmSession do
   describe "#initialize" do
     context "when a proxy is configured" do
       let(:proxy_uri) { 'blah.com' }
+      let(:ssl_policy) { double('DefaultSSLPolicy', :set_custom_certs => nil) }
 
       before do
         Chef::Config[:http_proxy] = proxy_uri
@@ -49,6 +51,15 @@ describe Chef::Knife::WinrmSession do
         subject
         expect(ENV['HTTP_PROXY']).to eq("http://#{proxy_uri}")
       end
+
+      it "sets the ssl policy on the winrm client" do
+        expect(Chef::HTTP::DefaultSSLPolicy).to receive(:new)
+          .with(winrm_service.xfer.httpcli.ssl_config)
+          .and_return(ssl_policy)
+        expect(ssl_policy).to receive(:set_custom_certs)
+        subject
+      end
+
     end
   end
 
