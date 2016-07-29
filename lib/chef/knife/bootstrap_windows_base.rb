@@ -268,7 +268,12 @@ class Chef
         cli_secret_file || cli_secret || knife_secret_file || knife_secret
       end
 
+      def first_boot_attributes
+        config[:first_boot_attributes] || config[:first_boot_attributes_from_file] || {}
+      end
+
       def render_template(template=nil)
+        config[:first_boot_attributes] = first_boot_attributes
         config[:secret] = load_correct_secret
         Erubis::Eruby.new(template).evaluate(bootstrap_context)
       end

@@ -339,4 +339,87 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       end
     end
   end
+
+  describe 'first_boot_attributes' do
+    before(:each) do
+      @first_boot_attributes = { 'a1' => 'b1', 'a2' => 'b2' }
+      @json_file = 'my_json.json'
+      File.open(@json_file,"w+") do |f|
+        f.write <<-EOH
+{"b2" : "a3", "a4" : "b5"}
+        EOH
+      end
+      @first_boot_attributes_from_file = read_json_file(@json_file)
+    end
+
+    context 'when none of the json-attributes options are passed' do
+      it 'returns an empty hash' do
+        response = bootstrap.first_boot_attributes
+        expect(response).to be == {}
+      end
+    end
+
+    context 'when only --json-attributes option is passed' do
+      before do
+        bootstrap.config[:first_boot_attributes] = @first_boot_attributes
+      end
+
+      it 'returns the hash passed by the user in --json-attributes option' do
+        response = bootstrap.first_boot_attributes
+        expect(response).to be == { 'a1' => 'b1', 'a2' => 'b2' }
+      end
+    end
+
+    context 'when only --json-attribute-file option is passed' do
+      before do
+        bootstrap.config[:first_boot_attributes_from_file] = @first_boot_attributes_from_file
+      end
+
+      it 'returns the hash passed by the user in --json-attribute-file option' do
+        response = bootstrap.first_boot_attributes
+        expect(response).to be == { 'b2' => 'a3', 'a4' => 'b5' }
+      end
+    end
+
+    context 'when both the --json-attributes option and --json-attribute-file options are passed' do
+      before do
+        bootstrap.config[:first_boot_attributes] = @first_boot_attributes
+        bootstrap.config[:first_boot_attributes_from_file] = @first_boot_attributes_from_file
+      end
+
+      it 'returns the hash passed by the user in --json-attributes option' do
+        response = bootstrap.first_boot_attributes
+        expect(response).to be == { 'a1' => 'b1', 'a2' => 'b2' }
+      end
+    end
+
+    after(:each) do
+      FileUtils.rm_rf @json_file
+    end
+  end
+
+  describe 'render_template' do
+    before do
+      allow(bootstrap).to receive(:first_boot_attributes).and_return(
+        { 'a1' => 'b3', 'a2' => 'b1' }
+      )
+      allow(bootstrap).to receive(:load_correct_secret).and_return(
+        'my_secret'
+      )
+      allow(Erubis::Eruby).to receive_message_chain(:new, :evaluate).and_return(
+        'my_template'
+      )
+    end
+
+    it 'sets correct values into config and returns the correct response' do
+      response = bootstrap.render_template
+      expect(bootstrap.config[:first_boot_attributes]).to be == { 'a1' => 'b3', 'a2' => 'b1' }
+      expect(bootstrap.config[:secret]).to be == 'my_secret'
+      expect(response).to be == 'my_template'
+    end
+  end
+end
+
+def read_json_file(file)
+  Chef::JSONCompat.parse(File.read(file))
 end
