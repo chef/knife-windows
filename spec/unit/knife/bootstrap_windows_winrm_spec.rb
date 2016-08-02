@@ -341,15 +341,16 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   describe 'first_boot_attributes' do
-    before(:each) do
-      @first_boot_attributes = { 'a1' => 'b1', 'a2' => 'b2' }
-      @json_file = 'my_json.json'
-      File.open(@json_file,"w+") do |f|
+    let(:first_boot_attributes) { { 'a1' => 'b1', 'a2' => 'b2' } }
+    let(:json_file) { 'my_json.json' }
+    let(:first_boot_attributes_from_file) { read_json_file(json_file) }
+
+    before do
+      File.open(json_file,"w+") do |f|
         f.write <<-EOH
 {"b2" : "a3", "a4" : "b5"}
         EOH
       end
-      @first_boot_attributes_from_file = read_json_file(@json_file)
     end
 
     context 'when none of the json-attributes options are passed' do
@@ -361,7 +362,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
     context 'when only --json-attributes option is passed' do
       before do
-        bootstrap.config[:first_boot_attributes] = @first_boot_attributes
+        bootstrap.config[:first_boot_attributes] = first_boot_attributes
       end
 
       it 'returns the hash passed by the user in --json-attributes option' do
@@ -372,7 +373,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
     context 'when only --json-attribute-file option is passed' do
       before do
-        bootstrap.config[:first_boot_attributes_from_file] = @first_boot_attributes_from_file
+        bootstrap.config[:first_boot_attributes_from_file] = first_boot_attributes_from_file
       end
 
       it 'returns the hash passed by the user in --json-attribute-file option' do
@@ -383,8 +384,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
     context 'when both the --json-attributes option and --json-attribute-file options are passed' do
       before do
-        bootstrap.config[:first_boot_attributes] = @first_boot_attributes
-        bootstrap.config[:first_boot_attributes_from_file] = @first_boot_attributes_from_file
+        bootstrap.config[:first_boot_attributes] = first_boot_attributes
+        bootstrap.config[:first_boot_attributes_from_file] = first_boot_attributes_from_file
       end
 
       it 'returns the hash passed by the user in --json-attributes option' do
@@ -393,8 +394,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       end
     end
 
-    after(:each) do
-      FileUtils.rm_rf @json_file
+    after do
+      FileUtils.rm_rf json_file
     end
   end
 
