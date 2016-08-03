@@ -341,14 +341,14 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   describe 'first_boot_attributes' do
-    let(:first_boot_attributes) { { 'a1' => 'b1', 'a2' => 'b2' } }
+    let(:first_boot_attributes) { { 'a1' => 'b1', 'a2' => 'b2', 'source' => 'hash' } }
     let(:json_file) { 'my_json.json' }
     let(:first_boot_attributes_from_file) { read_json_file(json_file) }
 
     before do
       File.open(json_file,"w+") do |f|
         f.write <<-EOH
-{"b2" : "a3", "a4" : "b5"}
+{"b2" : "a3", "a4" : "b5", "source" : "file"}
         EOH
       end
     end
@@ -367,7 +367,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
       it 'returns the hash passed by the user in --json-attributes option' do
         response = bootstrap.first_boot_attributes
-        expect(response).to be == { 'a1' => 'b1', 'a2' => 'b2' }
+        expect(response).to be == first_boot_attributes
       end
     end
 
@@ -378,7 +378,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
       it 'returns the hash passed by the user in --json-attribute-file option' do
         response = bootstrap.first_boot_attributes
-        expect(response).to be == { 'b2' => 'a3', 'a4' => 'b5' }
+        expect(response).to be == { 'b2' => 'a3', 'a4' => 'b5', 'source' => 'file' }
       end
     end
 
@@ -390,7 +390,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
       it 'returns the hash passed by the user in --json-attributes option' do
         response = bootstrap.first_boot_attributes
-        expect(response).to be == { 'a1' => 'b1', 'a2' => 'b2' }
+        expect(response).to be == first_boot_attributes
       end
     end
 
