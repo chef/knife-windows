@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.5.0
+
+* [knife-windows #377](https://github.com/chef/knife-windows/pull/377) Added code and corresponding RSpecs to read the json attributes from the --json-attributes-file option.
+
 ## Release 1.4.1
 
 * [knife-windows #362](https://github.com/chef/knife-windows/pull/362) Fix `knife windows bootstrap` chef client downloads over a proxy
