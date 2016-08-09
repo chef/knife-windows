@@ -431,11 +431,15 @@ behavior will be removed and any 'encrypted_data_bag_secret' entries in
       # to whatever the target system is.  We assume that we are only bootstrapping 1 node at a time
       # so we don't need to worry about multipe responses from this command.
       def set_target_architecture(bootstrap_architecture)
-        session_results = relay_winrm_command("echo %PROCESSOR_ARCHITECTURE%")
-        if session_results.empty? || session_results[0].stdout.strip.empty?
-          raise "Response to 'echo %PROCESSOR_ARCHITECTURE%' command was invalid: #{session_results}"
+        if (self.class == Chef::Knife::BootstrapWindowsWinrm)
+          session_results = relay_winrm_command("echo %PROCESSOR_ARCHITECTURE%")
+          if session_results.empty? || session_results[0].stdout.strip.empty?
+            raise "Response to 'echo %PROCESSOR_ARCHITECTURE%' command was invalid: #{session_results}"
+          end
+          current_architecture = session_results[0].stdout.strip == "X86" ? :i386 : :x86_64
+        else
+          current_architecture =  :x86_64
         end
-        current_architecture = session_results[0].stdout.strip == "X86" ? :i386 : :x86_64
 
         if bootstrap_architecture.nil?
           architecture = current_architecture
