@@ -87,7 +87,11 @@ goto architecture_select
 goto Version6.2
 
 :architecture_select
-@set MACHINE_ARCH=<%= knife_config[:architecture] %>
+IF "%PROCESSOR_ARCHITECTURE%"=="X86" (
+@set MACHINE_ARCH=i686
+) ELSE (
+@set MACHINE_ARCH=x86_64
+)
 goto install
 
 :install
