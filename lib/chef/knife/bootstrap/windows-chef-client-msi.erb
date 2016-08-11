@@ -87,11 +87,23 @@ goto architecture_select
 goto Version6.2
 
 :architecture_select
-IF "%PROCESSOR_ARCHITECTURE%"=="X86" (
-@set MACHINE_ARCH=i686
-) ELSE (
-@set MACHINE_ARCH=x86_64
-)
+<% if knife_config[:architecture] %>
+  @set MACHINE_ARCH=<%= knife_config[:architecture] %>
+
+  <% if knife_config[:architecture] == "x86_64" %>
+    IF "%PROCESSOR_ARCHITECTURE%"=="X86" (
+      echo You specified bootstrap_architecture as x86_64 but the target machine is i386. A 64 bit program cannot run on a 32 bit machine. > "&2"
+      echo Exiting without bootstrapping. > "&2"
+      exit /b 1
+    )
+  <% end %>
+<% else %>
+  IF "%PROCESSOR_ARCHITECTURE%"=="X86" (
+  @set MACHINE_ARCH=i686
+  ) ELSE (
+  @set MACHINE_ARCH=x86_64
+  )
+<% end %>
 goto install
 
 :install

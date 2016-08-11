@@ -283,6 +283,8 @@ class Chef
           warn_chef_config_secret_key
         end
 
+        set_target_architecture
+
         validate_name_args!
 
         # adding respond_to? so this works with pre 12.4 chef clients
@@ -415,6 +417,27 @@ behavior will be removed and any 'encrypted_data_bag_secret' entries in
 'knife.rb' will be ignored completely.
         WARNING
         ui.info "* " * 40
+      end
+
+      # We allow the user to specify the desired architecture of Chef to install or we default
+      # to whatever the target system is.
+      # This is because a user might want to install a 32bit chef client on a 64bit machine
+      def set_target_architecture
+        if Chef::Config[:knife][:architecture]
+          raise "Do not set :architecture in your knife config, use :bootstrap_architecture."
+        end
+
+        if Chef::Config[:knife][:bootstrap_architecture]
+          bootstrap_architecture = Chef::Config[:knife][:bootstrap_architecture]
+
+          if ![:x86_64, :i386].include?(bootstrap_architecture.to_sym)
+            raise "Valid values for the knife config :bootstrap_architecture are i386 or x86_64. Supplied value is #{bootstrap_architecture}"
+          end
+
+          # The windows install script wants i686, not i386
+          bootstrap_architecture = :i686 if bootstrap_architecture == :i386
+          Chef::Config[:knife][:architecture] = bootstrap_architecture
+        end
       end
     end
   end
