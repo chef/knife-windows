@@ -196,7 +196,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should have a wait timeout of 2 minutes by default' do
-   # expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
     allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError.new('','500'))
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
