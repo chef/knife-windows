@@ -47,6 +47,10 @@ class Chef
           end
         end
 
+        if @name_args[0].nil?
+          ui.error('Must pass an FQDN or ip to bootstrap')
+          exit 1
+        end
         config[:manual] = true
         configure_session
 
