@@ -149,16 +149,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     end
   end
 
-  it 'should raise an error if the relay_command returns an unknown response' do
-    allow(session).to receive(:exit_code).and_return(500)
-    allow(bootstrap).to receive(:wait_for_remote_response)
-    allow(session).to receive(:relay_command).and_return(WinRM::Output.new)
-    allow(bootstrap.ui).to receive(:info)
-    expect {
-      bootstrap.run
-    }.to raise_error(/Response to 'echo %PROCESSOR_ARCHITECTURE%' command was invalid:/)
-  end
-
   it 'should pass exit code from failed winrm call' do
     allow(session).to receive(:exit_code).and_return(500)
     allow(bootstrap).to receive(:wait_for_remote_response)
@@ -206,7 +196,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'should have a wait timeout of 2 minutes by default' do
-    expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
+   # expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
     allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError.new('','500'))
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
@@ -243,8 +233,8 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'successfully bootstraps' do
+    Chef::Config[:knife][:bootstrap_architecture] = :i386
     allow(bootstrap).to receive(:wait_for_remote_response)
-    expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
     allow(bootstrap).to receive(:create_bootstrap_bat_command)
     allow(bootstrap).to receive(:run_command).and_return(0)
     expect(bootstrap.bootstrap).to eq(0)
@@ -252,15 +242,9 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   context "when the target node is 64 bit" do
-    let(:arch_session_result) {
-      o = WinRM::Output.new
-      o[:data] << {stdout: "AMD64\r\n"}
-      o
-    }
-
     it 'successfully bootstraps' do
+      Chef::Config[:knife][:bootstrap_architecture] = :x86_64
       allow(bootstrap).to receive(:wait_for_remote_response)
-      expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
       allow(bootstrap).to receive(:create_bootstrap_bat_command)
       allow(bootstrap).to receive(:run_command).and_return(0)
       expect(bootstrap.bootstrap).to eq(0)
@@ -308,7 +292,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     let(:node_name) { 'foo.example.com' }
     before do
       allow(bootstrap).to receive(:wait_for_remote_response)
-      expect(bootstrap).to receive(:relay_winrm_command).with("echo %PROCESSOR_ARCHITECTURE%").and_return(arch_session_results)
       allow(bootstrap).to receive(:create_bootstrap_bat_command)
       allow(bootstrap).to receive(:run_command).and_return(0)
       bootstrap.config[:chef_node_name] = node_name

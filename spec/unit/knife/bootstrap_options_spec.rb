@@ -82,6 +82,7 @@ expected: #{expected}
       :winrm_port => :ssh_port,
       :winrm_ssl_verify_mode => :host_key_verify,
       :bootstrap_install_command => :bootstrap_install_command,
+      :hint => :hint
     }}
 
     # ref_ignore: Options in core that are not implemented here.
@@ -130,6 +131,7 @@ expected: #{expected}
       :encrypted_data_bag_secret => :secret,
       :encrypted_data_bag_secret_file => :secret_file,
       :bootstrap_install_command => :bootstrap_install_command,
+      :hint => :hint
     }}
     # ref_ignore: Options in core that are not implemented here.
     let(:ref_ignore) { [
