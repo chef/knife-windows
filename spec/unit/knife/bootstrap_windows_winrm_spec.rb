@@ -251,25 +251,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     end
   end
 
-  context 'FQDN validation -' do
-    it 'should raise an error if FQDN value is not passed' do
-      bootstrap.instance_variable_set(:@name_args, [])
-      allow(bootstrap).to receive(:wait_for_remote_response)
-      allow(bootstrap.ui).to receive(:error)
-      expect {
-        bootstrap.run
-      }.to raise_error(SystemExit)
-    end
-
-    it 'should not raise error if FQDN value is passed' do
-      bootstrap.instance_variable_set(:@name_args, ["fqdn_name"])
-      allow(bootstrap).to receive(:wait_for_remote_response)
-      expect {
-        bootstrap.run
-      }.not_to raise_error(SystemExit)
-    end
-  end
-
   context "when validation_key is not present" do
     context "using chef 11", :chef_lt_12_only do
       before do
