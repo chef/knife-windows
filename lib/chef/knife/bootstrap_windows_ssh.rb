@@ -92,6 +92,7 @@ class Chef
         :default => true
 
       def run
+        validate_name_args!
         bootstrap
       end
 
