@@ -283,13 +283,7 @@ class Chef
           warn_chef_config_secret_key
         end
 
-        bootstrap_architecture = Chef::Config[:knife][:bootstrap_architecture]
-        if bootstrap_architecture && ![:x86_64, :i386].include?(bootstrap_architecture.to_sym)
-          raise "Valid values for the knife config :bootstrap_architecture are i386 or x86_64. Supplied value is #{bootstrap_architecture}"
-        end
-        if Chef::Config[:knife][:architecture]
-          raise "Do not set :architecture in your knife config, use :bootstrap_architecture."
-        end
+        set_target_architecture
 
         validate_name_args!
 
@@ -332,8 +326,6 @@ class Chef
         end
 
         wait_for_remote_response( config[:auth_timeout].to_i )
-
-        set_target_architecture(bootstrap_architecture)
 
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
         # create a bootstrap.bat file on the node
@@ -428,26 +420,24 @@ behavior will be removed and any 'encrypted_data_bag_secret' entries in
       end
 
       # We allow the user to specify the desired architecture of Chef to install or we default
-      # to whatever the target system is.  We assume that we are only bootstrapping 1 node at a time
-      # so we don't need to worry about multipe responses from this command.
-      def set_target_architecture(bootstrap_architecture)
-        session_results = relay_winrm_command("echo %PROCESSOR_ARCHITECTURE%")
-        if session_results.empty? || session_results[0].stdout.strip.empty?
-          raise "Response to 'echo %PROCESSOR_ARCHITECTURE%' command was invalid: #{session_results}"
-        end
-        current_architecture = session_results[0].stdout.strip == "X86" ? :i386 : :x86_64
-
-        if bootstrap_architecture.nil?
-          architecture = current_architecture
-        elsif bootstrap_architecture == :x86_64 && current_architecture == :i386
-          raise "You specified bootstrap_architecture as x86_64 but the target machine is i386. A 64 bit program cannot run on a 32 bit machine."
-        else
-          architecture = bootstrap_architecture
+      # to whatever the target system is.
+      # This is because a user might want to install a 32bit chef client on a 64bit machine
+      def set_target_architecture
+        if Chef::Config[:knife][:architecture]
+          raise "Do not set :architecture in your knife config, use :bootstrap_architecture."
         end
 
-        # The windows install script wants i686, not i386
-        architecture = :i686 if architecture == :i386
-        Chef::Config[:knife][:architecture] = architecture
+        if Chef::Config[:knife][:bootstrap_architecture]
+          bootstrap_architecture = Chef::Config[:knife][:bootstrap_architecture]
+
+          if ![:x86_64, :i386].include?(bootstrap_architecture.to_sym)
+            raise "Valid values for the knife config :bootstrap_architecture are i386 or x86_64. Supplied value is #{bootstrap_architecture}"
+          end
+
+          # The windows install script wants i686, not i386
+          bootstrap_architecture = :i686 if bootstrap_architecture == :i386
+          Chef::Config[:knife][:architecture] = bootstrap_architecture
+        end
       end
     end
   end
