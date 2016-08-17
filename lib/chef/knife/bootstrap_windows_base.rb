@@ -285,8 +285,6 @@ class Chef
 
         set_target_architecture
 
-        validate_name_args!
-
         # adding respond_to? so this works with pre 12.4 chef clients
         validate_options! if respond_to?(:validate_options!)
 

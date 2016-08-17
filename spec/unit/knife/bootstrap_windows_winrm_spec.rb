@@ -199,7 +199,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError.new('','500'))
     allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
-    allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
 
     allow(bootstrap.ui).to receive(:info)
     bootstrap.config[:auth_timeout] = bootstrap.options[:auth_timeout][:default]
@@ -221,7 +220,6 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     times = [ Time.new(2014, 4, 1, 22, 25), Time.new(2014, 4, 1, 22, 51), Time.new(2014, 4, 1, 22, 28) ]
     allow(Time).to receive(:now).and_return(*times)
     run_command_result = lambda {raise WinRM::WinRMHTTPTransportError, '401'}
-    allow(bootstrap).to receive(:validate_name_args!).and_return(nil)
     allow(bootstrap).to receive(:run_command).and_return(run_command_result)
     allow(bootstrap).to receive(:print)
     allow(bootstrap.ui).to receive(:info)
