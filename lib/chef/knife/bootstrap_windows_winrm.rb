@@ -40,6 +40,8 @@ class Chef
       banner 'knife bootstrap windows winrm FQDN (options)'
 
       def run
+        validate_name_args!
+
         if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
           if !negotiate_auth? && !(locate_config_value(:winrm_transport) == 'ssl')
             ui.error('Validatorless bootstrap over unsecure winrm channels could expose your key to network sniffing')
