@@ -130,7 +130,7 @@ goto install
 
   @echo Attempting to download client package using PowerShell if available...
   @set "REMOTE_SOURCE_MSI_URL=<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>"
-  @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%" "%LOCAL_DESTINATION_MSI_PATH%"
+  @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -InputFormat None -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%" "%LOCAL_DESTINATION_MSI_PATH%"
   @echo !powershell_download!
   @call !powershell_download!
 
