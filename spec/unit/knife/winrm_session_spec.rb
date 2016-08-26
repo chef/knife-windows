@@ -18,18 +18,22 @@
 
 require 'spec_helper'
 require 'dummy_winrm_service'
+require 'dummy_command_executor'
 
 Chef::Knife::Winrm.load_deps
 
 
 describe Chef::Knife::WinrmSession do
   let(:winrm_service) { Dummy::WinRMService.new }
+  let(:command_exec) { Dummy::CommandExecutor.new }
   let(:options) { { transport: :plaintext } }
 
   before do
     @original_config = Chef::Config.hash_dup
     allow(WinRM::WinRMWebService).to receive(:new).and_return(winrm_service)
+    allow(WinRM::CommandExecutor).to receive(:new).and_return(command_exec)
     allow(winrm_service).to receive(:set_timeout)
+    allow(command_exec).to receive(:run_cmd)
   end
 
   after do
@@ -65,11 +69,9 @@ describe Chef::Knife::WinrmSession do
 
   describe "#relay_command" do
     it "run command and display commands output" do
-      expect(winrm_service).to receive(:open_shell).ordered
-      expect(winrm_service).to receive(:run_command).ordered
-      expect(winrm_service).to receive(:get_command_output).ordered.and_return({})
-      expect(winrm_service).to receive(:cleanup_command).ordered
-      expect(winrm_service).to receive(:close_shell).ordered
+      expect(command_exec).to receive(:open).ordered
+      expect(command_exec).to receive(:run_cmd).ordered.and_return({:data => []})
+      expect(command_exec).to receive(:close).ordered
       subject.relay_command("cmd.exe echo 'hi'")
     end
   end
