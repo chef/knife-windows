@@ -49,26 +49,18 @@ class Chef
       end
 
       def relay_command(command)
-        remote_id = @winrm_session.open_shell
-        command_id = @winrm_session.run_command(remote_id, command)
-        Chef::Log.debug("#{@host}[#{remote_id}] => :run_command[#{command}]")
-        session_result = get_output(remote_id, command_id)
-        @winrm_session.cleanup_command(remote_id, command_id)
-        Chef::Log.debug("#{@host}[#{remote_id}] => :command_cleanup[#{command}]")
+        command_exec = WinRM::CommandExecutor.new(@winrm_session)
+        shell_id = command_exec.open
+        session_result = command_exec.run_cmd(command)
+        get_output(session_result[:data])
+        Chef::Log.debug("#{@host}[#{shell_id}] => :run_cmd[#{command}]")
         @exit_code = session_result[:exitcode]
-        @winrm_session.close_shell(remote_id)
-        Chef::Log.debug("#{@host}[#{remote_id}] => :shell_close")
+        command_exec.close
+        Chef::Log.debug("#{@host}[#{shell_id}] => :shell_close")
         session_result
       end
 
       private
-
-      def get_output(remote_id, command_id)
-        @winrm_session.get_command_output(remote_id, command_id) do |out,error|
-          print_data(@host, out) if out
-          print_data(@host, error, :red) if error
-        end
-      end
 
       def print_data(host, data, color = :cyan)
         if data =~ /\n/
@@ -76,6 +68,13 @@ class Chef
         elsif !data.nil?
           print Chef::Knife::Winrm.ui.color(host, color)
           puts " #{data}"
+        end
+      end
+
+      def get_output(data)
+        data.each do |out, error|
+          print_data(@host, out) if out
+          print_data(@host, error, :red) if error
         end
       end
 
