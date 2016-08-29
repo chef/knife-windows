@@ -18,22 +18,18 @@
 
 require 'spec_helper'
 require 'dummy_winrm_service'
-require 'dummy_command_executor'
 
 Chef::Knife::Winrm.load_deps
 
 
 describe Chef::Knife::WinrmSession do
   let(:winrm_service) { Dummy::WinRMService.new }
-  let(:command_exec) { Dummy::CommandExecutor.new }
   let(:options) { { transport: :plaintext } }
 
   before do
     @original_config = Chef::Config.hash_dup
     allow(WinRM::WinRMWebService).to receive(:new).and_return(winrm_service)
-    allow(WinRM::CommandExecutor).to receive(:new).and_return(command_exec)
     allow(winrm_service).to receive(:set_timeout)
-    allow(command_exec).to receive(:run_cmd)
   end
 
   after do
