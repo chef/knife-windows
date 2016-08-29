@@ -42,6 +42,8 @@ class Chef
         Chef::Log.debug("Transport: #{options[:transport]}")
 
         @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
+        @winrm_session.logger = Chef::Log
+
         transport = @winrm_session.instance_variable_get(:@xfer)
         http_client = transport.instance_variable_get(:@httpcli)
         Chef::HTTP::DefaultSSLPolicy.new(http_client.ssl_config).set_custom_certs
@@ -49,14 +51,14 @@ class Chef
       end
 
       def relay_command(command)
-        command_exec = WinRM::CommandExecutor.new(@winrm_session)
-        shell_id = command_exec.open
-        session_result = command_exec.run_cmd(command)
-        get_output(session_result[:data])
-        Chef::Log.debug("#{@host}[#{shell_id}] => :run_cmd[#{command}]")
+        session_result = {}
+        @winrm_session.create_executor do |executor|
+          session_result = executor.run_cmd(command) do |stdout, stderr|
+            print_data(@host, stdout) if stdout
+            print_data(@host, stderr, :red) if stderr
+          end
+        end
         @exit_code = session_result[:exitcode]
-        command_exec.close
-        Chef::Log.debug("#{@host}[#{shell_id}] => :shell_close")
         session_result
       end
 
@@ -68,13 +70,6 @@ class Chef
         elsif !data.nil?
           print Chef::Knife::Winrm.ui.color(host, color)
           puts " #{data}"
-        end
-      end
-
-      def get_output(data)
-        data.each do |out, error|
-          print_data(@host, out) if out
-          print_data(@host, error, :red) if error
         end
       end
 
