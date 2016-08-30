@@ -29,7 +29,7 @@ describe Chef::Knife::Winrm do
   describe "#resolve_target_nodes" do
     before do
       @knife = Chef::Knife::Winrm.new
-      @knife.config[:attribute] = "fqdn"
+      @knife.config[:winrm_attribute] = "fqdn"
       @node_foo = Chef::Node.new
       @node_foo.automatic_attrs[:fqdn] = "foo.example.org"
       @node_foo.automatic_attrs[:ipaddress] = "10.0.0.1"
@@ -67,7 +67,7 @@ describe Chef::Knife::Winrm do
       end
 
       it "uses the nested attributes (KNIFE-276)" do
-        @knife.config[:attribute] = "ec2.public_hostname"
+        @knife.config[:winrm_attribute] = "ec2.public_hostname"
         @knife.configure_chef
         @knife.resolve_target_nodes
       end

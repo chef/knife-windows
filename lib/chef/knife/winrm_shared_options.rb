@@ -34,9 +34,9 @@ class Chef
             :description => "QUERY is a space separated list of servers",
             :default => false
 
-          option :attribute,
-            :short => "-a ATTR",
-            :long => "--attribute ATTR",
+          option :winrm_attribute,
+            :short => "-g ATTR",
+            :long => "--winrm-attribute ATTR",
             :description => "The attribute to use for opening the connection - default is fqdn",
             :default => "fqdn"
         end

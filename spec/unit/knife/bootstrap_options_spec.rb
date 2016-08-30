@@ -103,7 +103,7 @@ expected: #{expected}
 
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
-      :attribute,
+      :winrm_attribute,
       :auth_timeout,
       :ca_trust_file,
       :install_as_service,
