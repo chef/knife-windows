@@ -65,11 +65,7 @@ describe Chef::Knife::WinrmSession do
 
   describe "#relay_command" do
     it "run command and display commands output" do
-      expect(winrm_service).to receive(:open_shell).ordered
-      expect(winrm_service).to receive(:run_command).ordered
-      expect(winrm_service).to receive(:get_command_output).ordered.and_return({})
-      expect(winrm_service).to receive(:cleanup_command).ordered
-      expect(winrm_service).to receive(:close_shell).ordered
+      expect(winrm_service).to receive(:create_executor).ordered.and_return({})
       subject.relay_command("cmd.exe echo 'hi'")
     end
   end

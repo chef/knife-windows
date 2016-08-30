@@ -42,6 +42,8 @@ class Chef
         Chef::Log.debug("Transport: #{options[:transport]}")
 
         @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
+        @winrm_session.logger = Chef::Log
+
         transport = @winrm_session.instance_variable_get(:@xfer)
         http_client = transport.instance_variable_get(:@httpcli)
         Chef::HTTP::DefaultSSLPolicy.new(http_client.ssl_config).set_custom_certs
@@ -49,26 +51,18 @@ class Chef
       end
 
       def relay_command(command)
-        remote_id = @winrm_session.open_shell
-        command_id = @winrm_session.run_command(remote_id, command)
-        Chef::Log.debug("#{@host}[#{remote_id}] => :run_command[#{command}]")
-        session_result = get_output(remote_id, command_id)
-        @winrm_session.cleanup_command(remote_id, command_id)
-        Chef::Log.debug("#{@host}[#{remote_id}] => :command_cleanup[#{command}]")
+        session_result = {}
+        @winrm_session.create_executor do |executor|
+          session_result = executor.run_cmd(command) do |stdout, stderr|
+            print_data(@host, stdout) if stdout
+            print_data(@host, stderr, :red) if stderr
+          end
+        end
         @exit_code = session_result[:exitcode]
-        @winrm_session.close_shell(remote_id)
-        Chef::Log.debug("#{@host}[#{remote_id}] => :shell_close")
         session_result
       end
 
       private
-
-      def get_output(remote_id, command_id)
-        @winrm_session.get_command_output(remote_id, command_id) do |out,error|
-          print_data(@host, out) if out
-          print_data(@host, error, :red) if error
-        end
-      end
 
       def print_data(host, data, color = :cyan)
         if data =~ /\n/
