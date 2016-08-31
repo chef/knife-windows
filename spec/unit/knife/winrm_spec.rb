@@ -23,6 +23,7 @@ Chef::Knife::Winrm.load_deps
 
 describe Chef::Knife::Winrm do
   before(:all) do
+    Chef::Config.reset
     @original_config = Chef::Config.hash_dup
     @original_knife_config = Chef::Config[:knife].nil? ? nil : Chef::Config[:knife].dup
   end
