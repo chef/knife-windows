@@ -53,7 +53,7 @@ class Chef
 
           option :winrm_shell,
             :long => "--winrm-shell SHELL",
-            :description => "The WinRM shell type. Valid choices are [cmd, powershell, elevated]",
+            :description => "The WinRM shell type. Valid choices are [cmd, powershell, elevated]. 'elevated' runs powershell in a scheduled task",
             :default => :cmd,
             :proc => Proc.new { |shell| shell.to_sym }
 
