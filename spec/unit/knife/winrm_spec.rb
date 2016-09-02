@@ -24,13 +24,11 @@ Chef::Knife::Winrm.load_deps
 describe Chef::Knife::Winrm do
   before(:all) do
     Chef::Config.reset
-    @original_config = Chef::Config.hash_dup
-    @original_knife_config = Chef::Config[:knife].nil? ? nil : Chef::Config[:knife].dup
+    @original_config = Chef::Config.save
   end
 
   after do
-    Chef::Config.configuration = @original_config
-    Chef::Config[:knife] = @original_knife_config if @original_knife_config
+    Chef::Config.restore(@original_config)
   end
 
   describe "#resolve_target_nodes" do
