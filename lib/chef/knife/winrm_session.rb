@@ -34,31 +34,39 @@ class Chef
         @endpoint = "#{scheme}://#{url}"
 
         opts = Hash.new
-        opts = {:user => options[:user], :pass => options[:password], :basic_auth_only => options[:basic_auth_only], :disable_sspi => options[:disable_sspi], :no_ssl_peer_verification => options[:no_ssl_peer_verification], :ssl_peer_fingerprint => options[:ssl_peer_fingerprint]}
-        options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm], :keytab => options[:keytab]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
-
+        opts = {
+          user: options[:user],
+          password: options[:password],
+          basic_auth_only: options[:basic_auth_only],
+          disable_sspi: options[:disable_sspi],
+          no_ssl_peer_verification: options[:no_ssl_peer_verification],
+          ssl_peer_fingerprint: options[:ssl_peer_fingerprint],
+          endpoint: endpoint,
+          transport: options[:transport]
+        }
+        options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
+        opts[:operation_timeout] = options[:operation_timeout] if options[:operation_timeout]
         Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
         Chef::Log.debug("Endpoint: #{endpoint}")
         Chef::Log.debug("Transport: #{options[:transport]}")
 
-        @winrm_session = WinRM::WinRMWebService.new(@endpoint, options[:transport], opts)
+        @winrm_session = WinRM::Connection.new(opts)
         @winrm_session.logger = Chef::Log
 
-        transport = @winrm_session.instance_variable_get(:@xfer)
+        transport = @winrm_session.send(:transport)
         http_client = transport.instance_variable_get(:@httpcli)
         Chef::HTTP::DefaultSSLPolicy.new(http_client.ssl_config).set_custom_certs
-        @winrm_session.set_timeout(options[:operation_timeout]) if options[:operation_timeout]
       end
 
       def relay_command(command)
-        session_result = {}
-        @winrm_session.create_executor do |executor|
-          session_result = executor.run_cmd(command) do |stdout, stderr|
+        session_result = WinRM::Output.new
+        @winrm_session.shell(:cmd) do |shell|
+          session_result = shell.run(command) do |stdout, stderr|
             print_data(@host, stdout) if stdout
             print_data(@host, stderr, :red) if stderr
           end
         end
-        @exit_code = session_result[:exitcode]
+        @exit_code = session_result.exitcode
         session_result
       end
 

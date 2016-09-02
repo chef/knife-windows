@@ -17,19 +17,18 @@
 #
 
 require 'spec_helper'
-require 'dummy_winrm_service'
+require 'dummy_winrm_connection'
 
 Chef::Knife::Winrm.load_deps
 
 
 describe Chef::Knife::WinrmSession do
-  let(:winrm_service) { Dummy::WinRMService.new }
+  let(:winrm_connection) { Dummy::Connection.new }
   let(:options) { { transport: :plaintext } }
 
   before do
     @original_config = Chef::Config.hash_dup
-    allow(WinRM::WinRMWebService).to receive(:new).and_return(winrm_service)
-    allow(winrm_service).to receive(:set_timeout)
+    allow(WinRM::Connection).to receive(:new).and_return(winrm_connection)
   end
 
   after do
@@ -54,7 +53,7 @@ describe Chef::Knife::WinrmSession do
 
       it "sets the ssl policy on the winrm client" do
         expect(Chef::HTTP::DefaultSSLPolicy).to receive(:new)
-          .with(winrm_service.xfer.httpcli.ssl_config)
+          .with(winrm_connection.transport.httpcli.ssl_config)
           .and_return(ssl_policy)
         expect(ssl_policy).to receive(:set_custom_certs)
         subject
@@ -65,7 +64,7 @@ describe Chef::Knife::WinrmSession do
 
   describe "#relay_command" do
     it "run command and display commands output" do
-      expect(winrm_service).to receive(:create_executor).ordered.and_return({})
+      expect(winrm_connection).to receive(:shell)
       subject.relay_command("cmd.exe echo 'hi'")
     end
   end

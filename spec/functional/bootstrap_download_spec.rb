@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+require 'dummy_winrm_connection'
 require 'spec_helper'
 require 'tmpdir'
 
@@ -132,6 +133,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
       allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
     end
 
+    allow(WinRM::Connection).to receive(:new).and_return(Dummy::Connection.new)
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
     allow(winrm_bootstrapper).to receive(:validate_options!)
     allow(winrm_bootstrapper.ui).to receive(:ask).and_return(nil)
