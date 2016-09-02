@@ -51,6 +51,12 @@ class Chef
             :description => "The WinRM password",
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_password] = key }
 
+          option :winrm_shell,
+            :long => "--winrm-shell SHELL",
+            :description => "The WinRM shell type. Valid choices are [cmd, powershell, elevated]",
+            :default => :cmd,
+            :proc => Proc.new { |shell| shell.to_sym }
+
           option :winrm_transport,
             :short => "-t TRANSPORT",
             :long => "--winrm-transport TRANSPORT",

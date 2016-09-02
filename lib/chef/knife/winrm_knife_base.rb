@@ -201,7 +201,8 @@ class Chef
               disable_sspi: resolve_winrm_disable_sspi,
               transport: resolve_winrm_transport,
               no_ssl_peer_verification: resolve_no_ssl_peer_verification,
-              ssl_peer_fingerprint: resolve_ssl_peer_fingerprint
+              ssl_peer_fingerprint: resolve_ssl_peer_fingerprint,
+              shell: locate_config_value(:winrm_shell)
             }
 
             if @session_opts[:user] and (not @session_opts[:password])

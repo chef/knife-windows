@@ -18,6 +18,7 @@
 
 require 'chef/application'
 require 'winrm'
+require 'winrm-elevated'
 
 class Chef
   class Knife
@@ -29,13 +30,15 @@ class Chef
 
         @host = options[:host]
         @port = options[:port]
+        @user = options[:user]
+        @shell = options[:shell]
         url = "#{options[:host]}:#{options[:port]}/wsman"
         scheme = options[:transport] == :ssl ? 'https' : 'http'
         @endpoint = "#{scheme}://#{url}"
 
         opts = Hash.new
         opts = {
-          user: options[:user],
+          user: @user,
           password: options[:password],
           basic_auth_only: options[:basic_auth_only],
           disable_sspi: options[:disable_sspi],
@@ -60,7 +63,8 @@ class Chef
 
       def relay_command(command)
         session_result = WinRM::Output.new
-        @winrm_session.shell(:cmd) do |shell|
+        @winrm_session.shell(@shell) do |shell|
+          shell.username = @user.split("\\").last if shell.respond_to?(:username)
           session_result = shell.run(command) do |stdout, stderr|
             print_data(@host, stdout) if stdout
             print_data(@host, stderr, :red) if stderr
