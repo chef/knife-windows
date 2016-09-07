@@ -33,6 +33,10 @@ Or force a chef run:
 
 This subcommand operates in a manner similar to [knife ssh](https://docs.chef.io/knife_ssh.html)...just leveraging the WinRM protocol for communication. It also includes `knife ssh`'s "[interactive session mode](https://docs.chef.io/knife_ssh.html#options)"
 
+#### winrm-shell
+
+By default, `knife winrm` runs in a `cmd.exe` shell. You can use the `--winrm-shell` argument to change the shell to `powershell` or `elevated`. An elevated shell is similar to the `powershell` shell but the powershell command is executed from a scheduled task using a local identity. This may be desirable for some operations such as running `chef-client` to converge recipes that work with windows updates, install sql server, etc.
+
 ### knife bootstrap windows winrm
 
 Performs a Chef Bootstrap (via the WinRM protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.

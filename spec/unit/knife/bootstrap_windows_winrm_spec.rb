@@ -49,7 +49,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   let(:session) { Chef::Knife::WinrmSession.new(session_opts) }
   let(:arch_session_result) {
     o = WinRM::Output.new
-    o[:data] << {stdout: "X86\r\n"}
+    o << {stdout: "X86\r\n"}
     o
   }
   let(:arch_session_results) { [arch_session_result] }

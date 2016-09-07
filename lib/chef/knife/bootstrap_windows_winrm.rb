@@ -49,6 +49,11 @@ class Chef
           end
         end
 
+        unless locate_config_value(:winrm_shell) == :cmd
+          ui.warn("The cmd shell is the only valid winrm-shell for 'knife bootstrap windows winrm'. Switching to the cmd shell.")
+          config[:winrm_shell] = :cmd
+        end
+
         config[:manual] = true
         configure_session
 

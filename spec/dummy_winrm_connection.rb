@@ -8,15 +8,14 @@ module Dummy
     end
   end
 
-  class WinRMService
-    attr_reader :xfer
+  class Connection
+    attr_reader :transport
     attr_accessor :logger
 
     def initialize
-      @xfer = WinRMTransport.new
+      @transport = WinRMTransport.new
     end
 
-    def set_timeout(timeout); end
-    def create_executor; end
+    def shell; end
   end
 end
