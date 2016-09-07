@@ -63,6 +63,10 @@ You can configure which package architecture (32 bit or 64 bit) to install on th
 
 Currently (March 2016) the `stable` channel of omnibus (where downloads using the install script fetch) only has 32 bit packages but this will be updated soon to include both 32 and 64 bit packages.  Until then you will need to access the `current` channel by specifying `--prerelease` in your `knife bootstrap windows` if you want 64 bit packages.
 
+#### Using a custom install URL
+
+By default, the bootstrap command tries to download the latest `chef-client` installer from the Internet.  This may be a problem in the enterprise, for example if your node is behind a proxy or firewall.  In that case, you can specify a custom install URL with the `--msi-url` option.
+
 ### knife wsman test
 
 Connects to the remote WSMan/WinRM endpoint and verifies the remote node is listening.  This is the equivalent of running Test-Wsman from PowerShell.  Endpoints to test can be specified manually, or be driven by search and use many of the same connection options as knife winrm.
