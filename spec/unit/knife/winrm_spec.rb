@@ -22,13 +22,8 @@ require 'dummy_winrm_connection'
 Chef::Knife::Winrm.load_deps
 
 describe Chef::Knife::Winrm do
-  before(:all) do
+  before do
     Chef::Config.reset
-    @original_config = Chef::Config.save
-  end
-
-  after do
-    Chef::Config.restore(@original_config)
   end
 
   describe "#resolve_target_nodes" do
