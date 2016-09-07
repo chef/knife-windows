@@ -5,10 +5,18 @@ Example Doc Change:
 ### Headline for the required change
 Description of the required change.
 -->
-# knife-windows 1.2.0 doc changes
+# knife-windows 1.6.0 doc changes
 
-### Support for NTLM/Negotiate on both windows and linux
+### Choosing a winrm shell
 
-This release makes no changes to the command line interface, but users should now be aware that Negotiate authentication and encryption over plaintext HTTP now works on linux in addition to windows.
+<!---
+This file is reset every time a new release is done. The contents of this file are for the currently unreleased version.
 
-Users who use knife-windows to bootstrap nodes over plaintext HTTP should also be aware that they no longer need, and in fact should not, configure base images enabling `basic_auth` or enabling `AllowUnencrypted` in their winrm configuration.
+Example Note:
+
+## Example Heading
+Details about the thing that changed that needs to get included in the Release Notes in markdown.
+-->
+# knife-windows 1.6.0 release notes:
+
+This release adds a `--winrm-shell` argument to `knife winrm`. This accepts one of three possible values: `cmd`, `powershell` or `elevated`. The default value is `cmd`. The `elevated` shell is similar to the `powershell` shell but runs the powershell command from a scheduled task.

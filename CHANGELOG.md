@@ -1,5 +1,15 @@
 # knife-windows Change Log
 
+## Release 1.6.0
+
+* [knife-windows #393](https://github.com/chef/knife-windows/pull/393) Add documentation of the --msi-url option
+* [knife-windows #392](https://github.com/chef/knife-windows/pull/392) Use winrm v2 and allow users to pass a shell
+* [knife-windows #388](https://github.com/chef/knife-windows/pull/388) fix #386 swallowing node_ssl_verify_mode value
+* [knife-windows #385](https://github.com/chef/knife-windows/pull/385) Fixed win 2008 64bit ssh bootstrap command hanging
+* [knife-windows #384](https://github.com/chef/knife-windows/pull/384) Fix for architechture detection issue for 64 bit
+* [knife-windows #381](https://github.com/chef/knife-windows/pull/381) Add validation for FQDN value
+* [knife-windows #380](https://github.com/chef/knife-windows/pull/380) Fixing bootstrap via ssh regression
+
 ## Release 1.5.0
 
 * [knife-windows #377](https://github.com/chef/knife-windows/pull/377) Added code and corresponding RSpecs to read the json attributes from the --json-attributes-file option.
