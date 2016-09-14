@@ -17,7 +17,7 @@ This plugin provides the following Knife subcommands. Specific command options c
 
 ### knife winrm
 
-The `winrm` subcommand allows you to invoke commands in parallel on a subset of the nodes in your infrastructure. The `winrm` subcommand uses the same syntax as the [search subcommand](https://docs.chef.io/knife_search.html); you could could find the uptime of all your web servers using the command:
+The `winrm` subcommand allows you to invoke commands in parallel on a subset of the nodes in your infrastructure. The `winrm` subcommand uses the same syntax as the [search subcommand](https://docs.chef.io/knife_search.html); you could find the uptime of all your web servers using the command:
 
     knife winrm "role:web" "net stats srv" -x Administrator -P 'super_secret_password'
 
