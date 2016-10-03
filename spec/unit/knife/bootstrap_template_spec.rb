@@ -72,27 +72,4 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       end
     end
   end
-
-  describe "specifying --msi-url" do
-    context "with explicitly provided --msi-url" do
-      let(:options) { ["--msi-url", "file:///something.msi"] }
-
-      it "bootstrap batch file must fetch from provided url" do
-        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=file:///something\.msi.*})
-      end
-    end
-    context "with no provided --msi-url" do
-      it "bootstrap batch file must fetch from provided url" do
-        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=https://www\.chef\.io/.*})
-      end
-    end
-  end
-
-  describe "specifying knife_config[:architecture]" do
-    it "puts the target architecture into the msi_url" do
-      Chef::Config[:knife][:architecture] = :x86_64
-      expect(rendered_template).to match(/MACHINE_ARCH=x86_64/)
-    end
-  end
-
 end

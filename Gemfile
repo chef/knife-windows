@@ -10,5 +10,4 @@ group :test do
   gem "ruby-wmi"
   gem "httpclient"
   gem 'rake'
-  gem "rack", "< 2.0" # 2.0 requires Ruby 2.2+
 end

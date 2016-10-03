@@ -106,7 +106,6 @@ expected: #{expected}
       :attribute,
       :auth_timeout,
       :ca_trust_file,
-      :install_as_service,
       :kerberos_keytab_file,
       :kerberos_realm,
       :kerberos_service,

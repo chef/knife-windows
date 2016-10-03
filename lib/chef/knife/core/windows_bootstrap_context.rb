@@ -311,11 +311,7 @@ WGET_PS
         private
 
         def install_command(executor_quote)
-          if @config[:install_as_service]
-            "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote} ADDLOCAL=#{executor_quote}ChefClientFeature,ChefServiceFeature#{executor_quote}"
-          else
-            "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote}"
-          end
+          "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote}"
         end
 
         # Returns a string for copying the trusted certificates on the workstation to the system being bootstrapped

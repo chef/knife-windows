@@ -61,12 +61,6 @@ support](#platform-winrm-authentication-support).
 SSL will become the default transport in future revisions of
 `knife-windows`.
 
-#### Specifying the package architecture
-
-You can configure which package architecture (32 bit or 64 bit) to install on the bootstrapped system.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `:x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error, but installing a 32 bit package on a 64 bit system is supported.
-
-Currently (March 2016) the `stable` channel of omnibus (where downloads using the install script fetch) only has 32 bit packages but this will be updated soon to include both 32 and 64 bit packages.  Until then you will need to access the `current` channel by specifying `--prerelease` in your `knife bootstrap windows` if you want 64 bit packages.
-
 #### Using a custom install URL
 
 By default, the bootstrap command tries to download the latest `chef-client` installer from the Internet.  This may be a problem in the enterprise, for example if your node is behind a proxy or firewall.  In that case, you can specify a custom install URL with the `--msi-url` option.
@@ -154,6 +148,18 @@ This knife plugins requires >= Chef 11.0.0. More details about Knife plugins can
 [found in the Chef documentation](https://docs.chef.io/plugin_knife.html).
 
 ## Nodes
+
+### Bootstrapping Windows Nano Server
+
+Windows Nano Server cannot install Chef via an MSI. Instead Nano supports the `appx` package format. Until Omnitruck strarts serving appx packages automatically to nano, you will need to provide an appx package URL to the `--msi-url` argument:
+
+```
+knife bootstrap windows winrm 192.168.137.3 -x vagrant -P vagrant -N nano1 --msi-url https://s3-us-west-2.amazonaws.com/nano-chef-client/chef-12.14.60.appx
+```
+
+### Powershell version
+
+The node must be running Powershell version 2.0 or higher. Windows 2008 R2 and greater come with a compatible version of Powershell installed by default. If you are trying to bootstrap Windows Server 2008 SP2 or lower, you must install the Windows Management Framework 2.0 or higher in order to succesfully use `knife bootstrap windows winrm`.
 
 ### WinRM versions
 

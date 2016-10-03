@@ -152,7 +152,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   it 'should pass exit code from failed winrm call' do
     allow(session).to receive(:exit_code).and_return(500)
     allow(bootstrap).to receive(:wait_for_remote_response)
-    allow(bootstrap).to receive(:create_bootstrap_bat_command)
+    allow(bootstrap).to receive(:write_bootstrapper)
     allow(session).to receive(:relay_command).and_return(arch_session_result)
     allow(bootstrap.ui).to receive(:info)
     expect {
@@ -160,6 +160,86 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     }.to raise_error(SystemExit) { |e|
       expect(e.status).to eq(500)
     }
+  end
+
+  context "cli msi-url option is passed" do
+    let(:msi_url) { "http://your.mama/is_a.msi" }
+
+    it "sends the msi_url to the script generator" do
+      bootstrap.config[:msi_url] = msi_url
+      allow(bootstrap).to receive(:write_bootstrapper)
+      allow(bootstrap).to receive(:run_command).and_return(0)
+      expect(Mixlib::Install::ScriptGenerator).to receive(:new).with(
+        anything,
+        true,
+        hash_including(install_msi_url: msi_url)
+      ).and_call_original
+      expect(bootstrap.bootstrap).to eq(0)
+    end
+  end
+
+  context "cli bootstrap-proxy option is passed" do
+    let(:bootstrap_proxy) { "http://your.mama/is_a_proxy" }
+
+    it "sends the bootstrap-proxy to the script generator" do
+      bootstrap.config[:bootstrap_proxy] = bootstrap_proxy
+      allow(bootstrap).to receive(:write_bootstrapper)
+      allow(bootstrap).to receive(:run_command).and_return(0)
+      expect(Mixlib::Install::ScriptGenerator).to receive(:new).with(
+        anything,
+        true,
+        hash_including(
+          http_proxy: bootstrap_proxy,
+          https_proxy: bootstrap_proxy
+        )
+      ).and_call_original
+      expect(bootstrap.bootstrap).to eq(0)
+    end
+  end
+
+  context "cli prerelease option is passed" do
+    let(:prerelease) { true }
+
+    it "sends the prerelease flag the script generator" do
+      bootstrap.config[:prerelease] = prerelease
+      allow(bootstrap).to receive(:write_bootstrapper)
+      allow(bootstrap).to receive(:run_command).and_return(0)
+      expect(Mixlib::Install::ScriptGenerator).to receive(:new).with(
+        anything,
+        true,
+        hash_including(prerelease: prerelease)
+      ).and_call_original
+      expect(bootstrap.bootstrap).to eq(0)
+    end
+  end
+
+  context "bootstrap_version option is set" do
+    let(:bootstrap_version) { "12.14.60" }
+
+    it "sends the version the script generator" do
+      Chef::Config[:knife][:bootstrap_version] = bootstrap_version
+      allow(bootstrap).to receive(:write_bootstrapper)
+      allow(bootstrap).to receive(:run_command).and_return(0)
+      expect(Mixlib::Install::ScriptGenerator).to receive(:new).with(
+        bootstrap_version,
+        true,
+        anything
+      ).and_call_original
+      expect(bootstrap.bootstrap).to eq(0)
+    end
+  end
+
+  context "bootstrap_version option is not set" do
+    it "sends true (latest) to the script generator" do
+      allow(bootstrap).to receive(:write_bootstrapper)
+      allow(bootstrap).to receive(:run_command).and_return(0)
+      expect(Mixlib::Install::ScriptGenerator).to receive(:new).with(
+        true,
+        true,
+        anything
+      ).and_call_original
+      expect(bootstrap.bootstrap).to eq(0)
+    end
   end
 
   it 'should retry if a 401 is received from WinRM' do
@@ -197,7 +277,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
 
   it 'should have a wait timeout of 2 minutes by default' do
     allow(bootstrap).to receive(:run_command).and_raise(WinRM::WinRMHTTPTransportError.new('','500'))
-    allow(bootstrap).to receive(:create_bootstrap_bat_command).and_raise(SystemExit)
+    allow(bootstrap).to receive(:write_bootstrapper).and_raise(SystemExit)
     expect(bootstrap).to receive(:wait_for_remote_response).with(2)
 
     allow(bootstrap.ui).to receive(:info)
@@ -230,23 +310,10 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   it 'successfully bootstraps' do
-    Chef::Config[:knife][:bootstrap_architecture] = :i386
     allow(bootstrap).to receive(:wait_for_remote_response)
-    allow(bootstrap).to receive(:create_bootstrap_bat_command)
+    allow(bootstrap).to receive(:write_bootstrapper)
     allow(bootstrap).to receive(:run_command).and_return(0)
     expect(bootstrap.bootstrap).to eq(0)
-    expect(Chef::Config[:knife][:architecture]).to eq(:i686)
-  end
-
-  context "when the target node is 64 bit" do
-    it 'successfully bootstraps' do
-      Chef::Config[:knife][:bootstrap_architecture] = :x86_64
-      allow(bootstrap).to receive(:wait_for_remote_response)
-      allow(bootstrap).to receive(:create_bootstrap_bat_command)
-      allow(bootstrap).to receive(:run_command).and_return(0)
-      expect(bootstrap.bootstrap).to eq(0)
-      expect(Chef::Config[:knife][:architecture]).to eq(:x86_64)
-    end
   end
 
   context 'FQDN validation -' do
@@ -306,7 +373,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     let(:node_name) { 'foo.example.com' }
     before do
       allow(bootstrap).to receive(:wait_for_remote_response)
-      allow(bootstrap).to receive(:create_bootstrap_bat_command)
+      allow(bootstrap).to receive(:write_bootstrapper)
       allow(bootstrap).to receive(:run_command).and_return(0)
       bootstrap.config[:chef_node_name] = node_name
       bootstrap.chef_vault_handler = vault_handler

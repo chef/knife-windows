@@ -21,8 +21,7 @@ require 'chef/knife/bootstrap'
 require 'chef/encrypted_data_bag_item'
 require 'chef/knife/core/windows_bootstrap_context'
 require 'chef/knife/knife_windows_base'
-# Chef 11 PathHelper doesn't have #home
-#require 'chef/util/path_helper'
+require 'mixlib/install/script_generator'
 
 class Chef
   class Knife
@@ -162,11 +161,6 @@ class Chef
             :description => "Location of the Chef Client MSI. The default templates will prefer to download from this location. The MSI will be downloaded from chef.io if not provided.",
             :default => ''
 
-          option :install_as_service,
-            :long => "--install-as-service",
-            :description => "Install chef-client as a Windows service",
-            :default => false
-
           option :bootstrap_vault_file,
           :long        => '--bootstrap-vault-file VAULT_FILE',
           :description => 'A JSON file with a list of vault(s) and item(s) to be updated'
@@ -215,7 +209,6 @@ class Chef
         config[:bootstrap_template] || config[:template_file] || config[:distro] || default_bootstrap_template
       end
 
-       # TODO: This should go away when CHEF-2193 is fixed
       def load_template(template=nil)
         # Are we bootstrapping using an already shipped template?
 
@@ -284,8 +277,6 @@ class Chef
           warn_chef_config_secret_key
         end
 
-        set_target_architecture
-
         # adding respond_to? so this works with pre 12.4 chef clients
         validate_options! if respond_to?(:validate_options!)
 
@@ -327,17 +318,9 @@ class Chef
         wait_for_remote_response( config[:auth_timeout].to_i )
 
         ui.info("Bootstrapping Chef on #{ui.color(@node_name, :bold)}")
-        # create a bootstrap.bat file on the node
-        # we have to run the remote commands in 2047 char chunks
-        create_bootstrap_bat_command do |command_chunk|
-          begin
-            render_command_result = run_command(command_chunk)
-            ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
-            render_command_result
-          rescue SystemExit => e
-            raise unless e.success?
-          end
-        end
+
+        write_bootstrapper
+        write_installer
 
         # execute the bootstrap.bat file
         bootstrap_command_result = run_command(bootstrap_command)
@@ -352,29 +335,63 @@ class Chef
       def wait_for_remote_response(wait_max_minutes)
       end
 
+      def write_bootstrapper
+        write_command_file(render_template(load_template(config[:bootstrap_template])), bootstrap_bat_file)
+      end
+
       def bootstrap_command
         @bootstrap_command ||= "cmd.exe /C #{bootstrap_bat_file}"
       end
 
-      def bootstrap_render_banner_command(chunk_num)
-        "cmd.exe /C echo Rendering #{bootstrap_bat_file} chunk #{chunk_num}"
+      def bootstrap_render_banner_command(file_path, chunk_num)
+        "cmd.exe /C echo Rendering #{file_path} chunk #{chunk_num}"
+      end
+
+      def write_installer
+        opts = {}
+        unless config[:msi_url].nil? || config[:msi_url].empty?
+          opts[:install_msi_url] = config[:msi_url]
+        end
+        if config[:bootstrap_proxy]
+          opts[:http_proxy] = config[:bootstrap_proxy]
+          opts[:https_proxy] = config[:bootstrap_proxy]
+        end
+        opts[:prerelease] = config[:prerelease] if config[:prerelease]
+        puts "opts #{opts}"
+        write_command_file(
+          Mixlib::Install::ScriptGenerator.new(Chef::Config[:knife][:bootstrap_version] || true, true, opts).install_command,
+          "\"%TEMP%\\chef-installer.ps1\""
+        )
+      end
+
+      def write_command_file(command, file_path)
+        render_command_file(command, file_path) do |command_chunk|
+          begin
+            render_command_result = run_command(command_chunk)
+            ui.error("Rendering #{file_path} returned #{render_command_result}") if render_command_result != 0
+            render_command_result
+          rescue SystemExit => e
+            raise unless e.success?
+          end
+        end
       end
 
       def escape_windows_batch_characters(line)
-        # TODO: The commands are going to get redirected - do we need to escape &?
-        line.gsub!(/[(<|>)^]/).each{|m| "^#{m}"}
+        # only escape non-quoted (<|>&)^ chars
+        line.gsub!(/([(<|>&)^])(?=(?:[^"]|"[^"]*")*$)/).each{|m| "^#{m}"}
       end
 
-      def create_bootstrap_bat_command()
+      def render_command_file(command, file_path)
         chunk_num = 0
         bootstrap_bat = ""
-        banner = bootstrap_render_banner_command(chunk_num += 1)
-        render_template(load_template(config[:bootstrap_template])).each_line do |line|
+        banner = bootstrap_render_banner_command(file_path, chunk_num += 1)
+        yield "IF EXIST #{file_path} del /F #{file_path}"
+        command.each_line do |line|
           escape_windows_batch_characters(line)
           # We are guaranteed to have a prefix "banner" command that echo's chunk number.  We can
           # confidently prefix every actual command with &&.
           # TODO: Why does ^\n&& work directly through the commandline but not through SOAP?
-          render_line = " && >> #{bootstrap_bat_file} (echo.#{line.chomp.strip})"
+          render_line = " && >> #{file_path} (echo.#{line.chomp.strip})"
           # Windows commands are limited to 8191 characters for machines running XP or higher but
           # this includes the length of environment variables after they have been expanded.
           # Since we don't actually know how long %TEMP% (and it's used twice - once in the banner
@@ -387,7 +404,7 @@ class Chef
             unless bootstrap_bat.empty?
               yield banner + bootstrap_bat
               bootstrap_bat = ""
-              banner = bootstrap_render_banner_command(chunk_num += 1)
+              banner = bootstrap_render_banner_command(file_path, chunk_num += 1)
             end
             # Will this ever fit?
             if render_line.length + banner.length > 5000
@@ -416,27 +433,6 @@ behavior will be removed and any 'encrypted_data_bag_secret' entries in
 'knife.rb' will be ignored completely.
         WARNING
         ui.info "* " * 40
-      end
-
-      # We allow the user to specify the desired architecture of Chef to install or we default
-      # to whatever the target system is.
-      # This is because a user might want to install a 32bit chef client on a 64bit machine
-      def set_target_architecture
-        if Chef::Config[:knife][:architecture]
-          raise "Do not set :architecture in your knife config, use :bootstrap_architecture."
-        end
-
-        if Chef::Config[:knife][:bootstrap_architecture]
-          bootstrap_architecture = Chef::Config[:knife][:bootstrap_architecture]
-
-          if ![:x86_64, :i386].include?(bootstrap_architecture.to_sym)
-            raise "Valid values for the knife config :bootstrap_architecture are i386 or x86_64. Supplied value is #{bootstrap_architecture}"
-          end
-
-          # The windows install script wants i686, not i386
-          bootstrap_architecture = :i686 if bootstrap_architecture == :i386
-          Chef::Config[:knife][:architecture] = bootstrap_architecture
-        end
       end
     end
   end
