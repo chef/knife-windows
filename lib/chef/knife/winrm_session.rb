@@ -31,7 +31,8 @@ class Chef
         @host = options[:host]
         @port = options[:port]
         @user = options[:user]
-        @shell = options[:shell]
+        @shell_args = [ options[:shell] ]
+        @shell_args << { codepage: options[:codepage] } if options[:shell] == :cmd
         url = "#{options[:host]}:#{options[:port]}/wsman"
         scheme = options[:transport] == :ssl ? 'https' : 'http'
         @endpoint = "#{scheme}://#{url}"
@@ -63,7 +64,7 @@ class Chef
 
       def relay_command(command)
         session_result = WinRM::Output.new
-        @winrm_session.shell(@shell) do |shell|
+        @winrm_session.shell(*@shell_args) do |shell|
           shell.username = @user.split("\\").last if shell.respond_to?(:username)
           session_result = shell.run(command) do |stdout, stderr|
             print_data(@host, stdout) if stdout
