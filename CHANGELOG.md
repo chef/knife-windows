@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.7.0
+
+* [knife-windows #400](https://github.com/chef/knife-windows/pull/400) Allow a custom codepage to be specified and passed to the cmd shell
+
 ## Release 1.6.0
 
 * [knife-windows #393](https://github.com/chef/knife-windows/pull/393) Add documentation of the --msi-url option
