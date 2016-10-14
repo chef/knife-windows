@@ -116,6 +116,11 @@ class Chef
             :long => "--session-timeout Minutes",
             :description => "The timeout for the client for the maximum length of the WinRM session",
             :default => 30
+
+          option :winrm_codepage,
+            :long => "--winrm-codepage Codepage",
+            :description => "The codepage to use for the winrm cmd shell",
+            :default => 65001
         end
       end
     end

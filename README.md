@@ -217,6 +217,10 @@ of these authentication transports are outside of the scope of this
 README but details can be found on the
 [WinRM configuration guide](http://msdn.microsoft.com/en-us/library/aa384372\(v=vs.85\).aspx).
 
+### Working with legacy Windows versions
+
+If you are attempting to use `knife winrm` or `knife bootstrap windows winrm` with a version of windows that is older than server 2008 R2 or older than Windows 7 then you may need to alter the default UTF-8 codepage (65001) using the `--winrm-codepage` argument. You can use the codepage native to your locale but `437` is a safe codepage for older Windows versions.
+
 #### Configure SSL on a Windows node
 
 WinRM supports use of SSL to provide privacy and integrity of

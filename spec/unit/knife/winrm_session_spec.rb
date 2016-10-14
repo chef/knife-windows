@@ -67,5 +67,29 @@ describe Chef::Knife::WinrmSession do
       expect(winrm_connection).to receive(:shell)
       subject.relay_command("cmd.exe echo 'hi'")
     end
+
+    context "cmd shell" do
+      before do
+        options[:shell] = :cmd
+        options[:codepage] = 65001
+      end
+
+      it "creates shell and sends codepage" do
+        expect(winrm_connection).to receive(:shell).with(:cmd, hash_including(codepage: 65001))
+        subject.relay_command("cmd.exe echo 'hi'")
+      end
+    end
+
+    context "powershell shell" do
+      before do
+        options[:shell] = :powershell
+        options[:codepage] = 65001
+      end
+
+      it "does not send codepage to shell" do
+        expect(winrm_connection).to receive(:shell).with(:powershell)
+        subject.relay_command("cmd.exe echo 'hi'")
+      end
+    end
   end
 end

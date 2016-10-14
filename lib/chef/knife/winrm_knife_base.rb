@@ -202,7 +202,8 @@ class Chef
               transport: resolve_winrm_transport,
               no_ssl_peer_verification: resolve_no_ssl_peer_verification,
               ssl_peer_fingerprint: resolve_ssl_peer_fingerprint,
-              shell: locate_config_value(:winrm_shell)
+              shell: locate_config_value(:winrm_shell),
+              codepage: locate_config_value(:winrm_codepage)
             }
 
             if @session_opts[:user] and (not @session_opts[:password])
