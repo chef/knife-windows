@@ -50,6 +50,11 @@ class Chef
             :long => "--prerelease",
             :description => "Install the pre-release chef gems"
 
+          option :bootstrap_url,
+            :long        => "--bootstrap-url URL",
+            :description => "URL to a custom installation script",
+            :proc        => Proc.new { |u| Chef::Config[:knife][:bootstrap_url] = u }
+
           option :bootstrap_version,
             :long => "--bootstrap-version VERSION",
             :description => "The version of Chef to install",

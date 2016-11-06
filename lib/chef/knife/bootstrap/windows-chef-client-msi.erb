@@ -32,6 +32,25 @@
     @echo Existing directory found, skipping creation.
 )
 
+<% if @chef_config[:knife][:bootstrap_url] %>
+@rem This will pull in the install.ps1 from mixlib-install
+@rem using the provided URL, this allows you to default it
+@rem to the public copy hosted on chef.io or your own internal
+@rem instance.
+@rem
+@rem When this is used it will ignore the following conflicting parameters
+@rem * chef_config[:knife][:bootstrap_install_command]
+@rem * chef_config[:knife][:msi_url]
+
+> <%= bootstrap_directory %>\bootstrap.ps1 (
+  <%= bootstrap_ps_content( @chef_config[:knife][:bootstrap_url], knife_config[:architecture], @chef_config[:knife][:bootstrap_version] ) %>
+)
+
+@echo Downloading and running install.ps1 to install chef
+@set bootstrap_exec=powershell.exe -ExecutionPolicy Unrestricted -InputFormat None -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\bootstrap.ps1
+@call !bootstrap_exec!
+
+<% else %>
 > <%= bootstrap_directory %>\wget.vbs (
  <%= win_wget %>
 )
@@ -188,6 +207,10 @@ goto install
       del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
     )
 
+@rem END chef_config.knife.bootstrap_install_command
+<% end %>
+
+@rem END chef_config.knife.bootstrap_url
 <% end %>
 
 @endlocal

@@ -32,19 +32,10 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
   subject(:knife) { described_class.new }
 
-  before(:all) do
-    @original_config = Chef::Config.hash_dup
-    @original_knife_config = Chef::Config[:knife].dup
-  end
-
-  after(:all) do
-    Chef::Config.configuration = @original_config
-    Chef::Config[:knife] = @original_knife_config
-  end
-
   before(:each) do
     Chef::Log.logger = Logger.new(StringIO.new)
     @knife = Chef::Knife::BootstrapWindowsWinrm.new
+    Chef::Config.reset
     # Merge default settings in.
     @knife.merge_configs
     @knife.config[:template_file] = template_file
@@ -80,6 +71,11 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       it "bootstrap batch file must fetch from provided url" do
         expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=file:///something\.msi.*})
       end
+
+      it "puts the target architecture into the msi_url" do
+        Chef::Config[:knife][:architecture] = :x86_64
+        expect(rendered_template).to match(/MACHINE_ARCH=x86_64/)
+      end
     end
     context "with no provided --msi-url" do
       it "bootstrap batch file must fetch from provided url" do
@@ -88,10 +84,30 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     end
   end
 
-  describe "specifying knife_config[:architecture]" do
-    it "puts the target architecture into the msi_url" do
-      Chef::Config[:knife][:architecture] = :x86_64
-      expect(rendered_template).to match(/MACHINE_ARCH=x86_64/)
+  describe "specifying --bootstrap-url" do
+    context "with explicitly provided --bootstrap-url" do
+      let(:options) { ["--bootstrap-url", "https://omnitruck.chef.io/chef/install.ps1"] }
+
+      it "bootstrap batch file must source install.ps1 from the provided url" do
+        expect(rendered_template).to match(%r{.*echo.Invoke-Expression \^\(new-object net\.webclient\^\)\.downloadstring\^\('https://omnitruck\.chef\.io/chef/install\.ps1'\^\).*})
+      end
+
+      it "bootstrap batch file must specify latest version and automatic architecture" do
+        expect(rendered_template).to match(%r{.*Install-Project -project chef -channel stable -version latest -architecture auto.*})
+      end
+    end
+    context "with explicitly provided --bootstrap-url and explicit modifiers" do
+      let(:options) {
+        [
+          "--bootstrap-url", "https://omnitruck.chef.io/chef/install.ps1",
+          "--bootstrap-version", "12.14.60",
+        ]
+      }
+      
+      it "bootstrap batch file must specify explicit version and architecture" do
+        Chef::Config[:knife][:architecture] = :x86_64
+        expect(rendered_template).to match(%{.*Install-Project -project chef -channel stable -version 12.14.60 -architecture x86_64.*})
+      end
     end
   end
 

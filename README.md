@@ -69,7 +69,19 @@ Currently (March 2016) the `stable` channel of omnibus (where downloads using th
 
 #### Using a custom install URL
 
-By default, the bootstrap command tries to download the latest `chef-client` installer from the Internet.  This may be a problem in the enterprise, for example if your node is behind a proxy or firewall.  In that case, you can specify a custom install URL with the `--msi-url` option.
+By default, the bootstrap command tries to download the latest `chef-client` installer from the Internet.  This may be a problem in the enterprise, for example if your node is behind a proxy or firewall.  
+
+There are two options available to get around this.
+
+You can specify a custom install URL with the `--msi-url` option, or you can
+point to a mixlib-install script using the `--bootstrap-url` option.
+
+> See: https://omnitruck.chef.io/chef/install.ps1
+
+This will maintain the platform architecture detection functionality while still
+allowing you to source the installer internally.
+
+*`--bootstrap-url` will honor the `--bootstrap-version` as well as the `bootstrap_architecture` knife config setting.*
 
 ### knife wsman test
 

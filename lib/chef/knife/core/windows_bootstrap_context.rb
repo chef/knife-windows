@@ -268,6 +268,17 @@ WGET_PS
           escape_and_echo(win_wget_ps)
         end
 
+        def bootstrap_ps_content(bootstrap_url, machine_arch=nil, version=nil)
+          version_parameter = version.nil? ? '-version latest' : "-version #{version}"
+          arch_parameter = machine_arch.nil? ? '-architecture auto' : "-architecture #{machine_arch}"
+          bootstrap_content = <<-BOOTSTRAP 
+Invoke-Expression (new-object net.webclient).downloadstring('#{bootstrap_url}') 
+Install-Project -project chef -channel stable #{version_parameter} #{arch_parameter}
+BOOTSTRAP
+
+          escape_and_echo(bootstrap_content)
+        end
+
         def install_chef
           # The normal install command uses regular double quotes in
           # the install command, so request such a string from install_command
