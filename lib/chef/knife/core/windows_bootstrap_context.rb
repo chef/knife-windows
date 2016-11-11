@@ -70,12 +70,10 @@ class Chef
 
         def config_content
           client_rb = <<-CONFIG
-log_level        :info
-log_location     STDOUT
-
+log_level        :#{@chef_config[:config_log_level]}
+log_location     "#{@chef_config[:config_log_location]}"
 chef_server_url  "#{@chef_config[:chef_server_url]}"
 validation_client_name "#{@chef_config[:validation_client_name]}"
-
 file_cache_path   "c:/chef/cache"
 file_backup_path  "c:/chef/backup"
 cache_options     ({:path => "c:/chef/cache/checksums", :skip_expires => true})
