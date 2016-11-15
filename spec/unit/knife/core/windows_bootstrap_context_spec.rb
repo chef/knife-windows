@@ -51,6 +51,18 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
     end
   end
 
+  describe "trusted_certs_script" do
+    let(:mock_cert_dir) { ::File.absolute_path(::File.join('spec','assets','fake_trusted_certs')) }
+
+    before do
+      mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:trusted_certs_dir => mock_cert_dir))
+    end
+
+    it "should return all files in the trusted_certs directory" do
+      expect(mock_bootstrap_context.trusted_certs_script).to eq sample_data('win_fake_trusted_cert_script.txt')
+    end
+  end
+
   describe "validation_key", :chef_gte_12_only do
     before do
       mock_bootstrap_context.instance_variable_set(:@config, Mash.new(:validation_key => "C:\\chef\\key.pem"))
