@@ -53,13 +53,37 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
 
   describe "trusted_certs_script" do
     let(:mock_cert_dir) { ::File.absolute_path(::File.join('spec','assets','fake_trusted_certs')) }
+    let(:script_output) { mock_bootstrap_context.trusted_certs_script }
+    let(:crt_files) { ::Dir.glob(::File.join(mock_cert_dir, "*.crt")) }
+    let(:pem_files) { ::Dir.glob(::File.join(mock_cert_dir, "*.pem")) }
+    let(:other_files) { ::Dir.glob(::File.join(mock_cert_dir, "*"))-crt_files-pem_files }
 
     before do
       mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:trusted_certs_dir => mock_cert_dir))
     end
 
-    it "should return all files in the trusted_certs directory" do
-      expect(mock_bootstrap_context.trusted_certs_script).to eq sample_data('win_fake_trusted_cert_script.txt')
+    it "should echo every .crt file in the trusted_certs directory" do
+      crt_files.each do |f|
+        echo_file = ::File.read(f).gsub(/^/, "echo.")
+        expect(script_output).to include(::File.join('trusted_certs',::File.basename(f)))
+        expect(script_output).to include(echo_file)
+      end
+    end
+
+    it "should echo every .pem file in the trusted_certs directory" do
+      pem_files.each do |f|
+        echo_file = ::File.read(f).gsub(/^/, "echo.")
+        expect(script_output).to include(::File.join('trusted_certs',::File.basename(f)))
+        expect(script_output).to include(echo_file)
+      end
+    end
+
+    it "should not echo files which aren't .crt or .pem files" do
+      other_files.each do |f|
+        echo_file = ::File.read(f).gsub(/^/, "echo.")
+        expect(script_output).to_not include(::File.join('trusted_certs',::File.basename(f)))
+        expect(script_output).to_not include(echo_file)
+      end
     end
   end
 
