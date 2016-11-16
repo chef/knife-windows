@@ -1,0 +1,2 @@
+This file should be excluded in the output of 
+Chef::Knife::Core::WindowsBootstrapContext#trusted_certs_script
