@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.7.1
+
+* [knife-windows #409](https://github.com/chef/knife-windows/pull/409) Fix trusted_cert copy script generation on windows
+
 ## Release 1.7.0
 
 * [knife-windows #400](https://github.com/chef/knife-windows/pull/400) Allow a custom codepage to be specified and passed to the cmd shell
