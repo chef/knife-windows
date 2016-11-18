@@ -79,12 +79,14 @@ cache_options     ({:path => "c:/chef/cache/checksums", :skip_expires => true})
           else
             client_rb << "# Using default node name (fqdn)\n"
           end
+
           if @chef_config[:config_log_level]
             client_rb << %Q{log_level :#{@chef_config[:config_log_level]}\n}
           else
             client_rb << "log_level        :info\n"
           end
-            client_rb << get_log_location()
+
+          client_rb << "log_location\t#{get_log_location}"
 
           # We configure :verify_api_cert only when it's overridden on the CLI
           # or when specified in the knife config.
@@ -150,19 +152,19 @@ CONFIG
 
         def get_log_location
           if @chef_config[:config_log_location].equal?(:win_evt)
-            return %Q{log_location  :#{@chef_config[:config_log_location]}\n}
+            %Q{:#{@chef_config[:config_log_location]}\n}
           elsif @chef_config[:config_log_location].equal?(:syslog)
             raise "syslog is not supported for log_location on Windows OS\n"
           elsif (@chef_config[:config_log_location].equal?(STDOUT))
-            return "log_location    STDOUT\n"
+            "STDOUT\n"
           elsif (@chef_config[:config_log_location].equal?(STDERR))
-            return "log_location    STDERR\n"
+            "STDERR\n"
           elsif @chef_config[:config_log_location].nil? || @chef_config[:config_log_location].empty?
-            return "log_location    STDOUT\n"
+            "STDOUT\n"
           elsif @chef_config[:config_log_location]
-            return %Q{log_location  "#{@chef_config[:config_log_location]}"\n}
+            %Q{"#{@chef_config[:config_log_location]}"\n}
           else
-            return "log_location    STDOUT\n"
+            "STDOUT\n"
           end
         end
 
