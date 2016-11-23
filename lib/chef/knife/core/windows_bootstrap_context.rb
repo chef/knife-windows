@@ -17,11 +17,9 @@
 #
 
 require 'chef/knife/core/bootstrap_context'
-
 # Chef::Util::PathHelper in Chef 11 is a bit juvenile still
 require 'knife-windows/path_helper'
 # require 'chef/util/path_helper'
-
 
 class Chef
   class Knife
@@ -70,22 +68,25 @@ class Chef
 
         def config_content
           client_rb = <<-CONFIG
-log_level        :info
-log_location     STDOUT
-
 chef_server_url  "#{@chef_config[:chef_server_url]}"
 validation_client_name "#{@chef_config[:validation_client_name]}"
-
 file_cache_path   "c:/chef/cache"
 file_backup_path  "c:/chef/backup"
 cache_options     ({:path => "c:/chef/cache/checksums", :skip_expires => true})
-
-CONFIG
+          CONFIG
           if @config[:chef_node_name]
             client_rb << %Q{node_name "#{@config[:chef_node_name]}"\n}
           else
             client_rb << "# Using default node name (fqdn)\n"
           end
+
+          if @chef_config[:config_log_level]
+            client_rb << %Q{log_level :#{@chef_config[:config_log_level]}\n}
+          else
+            client_rb << "log_level        :info\n"
+          end
+
+          client_rb << "log_location       #{get_log_location}"
 
           # We configure :verify_api_cert only when it's overridden on the CLI
           # or when specified in the knife config.
@@ -147,6 +148,24 @@ CONFIG
           end
 
           escape_and_echo(client_rb)
+        end
+
+        def get_log_location
+          if @chef_config[:config_log_location].equal?(:win_evt)
+            %Q{:#{@chef_config[:config_log_location]}\n}
+          elsif @chef_config[:config_log_location].equal?(:syslog)
+            raise "syslog is not supported for log_location on Windows OS\n"
+          elsif (@chef_config[:config_log_location].equal?(STDOUT))
+            "STDOUT\n"
+          elsif (@chef_config[:config_log_location].equal?(STDERR))
+            "STDERR\n"
+          elsif @chef_config[:config_log_location].nil? || @chef_config[:config_log_location].empty?
+            "STDOUT\n"
+          elsif @chef_config[:config_log_location]
+            %Q{"#{@chef_config[:config_log_location]}"\n}
+          else
+            "STDOUT\n"
+          end
         end
 
         def start_chef

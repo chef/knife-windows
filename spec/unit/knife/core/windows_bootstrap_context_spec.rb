@@ -17,7 +17,7 @@
 #
 
 require 'spec_helper'
-
+require 'chef/knife/core/windows_bootstrap_context'
 describe Chef::Knife::Core::WindowsBootstrapContext do
   let(:mock_bootstrap_context) { Chef::Knife::Core::WindowsBootstrapContext.new({ }, nil, { :knife => {} }) }
 
@@ -96,6 +96,86 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
       allow(::File).to receive(:expand_path)
       allow(::File).to receive(:exist?).and_return(false)
       expect(mock_bootstrap_context.validation_key).to eq(false)
+    end
+  end
+
+  describe "#get_log_location" do
+
+    context "when config_log_location value is nil" do
+      it "sets STDOUT in client.rb as default" do
+        mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_location => nil))
+        expect(mock_bootstrap_context.get_log_location).to eq("STDOUT\n")
+      end
+    end
+
+    context "when config_log_location value is empty" do
+      it "sets STDOUT in client.rb as default" do
+        mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_location => ""))
+        expect(mock_bootstrap_context.get_log_location).to eq("STDOUT\n")
+      end
+    end
+
+    context "when config_log_location value is STDOUT" do
+      it "sets STDOUT in client.rb" do
+        mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_location => STDOUT))
+        expect(mock_bootstrap_context.get_log_location).to eq("STDOUT\n")
+      end
+    end
+
+    context "when config_log_location value is STDERR" do
+      it "sets STDERR in client.rb" do
+        mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_location => STDERR))
+        expect(mock_bootstrap_context.get_log_location).to eq("STDERR\n")
+      end
+    end
+
+    context "when config_log_location value is path to a file" do
+      it "sets file path in client.rb" do
+        mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_location => "C:\\chef\\chef.log"))
+        expect(mock_bootstrap_context.get_log_location).to eq("\"C:\\chef\\chef.log\"\n")
+      end
+    end
+
+    context "when config_log_location value is :win_evt" do
+      it "sets :win_evt in client.rb" do
+        mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_location => :win_evt))
+        expect(mock_bootstrap_context.get_log_location).to eq(":win_evt\n")
+      end
+    end
+
+    context "when config_log_location value is :syslog" do
+      it "raise error with message and exit" do
+        mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_location => :syslog))
+        expect { mock_bootstrap_context.get_log_location }.to raise_error("syslog is not supported for log_location on Windows OS\n")
+      end
+    end
+
+  end
+
+  describe "#config_content" do
+    before do
+      mock_bootstrap_context.instance_variable_set(:@chef_config, Mash.new(:config_log_level => :info,
+        :config_log_location => STDOUT,
+        :chef_server_url => "http://chef.example.com:4444",
+        :validation_client_name => "chef-validator-testing",
+        :file_cache_path => "c:/chef/cache",
+        :file_backup_path => "c:/chef/backup",
+        :cache_options => ({:path => "c:/chef/cache/checksums", :skip_expires => true})
+        ))
+    end
+
+    it "generates the config file data" do
+      expected = <<-EXPECTED
+echo.chef_server_url  "http://chef.example.com:4444"
+echo.validation_client_name "chef-validator-testing"
+echo.file_cache_path   "c:/chef/cache"
+echo.file_backup_path  "c:/chef/backup"
+echo.cache_options     ^({:path =^> "c:/chef/cache/checksums", :skip_expires =^> true}^)
+echo.# Using default node name ^(fqdn^)
+echo.log_level :info
+echo.log_location       STDOUT
+EXPECTED
+    expect(mock_bootstrap_context.config_content).to eq expected
     end
   end
 
@@ -209,5 +289,4 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
       end
     end
   end
-
 end
