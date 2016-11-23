@@ -199,17 +199,14 @@ echo Validation key written.
 
 
 > C:\chef\client.rb ( 
- echo.log_level        :info
-echo.log_location     STDOUT
-echo.
-echo.chef_server_url  "https://localhost:443"
+ echo.chef_server_url  "https://localhost:443"
 echo.validation_client_name "chef-validator"
-echo.
 echo.file_cache_path   "c:/chef/cache"
 echo.file_backup_path  "c:/chef/backup"
 echo.cache_options     ^({:path =^> "c:/chef/cache/checksums", :skip_expires =^> true}^)
-echo.
 echo.# Using default node name ^(fqdn^)
+echo.log_level        :info
+echo.log_location       STDOUT
  
 ) 
 

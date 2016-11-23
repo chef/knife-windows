@@ -86,7 +86,7 @@ cache_options     ({:path => "c:/chef/cache/checksums", :skip_expires => true})
             client_rb << "log_level        :info\n"
           end
 
-          client_rb << "log_location\t#{get_log_location}"
+          client_rb << "log_location       #{get_log_location}"
 
           # We configure :verify_api_cert only when it's overridden on the CLI
           # or when specified in the knife config.
