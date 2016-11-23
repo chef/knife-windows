@@ -173,7 +173,7 @@ echo.file_backup_path  "c:/chef/backup"
 echo.cache_options     ^({:path =^> "c:/chef/cache/checksums", :skip_expires =^> true}^)
 echo.# Using default node name ^(fqdn^)
 echo.log_level :info
-echo.log_location\tSTDOUT
+echo.log_location       STDOUT
 EXPECTED
     expect(mock_bootstrap_context.config_content).to eq expected
     end
