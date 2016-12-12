@@ -12,5 +12,5 @@ This release allows user to specify `config_log_location` and `config_log_level`
 This is how you can pass the values in config.rb/knife.rb:
 ```
 chef_log_level  :debug
-chef_log_location "C://chef.log"    #please make sure that the path exists
+chef_log_location "C:/chef.log"    #please make sure that the path exists
 ```
