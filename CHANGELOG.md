@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.7.2
+
+* [knife-windows #407](https://github.com/chef/knife-windows/pull/407) Allow specification of config_log_location and config_log_level in config.rb/knife.rb
+
 ## Release 1.7.1
 
 * [knife-windows #409](https://github.com/chef/knife-windows/pull/409) Fix trusted_cert copy script generation on windows

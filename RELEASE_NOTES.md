@@ -6,5 +6,11 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
-# knife-windows 1.6.0 release notes:
-This release adds a `--winrm-shell` argument to `knife winrm`. This accepts one of three possible values: `cmd`, `powershell` or `elevated`. The default value is `cmd`. The `elevated` shell is similar to the `powershell` shell but runs the powershell command from a scheduled task.
+# knife-windows 1.7.2 release notes:
+This release allows user to specify `config_log_location` and `config_log_level` options in config.rb/knife.rb. This sets the default `log_location` and `log_level` in the `client.rb` file of the node being bootstrapped.
+
+This is how you can pass the values in config.rb/knife.rb:
+```
+chef_log_level  :debug
+chef_log_location "C://chef.log"    #please make sure that the path exists
+```
