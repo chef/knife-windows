@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.8.0
+
+* [knife-windows #407](https://github.com/chef/knife-windows/pull/407) Added value for config_log_level and config_log_location
+
 ## Release 1.7.1
 
 * [knife-windows #409](https://github.com/chef/knife-windows/pull/409) Fix trusted_cert copy script generation on windows
