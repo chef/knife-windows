@@ -49,7 +49,12 @@ class Chef
         STDOUT.sync = STDERR.sync = true
 
         configure_session
-        execute_remote_command
+        exit_status = execute_remote_command
+        if exit_status != 0
+          exit exit_status
+        else
+          exit_status
+        end
       end
 
       def execute_remote_command
