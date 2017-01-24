@@ -73,6 +73,9 @@ class Chef
         end
         @exit_code = session_result.exitcode
         session_result
+      rescue WinRM::WinRMHTTPTransportError, WinRM::WinRMAuthorizationError => e
+        @exit_code = 401
+        raise e
       end
 
       private

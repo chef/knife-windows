@@ -112,41 +112,48 @@ class Chef
 
           def run_command(command = '')
             relay_winrm_command(command)
-
             check_for_errors!
-
-            # Knife seems to ignore the return value of this method,
-            # so we exit to force the process exit code for this
-            # subcommand if returns is set
-            exit @exit_code if @exit_code && @exit_code != 0
-            0
+            @exit_code
           end
 
           def relay_winrm_command(command)
             Chef::Log.debug(command)
-            session_results = []
-            @winrm_sessions.each do |s|
-              begin
-                session_results << s.relay_command(command)
-              rescue WinRM::WinRMHTTPTransportError, WinRM::WinRMAuthorizationError => e
-                if authorization_error?(e)
-                  if ! config[:suppress_auth_failure]
-                    # Display errors if the caller hasn't opted to retry
-                    ui.error "Failed to authenticate to #{s.host} as #{locate_config_value(:winrm_user)}"
-                    ui.info "Response: #{e.message}"
-                    ui.info get_failed_authentication_hint
-                    raise e
-                  end
-                  @exit_code = 401
-                else
-                  raise e
+            @session_results = []
+
+            queue = Queue.new
+            @winrm_sessions.each { |s| queue << s }
+            # These nils will kill the Threads once no more sessions are left
+            locate_config_value(:concurrency).times { queue << nil }
+
+            threads = []
+            locate_config_value(:concurrency).times do
+              threads << Thread.new do
+                while session = queue.pop
+                  run_command_in_thread(session, command)
                 end
               end
             end
-            session_results
+            threads.map(&:join)
+            @session_results
           end
 
           private
+
+          def run_command_in_thread(s, command)
+            @session_results << s.relay_command(command)
+          rescue WinRM::WinRMHTTPTransportError, WinRM::WinRMAuthorizationError => e
+            if authorization_error?(e)
+              if ! config[:suppress_auth_failure]
+                # Display errors if the caller hasn't opted to retry
+                ui.error "Failed to authenticate to #{s.host} as #{locate_config_value(:winrm_user)}"
+                ui.info "Response: #{e.message}"
+                ui.info get_failed_authentication_hint
+                raise e
+              end
+            else
+              raise e
+            end
+          end
 
           def get_failed_authentication_hint
             if @session_opts[:basic_auth_only]
@@ -162,10 +169,11 @@ class Chef
           end
 
           def check_for_errors!
+            @exit_code ||= 0
             @winrm_sessions.each do |session|
               session_exit_code = session.exit_code
               unless success_return_codes.include? session_exit_code.to_i
-                @exit_code = session_exit_code.to_i
+                @exit_code = [@exit_code, session_exit_code.to_i].max
                 ui.error "Failed to execute command on #{session.host} return code #{session_exit_code}"
               end
             end

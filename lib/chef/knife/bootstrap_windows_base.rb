@@ -330,20 +330,22 @@ class Chef
         # create a bootstrap.bat file on the node
         # we have to run the remote commands in 2047 char chunks
         create_bootstrap_bat_command do |command_chunk|
-          begin
-            render_command_result = run_command(command_chunk)
-            ui.error("Batch render command returned #{render_command_result}") if render_command_result != 0
-            render_command_result
-          rescue SystemExit => e
-            raise unless e.success?
+          render_command_result = run_command(command_chunk)
+          unless render_command_result == 0
+            ui.error("Batch render command returned #{render_command_result}")
+            exit render_command_result
           end
         end
 
         # execute the bootstrap.bat file
         bootstrap_command_result = run_command(bootstrap_command)
-        ui.error("Bootstrap command returned #{bootstrap_command_result}") if bootstrap_command_result != 0
+        unless bootstrap_command_result == 0
+          ui.error("Bootstrap command returned #{bootstrap_command_result}")
+          exit bootstrap_command_result
+        end
 
-        bootstrap_command_result
+        # exit 0
+        0
       end
 
       protected
