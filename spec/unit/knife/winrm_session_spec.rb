@@ -68,6 +68,12 @@ describe Chef::Knife::WinrmSession do
       subject.relay_command("cmd.exe echo 'hi'")
     end
 
+    it "exits with 401 if command execution raises a 401" do
+      expect(winrm_connection).to receive(:shell).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
+      expect { subject.relay_command("cmd.exe echo 'hi'") }.to raise_error(WinRM::WinRMHTTPTransportError)
+      expect(subject.exit_code).to eql(401)
+    end
+
     context "cmd shell" do
       before do
         options[:shell] = :cmd

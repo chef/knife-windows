@@ -422,12 +422,6 @@ describe Chef::Knife::Winrm do
       expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(100) }
     end
 
-    it "exits with 401 if command execution raises a 401 and suppress_auth_failure is set to true" do
-      @winrm.config[:suppress_auth_failure] = true
-      allow(session).to receive(:relay_command).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
-      expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit) { |e| expect(e.status).to eq(401) }
-    end
-
     it "prints a hint on failure for negotiate authentication" do
       @winrm.config[:winrm_authentication_protocol] = "negotiate"
       @winrm.config[:winrm_transport] = "plaintext"
