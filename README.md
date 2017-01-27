@@ -21,6 +21,8 @@ The `winrm` subcommand allows you to invoke commands in parallel on a subset of 
 
     knife winrm "role:web" "net stats srv" -x Administrator -P 'super_secret_password'
 
+_Please note that to run a single command against multiple nodes, each node must share the same username and password._
+
 Or force a chef run:
 
     knife winrm "myserver.myorganization.net" "chef-client -c c:/chef/client.rb" -m -x Administrator -P "super_secret_password"
@@ -378,6 +380,31 @@ local to the target Windows system.
 
    `winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1024"}'`
 
+* If you receive a timeout when trying to connect to your instance for the first time, make sure your Firewall setting
+  is permissive enough.
+
+   `netsh advfirewall firewall set rule name="Windows Remote Management (HTTP-In)" profile=public protocol=tcp localport=5985 remoteip=localsubnet new remoteip=any`
+
+### AWS User Data
+
+If you are spinning up AWS instances to test against, you can use the following user data when spinning up your instances:
+
+```
+<powershell>
+$logfile="C:\\Program Files\\Amazon\\Ec2ConfigService\\Logs\\kitchen-ec2.log"
+# Allow script execution
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
+# PS Remoting and & winrm.cmd basic config
+Enable-PSRemoting -Force -SkipNetworkProfileCheck
+& winrm.cmd set winrm/config '@{MaxTimeoutms="1800000"}' >> $logfile
+& winrm.cmd set winrm/config/winrs '@{MaxMemoryPerShellMB="1024"}' >> $logfile
+& winrm.cmd set winrm/config/winrs '@{MaxShellsPerUser="50"}' >> $logfile
+#Server settings - support username/password login
+& winrm.cmd set winrm/config/winrs '@{MaxMemoryPerShellMB="1024"}' >> $logfile
+# Firewall Config
+& netsh advfirewall firewall set rule name="Windows Remote Management (HTTP-In)" profile=public protocol=tcp localport=5985 remoteip=localsubnet new remoteip=any  >> $logfile
+</powershell>
+```
 
 ## CONTRIBUTING:
 
