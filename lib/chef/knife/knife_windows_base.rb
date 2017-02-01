@@ -20,13 +20,26 @@ class Chef
   class Knife
     module KnifeWindowsBase
 
+      # E.G. for config value 'attribute', look for :attribute
+      # and then :winrm_attribute,
       def locate_config_value(key)
-        key = key.to_sym
-        value = config[key] || Chef::Config[:knife][key] || default_config[key]
-        Chef::Log.debug("Looking for key #{key} and found value #{value}")
+        key    = key.to_s
+        symbol = key.to_sym
+        # look for config key as stated
+        if not value = config[symbol] || Chef::Config[:knife][symbol] || default_config[symbol]
+          if key =~ /^winrm_/
+            # if stated key starts with winrm_, remove it and look for that
+            symbol = key.gsub(/^winrm_/, '').to_sym
+          else
+            # look for key with 'winrm_' prepended
+            symbol = "winrm_#{key}".to_sym
+          end
+          Chef::Log.debug("Couldn't find value for config key: \"#{key}\", trying \"#{symbol.to_s}\"")
+          value = config[symbol] || Chef::Config[:knife][symbol] || default_config[symbol]
+        end
+        Chef::Log.debug("Config: #{symbol.to_s}: #{value ? value : ''}")
         value
       end
-
     end
   end
 end

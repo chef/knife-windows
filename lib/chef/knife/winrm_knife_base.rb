@@ -72,7 +72,7 @@ class Chef
                      q = Chef::Search::Query.new
                      @action_nodes = q.search(:node, @name_args[0])[0]
                      @action_nodes.each do |item|
-                       i = extract_nested_value(item, config[:attribute])
+                       i = extract_nested_value(item, config[:winrm_attribute])
                        r.push(i) unless i.nil?
                      end
                      r
@@ -83,8 +83,8 @@ class Chef
                 ui.fatal("No nodes returned from search!")
               else
                 ui.fatal("#{@action_nodes.length} #{@action_nodes.length > 1 ? "nodes":"node"} found, " +
-                         "but does not have the required attribute (#{config[:attribute]}) to establish the connection. " +
-                         "Try setting another attribute to open the connection using --attribute.")
+                         "but does not have the required attribute (#{config[:winrm_attribute]}) to establish the connection. " +
+                         "Try setting another attribute to open the connection using --winrm-attribute.")
               end
               exit 10
             end
