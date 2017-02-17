@@ -207,7 +207,8 @@ echo.cache_options     ^({:path =^> "c:/chef/cache/checksums", :skip_expires =^>
 echo.# Using default node name ^(fqdn^)
 echo.log_level        :info
 echo.log_location       STDOUT
- 
+echo.rubygems_url "https://rubygems.org"
+
 ) 
 
 > C:\chef\first-boot.json ( 
