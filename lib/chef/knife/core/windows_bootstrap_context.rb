@@ -147,6 +147,13 @@ end
 CONFIG
           end
 
+          # For setting up Chef::Config[:rubygems_url]
+          # in client.rb for windows runs outside user profile C:\ProgramData
+
+          if @chef_config[:rubygems_url]
+            client_rb << %Q{rubygems_url "#{@chef_config[:rubygems_url]}"\n}
+          end
+
           escape_and_echo(client_rb)
         end
 
