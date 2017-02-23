@@ -1,6 +1,6 @@
 
 # Author:: Adam Edwards (<adamed@chef.io>)
-# Copyright:: Copyright (c) 2012-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) 2012-2017, Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,23 +56,23 @@ def windows2012?
 end
 
 def chef_gte_12?
-  Chef::VERSION.split('.').first.to_i >= 12
+  Gem::Requirement.new(">= 12").satisfied_by?(Gem::Version.new(Chef::VERSION))
 end
 
 def chef_gte_12_5?
-  Chef::VERSION.split('.')[0..1].join('.').to_f >= 12.5
+  Gem::Requirement.new(">= 12.5").satisfied_by?(Gem::Version.new(Chef::VERSION))
 end
 
 def chef_gte_12_6?
-  Chef::VERSION.split('.')[0..1].join('.').to_f >= 12.6
+  Gem::Requirement.new(">= 12.6").satisfied_by?(Gem::Version.new(Chef::VERSION))
 end
 
 def chef_lt_12?
-  Chef::VERSION.split('.').first.to_i < 12
+  Gem::Requirement.new("< 12").satisfied_by?(Gem::Version.new(Chef::VERSION))
 end
 
 def chef_eq_11?
-  Chef::VERSION.split('.').first.to_i == 11
+  Gem::Requirement.new("~> 11.0").satisfied_by?(Gem::Version.new(Chef::VERSION))
 end
 
 def sample_data(file_name)
