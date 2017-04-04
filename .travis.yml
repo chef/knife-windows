@@ -12,6 +12,7 @@ gemfile: ci.gemfile
 env:
   - CHEF_VERSION="master"
   - CHEF_VERSION="~> 12.0"
+  - CHEF_VERSION="< 12"
 
 matrix:
   exclude:

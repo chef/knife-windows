@@ -1,9 +1,5 @@
 # knife-windows Change Log
 
-## Release 1.9.0
-
-* [knife-windows #416](https://github.com/chef/knife-windows/pull/416) Add concurrency support via the `--concurrency` flag
-
 ## Release 1.8.0
 
 * [knife-windows #407](https://github.com/chef/knife-windows/pull/407) Added value for config_log_level and config_log_location
