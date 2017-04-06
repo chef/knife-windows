@@ -399,6 +399,8 @@ class Chef
           bootstrap_bat << render_line
         end
         raise "Bootstrap template was empty!  Check #{config[:bootstrap_template]}" if bootstrap_bat.empty?
+        Chef::Log.debug("Bootstrap rendered bootstrap_bat file is:")
+        Chef::Log.debug(bootstrap_bat)
         yield banner + bootstrap_bat
       end
 
