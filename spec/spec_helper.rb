@@ -1,6 +1,6 @@
 
 # Author:: Adam Edwards (<adamed@chef.io>)
-# Copyright:: Copyright (c) 2012-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) 2012-2017 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,6 +53,31 @@ def windows2012?
   end
 
   is_win2k12
+end
+
+def windows2016?
+  is_win2k16 = false
+
+  if  windows?
+    this_operating_system = WMI::Win32_OperatingSystem.find(:first)
+    os_version = this_operating_system.send('Version')
+
+    # The operating system version is a string in the following form
+    # that can be split into components based on the '.' delimiter:
+    # MajorVersionNumber.MinorVersionNumber.BuildNumber
+    os_version_components = os_version.split('.')
+
+    if os_version_components.length < 2
+      raise 'WMI returned a Windows version from Win32_OperatingSystem.Version ' +
+        'with an unexpected format. The Windows version could not be determined.'
+    end
+
+    # Windows 10.0 is Windows Server 2016, so test the major and
+    # minor version components
+    is_win2k16 = os_version_components[0] == '10' && os_version_components[1] == '0'
+  end
+
+  is_win2k16
 end
 
 def chef_gte_12?
