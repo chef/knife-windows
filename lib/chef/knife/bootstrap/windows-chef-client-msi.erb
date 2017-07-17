@@ -82,6 +82,10 @@ goto architecture_select
 @set MACHINE_OS=2012
 goto architecture_select
 
+:Version10.0
+@set MACHINE_OS=2016
+goto architecture_select
+
 @rem Currently Windows Server 2012 R2 is treated as equivalent to Windows Server 2012
 :Version6.3
 goto Version6.2
