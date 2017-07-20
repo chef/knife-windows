@@ -87,7 +87,7 @@ describe Chef::Knife::Core::WindowsBootstrapContext do
     end
   end
 
-  describe "validation_key", :chef_gte_12_only do
+  describe "validation_key" do
     before do
       mock_bootstrap_context.instance_variable_set(:@config, Mash.new(:validation_key => "C:\\chef\\key.pem"))
     end

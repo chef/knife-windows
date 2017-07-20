@@ -98,6 +98,9 @@ expected: #{expected}
       :encrypt, # irrelevant during bootstrap
       :identity_file,
       :ssh_identity_file,
+      :ssh_gateway_identity,
+      :bootstrap_proxy_user,
+      :bootstrap_proxy_pass,
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -114,6 +117,9 @@ expected: #{expected}
       :ssl_peer_fingerprint,
       :winrm_authentication_protocol,
       :winrm_transport,
+      :winrm_codepage,
+      :concurrency,
+      :winrm_shell,
     ] }
 
     include_examples 'compare_options'
@@ -139,6 +145,9 @@ expected: #{expected}
       :use_sudo,
       :use_sudo_password,
       :encrypt, # irrelevant during bootstrap
+      :ssh_gateway_identity,
+      :bootstrap_proxy_user,
+      :bootstrap_proxy_pass,
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
