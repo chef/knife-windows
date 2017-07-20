@@ -18,8 +18,12 @@ env:
   - CHEF_VERSION="master"
   - CHEF_VERSION="~> 12.0"
 
-allow_failures:
-  - rvm: ruby-head
+matrix:
+  exclude:
+  - rvm: 2.2.7
+    env: CHEF_VERSION="master"
+  allow_failures:
+    - rvm: ruby-head
 
 branches:
   only:
