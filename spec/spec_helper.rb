@@ -56,23 +56,23 @@ def windows2012?
 end
 
 def chef_lt_12_5?
-  Chef::VERSION.split('.')[0..1].join('.').to_f < 12.5
+  Gem::Version.new(Chef::VERSION) < Gem::Version.new('12.5')
 end
 
 def chef_gte_12_5?
-  Chef::VERSION.split('.')[0..1].join('.').to_f >= 12.5
+  Gem::Version.new(Chef::VERSION) >= Gem::Version.new('12.5')
 end
 
 def chef_gte_12_7?
-  Chef::VERSION.split('.')[0..1].join('.').to_f >= 12.7
+  Gem::Version.new(Chef::VERSION) >= Gem::Version.new('12.7')
 end
 
 def chef_gte_13?
-  Chef::VERSION.split('.').first.to_i >= 13
+  Gem::Version.new(Chef::VERSION) >= Gem::Version.new('13')
 end
 
 def chef_lt_13?
-  Chef::VERSION.split('.').first.to_i < 13
+  Gem::Version.new(Chef::VERSION) < Gem::Version.new('13')
 end
 
 def sample_data(file_name)
