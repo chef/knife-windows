@@ -27,7 +27,12 @@ matrix:
 
 allow_failures:
   - rvm: ruby-head
-  - env: CHEF_VERSION="master"
+  - rvm: 2.4.1
+    env: CHEF_VERSION="master"
+  - rvm: 2.3.4
+    env: CHEF_VERSION="master"
+  - rvm: 2.2.7
+    env: CHEF_VERSION="master"
 
 branches:
   only:
