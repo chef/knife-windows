@@ -267,41 +267,28 @@ describe Chef::Knife::BootstrapWindowsWinrm do
   end
 
   context "when validation_key is not present" do
-    context "using chef 11", :chef_lt_12_only do
-      before do
-        allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
-      end
-
-      it 'raises an exception if validation_key is not present in chef 11' do
-        expect(bootstrap.ui).to receive(:error)
-        expect { bootstrap.bootstrap }.to raise_error(SystemExit)
-      end
+    before do
+      allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
+      bootstrap.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
+      Chef::Config[:knife] = {:chef_node_name => 'foo.example.com'}
     end
 
-    context "using chef 12", :chef_gte_12_only do
-      before do
-        allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(false)
-        bootstrap.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
-        Chef::Config[:knife] = {:chef_node_name => 'foo.example.com'}
-      end
+    it 'raises an exception if winrm_authentication_protocol is basic and transport is plaintext' do
+      Chef::Config[:knife] = {:winrm_authentication_protocol => 'basic', :winrm_transport => 'plaintext', :chef_node_name => 'foo.example.com'}
+      expect(bootstrap.ui).to receive(:error)
+      expect { bootstrap.run }.to raise_error(SystemExit)
+    end
 
-      it 'raises an exception if winrm_authentication_protocol is basic and transport is plaintext' do
-        Chef::Config[:knife] = {:winrm_authentication_protocol => 'basic', :winrm_transport => 'plaintext', :chef_node_name => 'foo.example.com'}
-        expect(bootstrap.ui).to receive(:error)
-        expect { bootstrap.run }.to raise_error(SystemExit)
-      end
-
-      it 'raises an exception if chef_node_name is not present ' do
-        Chef::Config[:knife] = {:chef_node_name => nil}
-        expect(bootstrap.client_builder).not_to receive(:run)
-        expect(bootstrap.client_builder).not_to receive(:client_path)
-        expect(bootstrap.ui).to receive(:error)
-        expect { bootstrap.bootstrap }.to raise_error(SystemExit)
-      end
+    it 'raises an exception if chef_node_name is not present ' do
+      Chef::Config[:knife] = {:chef_node_name => nil}
+      expect(bootstrap.client_builder).not_to receive(:run)
+      expect(bootstrap.client_builder).not_to receive(:client_path)
+      expect(bootstrap.ui).to receive(:error)
+      expect { bootstrap.bootstrap }.to raise_error(SystemExit)
     end
   end
 
-  context "when doing chef vault", :chef_gte_12_only do
+  context "when doing chef vault" do
     let(:vault_handler) { double('vault_handler', :doing_chef_vault? => true) }
     let(:node_name) { 'foo.example.com' }
     before do

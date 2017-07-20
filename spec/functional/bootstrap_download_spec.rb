@@ -126,12 +126,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
     clean_test_case
 
     winrm_bootstrapper = Chef::Knife::BootstrapWindowsWinrm.new([ "127.0.0.1" ])
-
-    if chef_gte_12?
-      winrm_bootstrapper.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
-    elsif chef_lt_12?
-      allow(File).to receive(:exist?).with(File.expand_path(Chef::Config[:validation_key])).and_return(true)
-    end
+    winrm_bootstrapper.client_builder = instance_double("Chef::Knife::Bootstrap::ClientBuilder", :run => nil, :client_path => nil)
 
     allow(WinRM::Connection).to receive(:new).and_return(Dummy::Connection.new)
     allow(winrm_bootstrapper).to receive(:wait_for_remote_response)
@@ -151,7 +146,7 @@ describe 'Knife::Windows::Core msi download functionality for knife Windows winr
   end
 end
 
-describe "bootstrap_install_command functionality through WinRM protocol", :if_chef_11 => true do
+describe "bootstrap_install_command functionality through WinRM protocol" do
   context "bootstrap_install_command option is not specified" do
     let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new([]) }
     before do
@@ -164,11 +159,19 @@ describe "bootstrap_install_command functionality through WinRM protocol", :if_c
         @template_output)
     end
 
-    context "when running chef-client 12.5.0 or greater", :chef_gte_12_5_only => true do
+    context "when running chef-client ~12.5", :chef_gte_12_5_only => true, :chef_lt_13_only => true do
       let(:template_12_5_output) { sample_data('win_template_rendered_without_bootstrap_install_command_on_12_5_client.txt') }
       it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil"  do
         expect(bootstrap.send(:render_template,@template_input)).to eq(
                                                                       template_12_5_output)
+      end
+    end
+
+    context "when running chef-client 13.0 or greater", :chef_gte_13_only => true do
+      let(:template_13_output) { sample_data('win_template_rendered_without_bootstrap_install_command_on_13_client.txt') }
+      it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil"  do
+        expect(bootstrap.send(:render_template,@template_input)).to eq(
+                                                                      template_13_output)
       end
     end
   end
@@ -201,7 +204,7 @@ describe "bootstrap_install_command functionality through WinRM protocol", :if_c
   end
 end
 
-describe "bootstrap_install_command functionality through SSH protocol", :if_chef_11 => true, :chef_lt_12_5_only => true do
+describe "bootstrap_install_command functionality through SSH protocol", :chef_lt_12_5_only => true do
   context "bootstrap_install_command option is not specified" do
     let(:bootstrap) { Chef::Knife::BootstrapWindowsSsh.new([]) }
     before do

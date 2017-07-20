@@ -1,0 +1,332 @@
+@rem 
+@rem Author:: Seth Chisamore (<schisamo@opscode.com>) 
+@rem Copyright:: Copyright (c) 2011 Opscode, Inc. 
+@rem License:: Apache License, Version 2.0 
+@rem 
+@rem Licensed under the Apache License, Version 2.0 (the "License"); 
+@rem you may not use this file except in compliance with the License. 
+@rem You may obtain a copy of the License at 
+@rem 
+@rem     http://www.apache.org/licenses/LICENSE-2.0 
+@rem 
+@rem Unless required by applicable law or agreed to in writing, software 
+@rem distributed under the License is distributed on an "AS IS" BASIS, 
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+@rem See the License for the specific language governing permissions and 
+@rem limitations under the License. 
+@rem 
+
+@rem Use delayed environment expansion so that ERRORLEVEL can be evaluated with the 
+@rem !ERRORLEVEL! syntax which evaluates at execution of the line of script, not when 
+@rem the line is read. See help for the /E switch from cmd.exe /? . 
+@setlocal ENABLEDELAYEDEXPANSION 
+
+ 
+
+@set BOOTSTRAP_DIRECTORY=C:\chef 
+@echo Checking for existing directory "%BOOTSTRAP_DIRECTORY%"... 
+@if NOT EXIST %BOOTSTRAP_DIRECTORY% ( 
+    @echo Existing directory not found, creating. 
+    @mkdir %BOOTSTRAP_DIRECTORY% 
+) else ( 
+    @echo Existing directory found, skipping creation. 
+) 
+
+> C:\chef\wget.vbs ( 
+ echo.url = WScript.Arguments.Named^("url"^)
+echo.path = WScript.Arguments.Named^("path"^)
+echo.proxy = null
+echo.'* Vaguely attempt to handle file:// scheme urls by url unescaping and switching all
+echo.'* / into .  Also assume that file:/// is a local absolute path and that file://^<foo^>
+echo.'* is possibly a network file path.
+echo.If InStr^(url, "file://"^) = 1 Then
+echo.url = Unescape^(url^)
+echo.If InStr^(url, "file:///"^) = 1 Then
+echo.sourcePath = Mid^(url, Len^("file:///"^) + 1^)
+echo.Else
+echo.sourcePath = Mid^(url, Len^("file:"^) + 1^)
+echo.End If
+echo.sourcePath = Replace^(sourcePath, "/", "\"^)
+echo.
+echo.Set objFSO = CreateObject^("Scripting.FileSystemObject"^)
+echo.If objFSO.Fileexists^(path^) Then objFSO.DeleteFile path
+echo.objFSO.CopyFile sourcePath, path, true
+echo.Set objFSO = Nothing
+echo.
+echo.Else
+echo.Set objXMLHTTP = CreateObject^("MSXML2.ServerXMLHTTP"^)
+echo.Set wshShell = CreateObject^( "WScript.Shell" ^)
+echo.Set objUserVariables = wshShell.Environment^("USER"^)
+echo.
+echo.rem http proxy is optional
+echo.rem attempt to read from HTTP_PROXY env var first
+echo.On Error Resume Next
+echo.
+echo.If NOT ^(objUserVariables^("HTTP_PROXY"^) = ""^) Then
+echo.proxy = objUserVariables^("HTTP_PROXY"^)
+echo.
+echo.rem fall back to named arg
+echo.ElseIf NOT ^(WScript.Arguments.Named^("proxy"^) = ""^) Then
+echo.proxy = WScript.Arguments.Named^("proxy"^)
+echo.End If
+echo.
+echo.If NOT isNull^(proxy^) Then
+echo.rem setProxy method is only available on ServerXMLHTTP 6.0+
+echo.Set objXMLHTTP = CreateObject^("MSXML2.ServerXMLHTTP.6.0"^)
+echo.objXMLHTTP.setProxy 2, proxy
+echo.End If
+echo.
+echo.On Error Goto 0
+echo.
+echo.objXMLHTTP.open "GET", url, false
+echo.objXMLHTTP.send^(^)
+echo.If objXMLHTTP.Status = 200 Then
+echo.Set objADOStream = CreateObject^("ADODB.Stream"^)
+echo.objADOStream.Open
+echo.objADOStream.Type = 1
+echo.objADOStream.Write objXMLHTTP.ResponseBody
+echo.objADOStream.Position = 0
+echo.Set objFSO = Createobject^("Scripting.FileSystemObject"^)
+echo.If objFSO.Fileexists^(path^) Then objFSO.DeleteFile path
+echo.Set objFSO = Nothing
+echo.objADOStream.SaveToFile path
+echo.objADOStream.Close
+echo.Set objADOStream = Nothing
+echo.End If
+echo.Set objXMLHTTP = Nothing
+echo.End If
+ 
+) 
+
+> C:\chef\wget.ps1 ( 
+ echo.param^(
+echo.   [String] $remoteUrl,
+echo.   [String] $localPath
+echo.^)
+echo.
+echo.$ProxyUrl = $env:http_proxy;
+echo.$webClient = new-object System.Net.WebClient;
+echo.
+echo.if ^($ProxyUrl -ne ''^) {
+echo.  $WebProxy = New-Object System.Net.WebProxy^($ProxyUrl,$true^)
+echo.  $WebClient.Proxy = $WebProxy
+echo.}
+echo.
+echo.$webClient.DownloadFile^($remoteUrl, $localPath^);
+ 
+) 
+
+@rem Determine the version and the architecture 
+
+@FOR /F "usebackq tokens=1-8 delims=.[] " %%A IN (`ver`) DO ( 
+@set WinMajor=%%D 
+@set WinMinor=%%E 
+@set WinBuild=%%F 
+) 
+
+@echo Detected Windows Version %WinMajor%.%WinMinor% Build %WinBuild% 
+
+@set LATEST_OS_VERSION_MAJOR=6 
+@set LATEST_OS_VERSION_MINOR=3 
+
+@if /i %WinMajor% GTR %LATEST_OS_VERSION_MAJOR% goto VersionUnknown 
+@if /i %WinMajor% EQU %LATEST_OS_VERSION_MAJOR%  ( 
+  @if /i %WinMinor% GTR %LATEST_OS_VERSION_MINOR% goto VersionUnknown 
+) 
+
+goto Version%WinMajor%.%WinMinor% 
+
+:VersionUnknown 
+@rem If this is an unknown version of windows set the default 
+@set MACHINE_OS=2008r2 
+@echo Warning: Unknown version of Windows, assuming default of Windows %MACHINE_OS% 
+goto architecture_select 
+
+:Version6.0 
+@set MACHINE_OS=2008 
+goto architecture_select 
+
+:Version5.2 
+@set MACHINE_OS=2003r2 
+goto architecture_select 
+
+:Version6.1 
+@set MACHINE_OS=2008r2 
+goto architecture_select 
+
+:Version6.2 
+@set MACHINE_OS=2012 
+goto architecture_select 
+
+@rem Currently Windows Server 2012 R2 is treated as equivalent to Windows Server 2012 
+:Version6.3 
+goto Version6.2 
+
+:architecture_select 
+goto Architecture%PROCESSOR_ARCHITEW6432% 
+
+:Architecture 
+goto Architecture%PROCESSOR_ARCHITECTURE% 
+
+@rem If this is an unknown architecture set the default 
+@set MACHINE_ARCH=i686 
+goto install 
+
+:Architecturex86 
+@set MACHINE_ARCH=i686 
+goto install 
+
+:Architectureamd64 
+@set MACHINE_ARCH=x86_64 
+goto install 
+
+:install 
+@rem If user has provided the custom installation command for chef-client then execute it 
+  @rem Install Chef using chef-client MSI installer 
+
+  @set "LOCAL_DESTINATION_MSI_PATH=%TEMP%\chef-client-latest.msi" 
+  @set "CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi%RANDOM%.log" 
+
+  @rem Clear any pre-existing downloads 
+  @echo Checking for existing downloaded package at "%LOCAL_DESTINATION_MSI_PATH%" 
+  @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" ( 
+      @echo Found existing downloaded package, deleting. 
+      @del /f /q "%LOCAL_DESTINATION_MSI_PATH%" 
+      @if ERRORLEVEL 1 ( 
+          echo Warning: Failed to delete pre-existing package with status code !ERRORLEVEL! > "&2" 
+      ) 
+  ) else ( 
+      echo No existing downloaded packages to delete. 
+    ) 
+
+  @rem If there is somehow a name collision, remove pre-existing log 
+  @if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%" 
+
+  @echo Attempting to download client package using PowerShell if available... 
+  @set "REMOTE_SOURCE_MSI_URL=https://www.chef.io/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%&DownloadContext=PowerShell&v=13" 
+  @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -File  C:\chef\wget.ps1 "%REMOTE_SOURCE_MSI_URL%" "%LOCAL_DESTINATION_MSI_PATH%" 
+  @echo !powershell_download! 
+  @call !powershell_download! 
+
+  @set DOWNLOAD_ERROR_STATUS=!ERRORLEVEL! 
+
+  @if ERRORLEVEL 1 ( 
+      @echo Failed PowerShell download with status code !DOWNLOAD_ERROR_STATUS! > "&2" 
+      @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2 
+  ) else ( 
+      @rem Sometimes the error level is not set even when the download failed, 
+      @rem so check for the file to be sure it is there -- if it is not, we will retry 
+      @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" ( 
+          echo Failed download: download completed, but downloaded file not found > "&2" 
+          set DOWNLOAD_ERROR_STATUS=2 
+      ) else ( 
+          echo Download via PowerShell succeeded. 
+        ) 
+    ) 
+
+  @if NOT %DOWNLOAD_ERROR_STATUS%==0 ( 
+      @echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%" 
+      @echo Warning: Retrying download with cscript ... 
+
+      @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%" 
+
+      @set "REMOTE_SOURCE_MSI_URL=https://www.chef.io/chef/download?p=windows&pv=%MACHINE_OS%&m=%MACHINE_ARCH%&v=13" 
+      cscript /nologo C:\chef\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%" 
+
+      @if NOT ERRORLEVEL 1 ( 
+          @rem Sometimes the error level is not set even when the download failed, 
+          @rem so check for the file to be sure it is there. 
+          @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" ( 
+              echo Failed download: download completed, but downloaded file not found > "&2" 
+              echo Exiting without bootstrapping due to download failure. > "&2" 
+              exit /b 1 
+          ) else ( 
+              echo Download via cscript succeeded. 
+            ) 
+      ) else ( 
+          echo Failed to download "%REMOTE_SOURCE_MSI_URL%" with status code !ERRORLEVEL!. > "&2" 
+          echo Exiting without bootstrapping due to download failure. > "&2" 
+          exit /b 1 
+        ) 
+  ) 
+
+  @echo Installing downloaded client package... 
+
+  msiexec /qn /log "%CHEF_CLIENT_MSI_LOG_PATH%" /i "%LOCAL_DESTINATION_MSI_PATH%"
+          @set MSIERRORCODE=!ERRORLEVEL!
+          @if ERRORLEVEL 1 (
+              @echo WARNING: Failed to install Chef Client MSI package in remote context with status code !MSIERRORCODE!.
+              @echo WARNING: This may be due to a defect in operating system update KB2918614: http://support.microsoft.com/kb/2918614
+              @set OLDLOGLOCATION="%CHEF_CLIENT_MSI_LOG_PATH%-fail.log"
+              @move "%CHEF_CLIENT_MSI_LOG_PATH%" "!OLDLOGLOCATION!" > NUL
+              @echo WARNING: Saving installation log of failure at !OLDLOGLOCATION!
+              @echo WARNING: Retrying installation with local context...
+              @schtasks /create /f  /sc once /st 00:00:00 /tn chefclientbootstraptask /ru SYSTEM /rl HIGHEST /tr "cmd /c msiexec /qn /log '%CHEF_CLIENT_MSI_LOG_PATH%' /i '%LOCAL_DESTINATION_MSI_PATH%' & sleep 2 & waitfor /s %computername% /si chefclientinstalldone"
+
+              @if ERRORLEVEL 1 (
+                  @echo ERROR: Failed to create Chef Client installation scheduled task with status code !ERRORLEVEL! > "&2"
+              ) else (
+                  @echo Successfully created scheduled task to install Chef Client.
+                  @schtasks /run /tn chefclientbootstraptask
+                  @if ERRORLEVEL 1 (
+                      @echo ERROR: Failed to execut Chef Client installation scheduled task with status code !ERRORLEVEL!. > "&2"
+                  ) else (
+                      @echo Successfully started Chef Client installation scheduled task.
+                      @echo Waiting for installation to complete -- this may take a few minutes...
+                      waitfor chefclientinstalldone /t 600
+                      if ERRORLEVEL 1 (
+                          @echo ERROR: Timed out waiting for Chef Client package to install
+                      ) else (
+                          @echo Finished waiting for Chef Client package to install.
+                      )
+                      @schtasks /delete /f /tn chefclientbootstraptask > NUL
+                  )
+              )
+          ) else (
+              @echo Successfully installed Chef Client package.
+          )
+ 
+
+  @if ERRORLEVEL 1 ( 
+      echo Chef-client package failed to install with status code !ERRORLEVEL!. > "&2" 
+      echo See installation log for additional detail: %CHEF_CLIENT_MSI_LOG_PATH%. > "&2" 
+  ) else ( 
+      @echo Installation completed successfully 
+      del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%" 
+    ) 
+
+
+@endlocal 
+
+@echo off 
+
+
+echo Writing validation key... 
+
+
+echo Validation key written. 
+@echo on 
+
+
+
+
+> C:\chef\client.rb ( 
+ echo.chef_server_url  "https://localhost:443"
+echo.validation_client_name "chef-validator"
+echo.file_cache_path   "c:/chef/cache"
+echo.file_backup_path  "c:/chef/backup"
+echo.cache_options     ^({:path =^> "c:/chef/cache/checksums", :skip_expires =^> true}^)
+echo.# Using default node name ^(fqdn^)
+echo.log_level        :info
+echo.log_location       STDOUT
+ 
+) 
+
+> C:\chef\first-boot.json ( 
+ echo.{"run_list":null} 
+) 
+
+@echo Starting chef to bootstrap the node... 
+SET "PATH=%PATH%;C:\ruby\bin;C:\opscode\chef\bin;C:\opscode\chef\embedded\bin"
+chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json
+ 
