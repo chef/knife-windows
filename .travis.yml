@@ -1,8 +1,13 @@
 language: ruby
+cache: bundler
+dist: trusty
+sudo: false
 
 rvm:
-  - 2.1
-  - 2.3
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
+  - ruby-head
 
 before_install:
   - gem install bundler
@@ -15,10 +20,10 @@ env:
 
 matrix:
   exclude:
-  - rvm: 2.1
+  - rvm: 2.2.7
     env: CHEF_VERSION="master"
-  - rvm: 2.1
-    env: CHEF_VERSION="~> 12.0"
+  allow_failures:
+    - rvm: ruby-head
 
 branches:
   only:
