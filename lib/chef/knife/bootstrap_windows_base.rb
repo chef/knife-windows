@@ -65,6 +65,11 @@ class Chef
             :description => "Do not proxy locations for the node being bootstrapped; this option is used internally by Opscode",
             :proc => Proc.new { |np| Chef::Config[:knife][:bootstrap_no_proxy] = np }
 
+          option :bootstrap_debug,
+            :long        => "--bootstrap-debug",
+            :description => "Verbose bootstrap output",
+            :proc        => Proc.new { |bv| Chef::Config[:knife][:bootstrap_debug] = bv }
+
           option :bootstrap_install_command,
             :long        => "--bootstrap-install-command COMMANDS",
             :description => "Custom command to install chef-client",
