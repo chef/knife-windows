@@ -21,25 +21,6 @@
 @rem the line is read. See help for the /E switch from cmd.exe /? .
 @setlocal ENABLEDELAYEDEXPANSION
 
-<%= "SETX HTTP_PROXY \"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] %>
-
-@set BOOTSTRAP_DIRECTORY=<%= bootstrap_directory %>
-@echo Checking for existing directory "%BOOTSTRAP_DIRECTORY%"...
-@if NOT EXIST %BOOTSTRAP_DIRECTORY% (
-    @echo Existing directory not found, creating.
-    @mkdir %BOOTSTRAP_DIRECTORY%
-) else (
-    @echo Existing directory found, skipping creation.
-)
-
-> <%= bootstrap_directory %>\wget.vbs (
- <%= win_wget %>
-)
-
-> <%= bootstrap_directory %>\wget.ps1 (
- <%= win_wget_ps %>
-)
-
 @rem Determine the version and the architecture
 
 @FOR /F "usebackq tokens=1-8 delims=.[] " %%A IN (`ver`) DO (
@@ -101,125 +82,81 @@ goto Version6.2
   @set MACHINE_ARCH=x86_64
   IF "%PROCESSOR_ARCHITECTURE%"=="x86" IF not defined PROCESSOR_ARCHITEW6432 @set MACHINE_ARCH=i686
 <% end %>
-goto install
 
-:install
-@rem If user has provided the custom installation command for chef-client then execute it
-<% if @chef_config[:knife][:bootstrap_install_command] %>
-  <%= @chef_config[:knife][:bootstrap_install_command] %>
-<% else %>
-  @rem Install Chef using chef-client MSI installer
-
-  @set "LOCAL_DESTINATION_MSI_PATH=<%= local_download_path %>"
-  @set "CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi%RANDOM%.log"
-
-  @rem Clear any pre-existing downloads
-  @echo Checking for existing downloaded package at "%LOCAL_DESTINATION_MSI_PATH%"
-  @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
-      @echo Found existing downloaded package, deleting.
-      @del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
-      @if ERRORLEVEL 1 (
-          echo Warning: Failed to delete pre-existing package with status code !ERRORLEVEL! > "&2"
-      )
-  ) else (
-      echo No existing downloaded packages to delete.
-    )
-
-  @rem If there is somehow a name collision, remove pre-existing log
-  @if EXIST "%CHEF_CLIENT_MSI_LOG_PATH%" del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
-
-  @echo Attempting to download client package using PowerShell if available...
-  @set "REMOTE_SOURCE_MSI_URL=<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>"
-  @set powershell_download=powershell.exe -ExecutionPolicy Unrestricted -InputFormat None -NoProfile -NonInteractive -File  <%= bootstrap_directory %>\wget.ps1 "%REMOTE_SOURCE_MSI_URL%" "%LOCAL_DESTINATION_MSI_PATH%"
-  @echo !powershell_download!
-  @call !powershell_download!
-
-  @set DOWNLOAD_ERROR_STATUS=!ERRORLEVEL!
-
-  @if ERRORLEVEL 1 (
-      @echo Failed PowerShell download with status code !DOWNLOAD_ERROR_STATUS! > "&2"
-      @if !DOWNLOAD_ERROR_STATUS!==0 set DOWNLOAD_ERROR_STATUS=2
-  ) else (
-      @rem Sometimes the error level is not set even when the download failed,
-      @rem so check for the file to be sure it is there -- if it is not, we will retry
-      @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
-          echo Failed download: download completed, but downloaded file not found > "&2"
-          set DOWNLOAD_ERROR_STATUS=2
-      ) else (
-          echo Download via PowerShell succeeded.
-        )
-    )
-
-  @if NOT %DOWNLOAD_ERROR_STATUS%==0 (
-      @echo Warning: Failed to download "%REMOTE_SOURCE_MSI_URL%" to "%LOCAL_DESTINATION_MSI_PATH%"
-      @echo Warning: Retrying download with cscript ...
-
-      @if EXIST "%LOCAL_DESTINATION_MSI_PATH%" del /f /q "%LOCAL_DESTINATION_MSI_PATH%"
-
-      @set "REMOTE_SOURCE_MSI_URL=<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%') %>"
-      cscript /nologo <%= bootstrap_directory %>\wget.vbs /url:"%REMOTE_SOURCE_MSI_URL%" /path:"%LOCAL_DESTINATION_MSI_PATH%"
-
-      @if NOT ERRORLEVEL 1 (
-          @rem Sometimes the error level is not set even when the download failed,
-          @rem so check for the file to be sure it is there.
-          @if NOT EXIST "%LOCAL_DESTINATION_MSI_PATH%" (
-              echo Failed download: download completed, but downloaded file not found > "&2"
-              echo Exiting without bootstrapping due to download failure. > "&2"
-              exit /b 1
-          ) else (
-              echo Download via cscript succeeded.
-            )
-      ) else (
-          echo Failed to download "%REMOTE_SOURCE_MSI_URL%" with status code !ERRORLEVEL!. > "&2"
-          echo Exiting without bootstrapping due to download failure. > "&2"
-          exit /b 1
-        )
-  )
-
-  @echo Installing downloaded client package...
-
-  <%= install_chef %>
-
-  @if ERRORLEVEL 1 (
-      echo Chef-client package failed to install with status code !ERRORLEVEL!. > "&2"
-      echo See installation log for additional detail: %CHEF_CLIENT_MSI_LOG_PATH%. > "&2"
-  ) else (
-      @echo Installation completed successfully
-      del /f /q "%CHEF_CLIENT_MSI_LOG_PATH%"
-    )
-
+<% unless @chef_config[:knife][:bootstrap_debug] %>
+@echo off
 <% end %>
 
-@endlocal
+echo Passing all settings to the system environment
+<% if @config[:bootstrap_proxy] -%>
+setx CHEF_HTTP_PROXY "<%= @config[:bootstrap_proxy] %>" /m
+<% elsif knife_config[:bootstrap_proxy] -%>
+setx CHEF_HTTP_PROXY "<%= knife_config[:bootstrap_proxy] %>" /m
+<% end -%>
+setx CHEF_REMOTE_URL "<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>" /m
+<% if @chef_config[:knife][:bootstrap_install_command] %>
+setx CHEF_CUSTOM_INSTALL_COMMAND "<%= (@chef_config[:knife][:bootstrap_install_command]).gsub(/(\")/, '\\"') %>" /m
+<% end %>
 
-@echo off
+<% if @config[:install_as_service] %>
+setx CHEF_EXTRA_MSI_PARAMETERS "ADDLOCAL=\"ChefClientFeature,ChefServiceFeature\"" /m
+<% end %>
 
-<% if client_pem -%>
+setx CHEF_ENVIRONMENT_OPTION "<%= bootstrap_environment.nil? ? '' : " -E #{bootstrap_environment}" %>" /m
+setx CHEF_LOCAL_MSI_PATH "<%= local_download_path %>" /m
+
+setx CHEF_CLIENT_MSI_LOG_PATH "%TEMP%\chef-client-msi.log" /m
+set CHEF_CLIENT_MSI_LOG_PATH=%TEMP%\chef-client-msi.log
+
+setx CHEF_PS_EXITCODE "<%= bootstrap_directory %>\ps_exitcode.txt" /m
+set CHEF_PS_EXITCODE=<%= bootstrap_directory %>\ps_exitcode.txt
+
+setx CHEF_PS_LOG "<%= bootstrap_directory %>\ps_log.txt" /m
+set CHEF_PS_LOG=<%= bootstrap_directory %>\ps_log.txt
+
+setx CHEF_BOOTSTRAP_DIRECTORY "<%= bootstrap_directory %>" /m
+set CHEF_BOOTSTRAP_DIRECTORY="<%= bootstrap_directory %>"
+
+echo Checking for existing directory "%CHEF_BOOTSTRAP_DIRECTORY%"...
+IF NOT EXIST %CHEF_BOOTSTRAP_DIRECTORY% (
+    echo Existing directory not found, creating.
+    mkdir %CHEF_BOOTSTRAP_DIRECTORY%
+) else (
+    echo Existing directory found, skipping creation.
+)
+
+echo Clean up potential existing Powershell bootstrap logfile
+del %CHEF_PS_LOG% /Q 2> nul
+del %CHEF_PS_EXITCODE% /Q 2> nul
+
+@echo Writing required files
+> <%= bootstrap_directory %>\writefile.ps1 (
+<%= win_ps_write_filechunk %>
+)
+
+<%= win_ps_bootstrap(bootstrap_directory+'\bootstrap.ps1') %>
+<%= win_cmd_tail(bootstrap_directory+'\tail.cmd') %>
+
+<% if (defined? client_pem) && client_pem -%>
+echo Writing client key...
 > <%= bootstrap_directory %>\client.pem (
  <%= escape_and_echo(::File.read(::File.expand_path(client_pem))) %>
 )
+echo Client key written
 <% end -%>
-
-echo Writing validation key...
 
 <% if validation_key -%>
+echo Writing validation key...
 > <%= bootstrap_directory %>\validation.pem (
- <%= escape_and_echo(validation_key) %>
+<%= validation_key.match('^echo\.') ? validation_key : escape_and_echo(validation_key) %>
 )
-<% end -%>
-
 echo Validation key written.
-@echo on
-
-<% if @config[:secret] -%>
-> <%= bootstrap_directory %>\encrypted_data_bag_secret (
- <%= secret %>
-)
 <% end -%>
 
-<% unless trusted_certs_script.empty? -%>
-mkdir <%= bootstrap_directory %>\trusted_certs
-<%= trusted_certs_script %>
+<% if secret -%>
+> <%= bootstrap_directory %>\encrypted_data_bag_secret (
+<%= secret %>
+)
 <% end -%>
 
 <%# Generate Ohai Hints -%>
@@ -234,13 +171,74 @@ mkdir <%= bootstrap_directory %>\ohai\hints
 <% end -%>
 
 > <%= bootstrap_directory %>\client.rb (
- <%= config_content %>
+<%= config_content %>
 )
+<% if @config[:bootstrap_proxy] -%>
+findstr /V /I _proxy <%= bootstrap_directory %>\client.rb  > <%= bootstrap_directory %>\chef_client.rb
+echo http_proxy   "<%= @config[:bootstrap_proxy] %>" >> <%= bootstrap_directory %>\chef_client.rb
+echo https_proxy   "<%= @config[:bootstrap_proxy] %>" >> <%= bootstrap_directory %>\chef_client.rb
+move /Y <%= bootstrap_directory %>\chef_client.rb <%= bootstrap_directory %>\client.rb
+<% end -%>
 
 > <%= bootstrap_directory %>\first-boot.json (
- <%= first_boot %>
+<%= first_boot %>
 )
 
-@echo Starting chef to bootstrap the node...
-<%= start_chef %>
+rem The scheduled task creation could use error handling (feels like a corner case though):
+c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /st 00:00:00 /tn Chef_bootstrap /tr "powershell.exe -ExecutionPolicy Unrestricted -File <%= bootstrap_directory %>\bootstrap.ps1" 2> nul
 
+echo *******************************************************************
+echo Starting Powershell bootstrap scheduled task
+c:/windows/system32/schtasks.exe /run /tn Chef_bootstrap
+
+<% unless @chef_config[:knife][:bootstrap_debug] %>
+@echo off
+<% end %>
+
+echo *******************************************************************
+echo Waiting for Powershell bootstrap log file to appear
+<%= win_cmd_wait_for_file('CHEF_PS_LOG') %>
+
+echo Tailing Powershell bootstrap log
+call <%= bootstrap_directory %>\tail.cmd "%CHEF_PS_LOG%" 2> nul
+
+echo *******************************************************************
+echo Chef Powershell Bootstrap exited. Checking exit code.
+
+<%= win_ps_exitcheck %>
+IF NOT !psexitcode!==0 (
+  echo *******************************************************************
+  echo Now dumping MSI error log %CHEF_CLIENT_MSI_LOG_PATH%
+  echo *******************************************************************
+  type %CHEF_CLIENT_MSI_LOG_PATH% 2> nul
+  echo *******************************************************************
+  echo Done dumping MSI log. Exiting...
+  exit !psexitcode!
+)
+echo Powershell bootstrap script reported succesful Chef install.
+
+set CHEF_CLIENT_LOG=<%= bootstrap_directory %>\firstrun.log
+
+<%= win_cmd_wait_for_file('CHEF_CLIENT_LOG') %>
+
+echo *******************************************************************
+call <%= bootstrap_directory %>\tail.cmd "<%= bootstrap_directory %>\firstrun.log" 2> nul
+
+echo *******************************************************************
+echo Chef Powershell Bootstrap exited. Checking exit code.
+
+<%= win_ps_exitcheck %>
+IF NOT !psexitcode!==0 (
+  echo *******************************************************************
+  echo First Chef run exit code was not 0
+) else (
+  echo Powershell bootstrap script and the first Chef run ran successfully! Running cleanup.
+)
+
+del %CHEF_PS_LOG% /Q 2> nul
+del %CHEF_PS_EXITCODE% /Q 2> nul
+del <%= bootstrap_directory+'\tail.cmd' %> /Q 2> nul
+del <%= bootstrap_directory+'\bootstrap.ps1' %> /Q 2> nul
+del <%= bootstrap_directory+'\writefile.ps1' %> /Q 2> nul
+
+exit !psexitcode!

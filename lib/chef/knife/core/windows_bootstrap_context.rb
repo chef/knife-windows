@@ -168,12 +168,6 @@ CONFIG
           end
         end
 
-        def start_chef
-          bootstrap_environment_option = bootstrap_environment.nil? ? '' : " -E #{bootstrap_environment}"
-          start_chef = "SET \"PATH=%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
-          start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json#{bootstrap_environment_option}\n"
-        end
-
         def latest_current_windows_chef_version_query
           installer_version_string = nil
           if @config[:prerelease]
@@ -196,101 +190,103 @@ CONFIG
           installer_version_string
         end
 
-        def win_wget
-          # I tried my best to figure out how to properly url decode and switch / to \
-          # but this is VBScript - so I don't really care that badly.
-          win_wget = <<-WGET
-url = WScript.Arguments.Named("url")
-path = WScript.Arguments.Named("path")
-proxy = null
-'* Vaguely attempt to handle file:// scheme urls by url unescaping and switching all
-'* / into \.  Also assume that file:/// is a local absolute path and that file://<foo>
-'* is possibly a network file path.
-If InStr(url, "file://") = 1 Then
-url = Unescape(url)
-If InStr(url, "file:///") = 1 Then
-sourcePath = Mid(url, Len("file:///") + 1)
-Else
-sourcePath = Mid(url, Len("file:") + 1)
-End If
-sourcePath = Replace(sourcePath, "/", "\\")
-
-Set objFSO = CreateObject("Scripting.FileSystemObject")
-If objFSO.Fileexists(path) Then objFSO.DeleteFile path
-objFSO.CopyFile sourcePath, path, true
-Set objFSO = Nothing
-
-Else
-Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
-Set wshShell = CreateObject( "WScript.Shell" )
-Set objUserVariables = wshShell.Environment("USER")
-
-rem http proxy is optional
-rem attempt to read from HTTP_PROXY env var first
-On Error Resume Next
-
-If NOT (objUserVariables("HTTP_PROXY") = "") Then
-proxy = objUserVariables("HTTP_PROXY")
-
-rem fall back to named arg
-ElseIf NOT (WScript.Arguments.Named("proxy") = "") Then
-proxy = WScript.Arguments.Named("proxy")
-End If
-
-If NOT isNull(proxy) Then
-rem setProxy method is only available on ServerXMLHTTP 6.0+
-Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
-objXMLHTTP.setProxy 2, proxy
-End If
-
-On Error Goto 0
-
-objXMLHTTP.open "GET", url, false
-objXMLHTTP.send()
-If objXMLHTTP.Status = 200 Then
-Set objADOStream = CreateObject("ADODB.Stream")
-objADOStream.Open
-objADOStream.Type = 1
-objADOStream.Write objXMLHTTP.ResponseBody
-objADOStream.Position = 0
-Set objFSO = Createobject("Scripting.FileSystemObject")
-If objFSO.Fileexists(path) Then objFSO.DeleteFile path
-Set objFSO = Nothing
-objADOStream.SaveToFile path
-objADOStream.Close
-Set objADOStream = Nothing
-End If
-Set objXMLHTTP = Nothing
-End If
-WGET
-          escape_and_echo(win_wget)
-        end
-
-        def win_wget_ps
-          win_wget_ps = <<-WGET_PS
-param(
-   [String] $remoteUrl,
-   [String] $localPath
-)
-
-$ProxyUrl = $env:http_proxy;
-$webClient = new-object System.Net.WebClient;
-
-if ($ProxyUrl -ne '') {
-  $WebProxy = New-Object System.Net.WebProxy($ProxyUrl,$true)
-  $WebClient.Proxy = $WebProxy
+        def win_ps_write_filechunk
+          win_ps_write_filechunk = <<-PS_WRITEFILECHUNK
+$data=$args[0]
+$filename=$args[1]
+$data|foreach-object {
+  if ($_ -eq 10) {
+    add-content $filename $content
+    write-host "Wrote to file: $content"
+    $content = ''
+  } elseif ($_ -ne 13) {
+    $content += [char]$_
+  }
 }
+if ($content.length -gt 0) {
+  add-content $filename $content
+  write-host "Wrote to file: $content"
+}
+PS_WRITEFILECHUNK
+		  escape_and_echo(win_ps_write_filechunk)
+		end
 
-$webClient.DownloadFile($remoteUrl, $localPath);
-WGET_PS
-
-          escape_and_echo(win_wget_ps)
+        def win_cmd_wait_for_file(filename_in_envvar)
+          win_cmd_wait_for_file = <<-filename_in_envvar
+:waitfor#{filename_in_envvar}
+@if NOT EXIST "%#{filename_in_envvar}%" (
+    @powershell.exe -command Start-Sleep 1
+	@echo %#{filename_in_envvar}% does not exist yet.
+    @goto waitfor#{filename_in_envvar}
+) else (
+    @echo Logfile %#{filename_in_envvar}% found.
+)
+filename_in_envvar
+          win_cmd_wait_for_file
         end
 
-        def install_chef
-          # The normal install command uses regular double quotes in
-          # the install command, so request such a string from install_command
-          install_chef = install_command('"') + "\n" + fallback_install_task_command
+        def win_cmd_tail(target_filename)
+          cmd_tail_file = Gem.find_files(File.join('chef', 'knife', 'bootstrap', 'tail.cmd')).first
+          cmd_tail_content = IO.read(cmd_tail_file)
+		  win_parse_file_content(cmd_tail_content, target_filename)
+        end
+
+        def win_ps_bootstrap(target_filename)
+          ps_bootstrap_file = Gem.find_files(File.join('chef', 'knife', 'bootstrap', 'bootstrap.ps1')).first
+          ps_bootstrap_content = IO.read(ps_bootstrap_file)
+		  win_parse_file_content(ps_bootstrap_content, target_filename)
+        end
+
+		def win_parse_file_content(content, target_filename)
+		  byte_chunks = data_to_byte_chunks(content, 4000)
+		  win_parse_file_content = ''
+		  win_parse_file_content << "del \"#{target_filename}\" /Q 2> nul\n"
+		  byte_chunks.each { |file_chunk|
+			   if file_chunk.length > 0
+   			  win_parse_file_content << write_file_chunk(file_chunk, target_filename)
+   			end
+		  }
+		  win_parse_file_content
+		end
+		
+		def write_file_chunk(byte_chunk, target_filename)
+		  "@powershell.exe -command #{bootstrap_directory}\\writefile.ps1 #{byte_chunk} #{target_filename}\n"
+		end
+		
+		def data_to_byte_chunks(data, max_chuck_size)
+		  chunk = ''
+		  chunk_buffer = ''
+		  data_to_byte_chunks = []
+		  data.split('').each { |char|
+		    chunk_buffer << char.ord.to_s << ','
+		    if char.ord == 10
+		      chunk << chunk_buffer
+		      chunk_buffer = ''
+		    end
+		    if (chunk_buffer.length + chunk.length) > max_chuck_size
+		      data_to_byte_chunks.push(chunk.chomp(','))
+		      chunk = ''
+		    end
+		  }
+		  chunk << chunk_buffer
+		  data_to_byte_chunks.push(chunk.chomp(','))
+		  data_to_byte_chunks
+		end
+
+
+        def win_ps_exitcheck
+          <<-ps_exitcheck
+@powershell.exe -command Start-Sleep 1
+@if EXIST "%CHEF_PS_EXITCODE%" (
+  @for /f "delims=" %%x in (%CHEF_PS_EXITCODE%) do set psexitcode=%%x
+  @IF NOT !psexitcode!==0 (
+    @echo ERROR -- Powershell bootstrap script exit code was !psexitcode!
+  )
+) else (
+  @echo %CHEF_PS_EXITCODE% not found. This should never happen
+  @exit 328
+)
+ps_exitcheck
         end
 
         def bootstrap_directory
@@ -324,18 +320,10 @@ WGET_PS
         # and prefixes each line with an
         # echo
         def escape_and_echo(file_contents)
-          file_contents.gsub(/^(.*)$/, 'echo.\1').gsub(/([(<|>)^])/, '^\1')
+          file_contents.gsub(/^(.*)$/, 'echo.\1').gsub(/([(<|>)^])/, '^\1').gsub(/(!)/, '^^\1').gsub(/(%)/,'%\1')
         end
 
         private
-
-        def install_command(executor_quote)
-          if @config[:install_as_service]
-            "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote} ADDLOCAL=#{executor_quote}ChefClientFeature,ChefServiceFeature#{executor_quote}"
-          else
-            "msiexec /qn /log #{executor_quote}%CHEF_CLIENT_MSI_LOG_PATH%#{executor_quote} /i #{executor_quote}%LOCAL_DESTINATION_MSI_PATH%#{executor_quote}"
-          end
-        end
 
         # Returns a string for copying the trusted certificates on the workstation to the system being bootstrapped
         # This string should contain both the commands necessary to both create the files, as well as their content
@@ -350,47 +338,6 @@ WGET_PS
           content
         end
 
-        def fallback_install_task_command
-          # This command will be executed by schtasks.exe in the batch
-          # code below. To handle tasks that contain arguments that
-          # need to be double quoted, schtasks allows the use of single
-          # quotes that will later be converted to double quotes
-          command = install_command('\'')
-<<-EOH
-          @set MSIERRORCODE=!ERRORLEVEL!
-          @if ERRORLEVEL 1 (
-              @echo WARNING: Failed to install Chef Client MSI package in remote context with status code !MSIERRORCODE!.
-              @echo WARNING: This may be due to a defect in operating system update KB2918614: http://support.microsoft.com/kb/2918614
-              @set OLDLOGLOCATION="%CHEF_CLIENT_MSI_LOG_PATH%-fail.log"
-              @move "%CHEF_CLIENT_MSI_LOG_PATH%" "!OLDLOGLOCATION!" > NUL
-              @echo WARNING: Saving installation log of failure at !OLDLOGLOCATION!
-              @echo WARNING: Retrying installation with local context...
-              @schtasks /create /f  /sc once /st 00:00:00 /tn chefclientbootstraptask /ru SYSTEM /rl HIGHEST /tr \"cmd /c #{command} & sleep 2 & waitfor /s %computername% /si chefclientinstalldone\"
-
-              @if ERRORLEVEL 1 (
-                  @echo ERROR: Failed to create Chef Client installation scheduled task with status code !ERRORLEVEL! > "&2"
-              ) else (
-                  @echo Successfully created scheduled task to install Chef Client.
-                  @schtasks /run /tn chefclientbootstraptask
-                  @if ERRORLEVEL 1 (
-                      @echo ERROR: Failed to execut Chef Client installation scheduled task with status code !ERRORLEVEL!. > "&2"
-                  ) else (
-                      @echo Successfully started Chef Client installation scheduled task.
-                      @echo Waiting for installation to complete -- this may take a few minutes...
-                      waitfor chefclientinstalldone /t 600
-                      if ERRORLEVEL 1 (
-                          @echo ERROR: Timed out waiting for Chef Client package to install
-                      ) else (
-                          @echo Finished waiting for Chef Client package to install.
-                      )
-                      @schtasks /delete /f /tn chefclientbootstraptask > NUL
-                  )
-              )
-          ) else (
-              @echo Successfully installed Chef Client package.
-          )
-EOH
-        end
       end
     end
   end
