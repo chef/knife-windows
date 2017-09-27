@@ -18,7 +18,7 @@ function cleanup() {
   Remove-Item "$($config['CHEF_CLIENT_MSI_LOG_PATH'])" -Force -ErrorAction SilentlyContinue
 }
 
-$cmd_input_variables = @("CHEF_PS_LOG", "CHEF_PS_EXITCODE", "CHEF_REMOTE_URL", "CHEF_LOCAL_MSI_PATH", "CHEF_http_proxy","CHEF_CLIENT_MSI_LOG_PATH","CHEF_ENVIRONMENT_OPTION","CHEF_BOOTSTRAP_DIRECTORY","CHEF_CUSTOM_INSTALL_COMMAND","CHEF_EXTRA_MSI_PARAMETERS")
+$cmd_input_variables = @("CHEF_PS_LOG", "CHEF_PS_EXITCODE", "CHEF_REMOTE_SOURCE_MSI_URL", "CHEF_LOCAL_MSI_PATH", "CHEF_http_proxy","CHEF_CLIENT_MSI_LOG_PATH","CHEF_ENVIRONMENT_OPTION","CHEF_BOOTSTRAP_DIRECTORY","CHEF_CUSTOM_INSTALL_COMMAND","CHEF_EXTRA_MSI_PARAMETERS")
 $config = @{}
 $cmd_input_variables | ForEach-Object {
 	$config[$_] = (get-childitem env:$_ -ErrorAction SilentlyContinue).value
@@ -36,8 +36,8 @@ if ($config['CHEF_http_proxy'] -ne '') {
   $WebClient.Proxy = $WebProxy
 }
 
-log "Starting download from $( $config['CHEF_REMOTE_URL'] ) to $( $config['CHEF_LOCAL_MSI_PATH'] )"
-$webClient.DownloadFile($config['CHEF_REMOTE_URL'], $config['CHEF_LOCAL_MSI_PATH'] );
+log "Starting download from $( $config['CHEF_REMOTE_SOURCE_MSI_URL'] ) to $( $config['CHEF_LOCAL_MSI_PATH'] )"
+$webClient.DownloadFile($config['CHEF_REMOTE_SOURCE_MSI_URL'], $config['CHEF_LOCAL_MSI_PATH'] );
 
 log "Download done. Checking local file."
 if (!(Test-Path "$($config['CHEF_LOCAL_MSI_PATH'])")) {

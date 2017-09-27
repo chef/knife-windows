@@ -78,12 +78,12 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       let(:options) { ["--msi-url", "file:///something.msi"] }
 
       it "bootstrap batch file must fetch from provided url" do
-        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=file:///something\.msi.*})
+        expect(rendered_template).to match(%r{.*CHEF_REMOTE_SOURCE_MSI_URL \"file:///something\.msi.*})
       end
     end
     context "with no provided --msi-url" do
       it "bootstrap batch file must fetch from provided url" do
-        expect(rendered_template).to match(%r{.*REMOTE_SOURCE_MSI_URL=https://www\.chef\.io/.*})
+        expect(rendered_template).to match(%r{.*CHEF_REMOTE_SOURCE_MSI_URL \"https://www\.chef\.io/.*})
       end
     end
   end
