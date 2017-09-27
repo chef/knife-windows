@@ -93,7 +93,7 @@ setx CHEF_HTTP_PROXY "<%= @config[:bootstrap_proxy] %>" /m
 <% elsif knife_config[:bootstrap_proxy] -%>
 setx CHEF_HTTP_PROXY "<%= knife_config[:bootstrap_proxy] %>" /m
 <% end -%>
-setx CHEF_REMOTE_URL "<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>" /m
+setx CHEF_REMOTE_SOURCE_MSI_URL "<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>" /m
 <% if @chef_config[:knife][:bootstrap_install_command] %>
 setx CHEF_CUSTOM_INSTALL_COMMAND "<%= (@chef_config[:knife][:bootstrap_install_command]).gsub(/(\")/, '\\"') %>" /m
 <% end %>

@@ -120,6 +120,7 @@ expected: #{expected}
       :winrm_codepage,
       :concurrency,
       :winrm_shell,
+	  :bootstrap_debug,
     ] }
 
     include_examples 'compare_options'
@@ -154,6 +155,7 @@ expected: #{expected}
       :auth_timeout,
       :install_as_service,
       :host_key_verification,  # Deprecated - remove this when the flag is removed.
+	  :bootstrap_debug,
     ] }
 
     include_examples 'compare_options'

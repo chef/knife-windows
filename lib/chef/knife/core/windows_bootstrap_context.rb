@@ -59,7 +59,11 @@ class Chef
         end
 
         def secret
-          escape_and_echo(@config[:secret])
+          if @config[:secret].nil?
+            nil
+          else
+            escape_and_echo(@config[:secret])
+          end
         end
 
         def trusted_certs_script
