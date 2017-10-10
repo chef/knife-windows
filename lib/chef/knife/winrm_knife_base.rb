@@ -112,6 +112,7 @@ class Chef
 
           def run_command(command = '')
             relay_winrm_command(command)
+            @exit_code = 0
             check_for_errors!
             @exit_code
           end
@@ -134,6 +135,7 @@ class Chef
               end
             end
             threads.map(&:join)
+pp @session_results
             @session_results
           end
 
