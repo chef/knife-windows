@@ -325,6 +325,10 @@ transport as follows using the `-t` (or `--winrm-transport`) option with the
     knife bootstrap windows winrm -t ssl web1.cloudapp.net -r "server::web" -x "proddomain\webuser" -P "super_secret_password" -f ~/mycert.crt
     knife bootstrap windows winrm -t ssl db1.cloudapp.net -r "server::db" -x "localadmin" -P "super_secret_password" ~/mycert.crt
 
+Client certificates can be used for authentication in lieu username/password credentials:
+
+    knife bootstrap windows winrm -t ssl web1.cloudapp.net --winrm-authentication-protocol cert --winrm-client-cert ~/myclient.crt --winrm-client-key ~/myclient.key -f ~/mycert.crt
+
 ### Troubleshooting authentication
 
 Unencrypted traffic with Basic authentication should only be used for low level wire protocol debugging. The configuration for plain text connectivity to
@@ -346,7 +350,7 @@ authentication; an account local to the remote system must be used.
 
 ### Platform WinRM authentication support
 
-`knife-windows` supports `Kerberos`, `Negotiate`, and `Basic` authentication
+`knife-windows` supports `Kerberos`, `Negotiate`, `Certificate`, and `Basic` authentication
 for WinRM communication.
 
 The following table shows the authentication protocols that can be used with

@@ -45,7 +45,7 @@ class Chef
           def validate_winrm_options!
             winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
 
-            if ! Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
+            if ! Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol.to_s)
               ui.error "Invalid value '#{winrm_auth_protocol}' for --winrm-authentication-protocol option."
               ui.info "Valid values are #{Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.join(",")}."
               exit 1
@@ -201,8 +201,6 @@ class Chef
 
           def resolve_session_options
             @session_opts = {
-              user: resolve_winrm_user,
-              password: locate_config_value(:winrm_password),
               port: locate_config_value(:winrm_port),
               operation_timeout: resolve_winrm_session_timeout,
               basic_auth_only: resolve_winrm_basic_auth,
@@ -214,8 +212,18 @@ class Chef
               codepage: locate_config_value(:winrm_codepage)
             }
 
-            if @session_opts[:user] and (not @session_opts[:password])
-              @session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
+            if cert_auth?
+              @session_opts[:winrm_client_cert] = locate_config_value(:winrm_client_cert) if locate_config_value(:winrm_client_cert)
+              @session_opts[:winrm_client_key] = locate_config_value(:winrm_client_key) if locate_config_value(:winrm_client_key)
+              @session_opts[:transport] = :ssl
+              @session_opts.delete(:user)
+              @session_opts.delete(:password)
+            else
+              @session_opts[:user] = resolve_winrm_user
+              @session_opts[:password] = locate_config_value(:winrm_password)
+              if @session_opts[:user] and (not @session_opts[:password])
+                @session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
+              end
             end
 
             if @session_opts[:transport] == :kerberos
@@ -284,8 +292,12 @@ class Chef
             @password ||= ui.ask("Enter your password: ") { |q| q.echo = false }
           end
 
+          def cert_auth?
+            locate_config_value(:winrm_authentication_protocol).to_s == "cert"
+          end
+
           def negotiate_auth?
-            locate_config_value(:winrm_authentication_protocol) == "negotiate"
+            locate_config_value(:winrm_authentication_protocol).to_s == "negotiate"
           end
 
           def warn_no_ssl_peer_verification

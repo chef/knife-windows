@@ -25,7 +25,7 @@ class Chef
     module WinrmBase
 
       # It includes supported WinRM authentication protocol.
-      WINRM_AUTH_PROTOCOL_LIST ||= %w{basic negotiate kerberos}
+      WINRM_AUTH_PROTOCOL_LIST ||= %w{basic negotiate kerberos cert}
 
       # :nodoc:
       # Would prefer to do this in a rational way, but can't be done b/c of
@@ -95,6 +95,16 @@ class Chef
             :long => "--ca-trust-file CA_TRUST_FILE",
             :description => "The Certificate Authority (CA) trust file used for SSL transport",
             :proc => Proc.new { |trust| Chef::Config[:knife][:ca_trust_file] = trust }
+
+          option :winrm_client_cert,
+            :long => "--winrm-client-cert CERT_FILE",
+            :description => "Certificate to use when --winrm-authentication-protocol is set to 'cert'",
+            :proc => Proc.new { |crt| Chef::Config[:knife][:winrm_client_cert] = crt }
+
+          option :winrm_client_key,
+            :long => "--winrm-client-key KEY_FILE",
+            :description => "Certificate to use when --winrm-authentication-protocol is set to 'key'",
+            :proc => Proc.new { |key| Chef::Config[:knife][:winrm_client_key] = key }
 
           option :winrm_ssl_verify_mode,
             :long => "--winrm-ssl-verify-mode SSL_VERIFY_MODE",
