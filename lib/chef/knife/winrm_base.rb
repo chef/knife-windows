@@ -103,7 +103,7 @@ class Chef
 
           option :winrm_client_key,
             :long => "--winrm-client-key KEY_FILE",
-            :description => "Certificate to use when --winrm-authentication-protocol is set to 'key'",
+            :description => "Certificate to use when --winrm-authentication-protocol is set to 'cert'",
             :proc => Proc.new { |key| Chef::Config[:knife][:winrm_client_key] = key }
 
           option :winrm_ssl_verify_mode,
