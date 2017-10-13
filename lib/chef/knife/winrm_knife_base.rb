@@ -135,7 +135,6 @@ class Chef
               end
             end
             threads.map(&:join)
-pp @session_results
             @session_results
           end
 
