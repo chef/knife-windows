@@ -357,12 +357,12 @@ WGET_PS
             root.find do |f|
               relative = f.relative_path_from(root)
               if f != root
-                file_on_node = "#{bootstrap_directory}/#{relative}"
+                file_on_node = "#{bootstrap_directory}/client.d/#{relative}"
                 if f.directory?
                   content << "mkdir #{file_on_node}\n"
                 else
                   content << "> #{file_on_node} (\n" +
-                    f.read.gsub("'", "'\\\\''") + "\n)\n"
+                    escape_and_echo(IO.read(File.expand_path(f))) + "\n)\n"
                 end
               end
             end
