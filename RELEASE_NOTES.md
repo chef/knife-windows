@@ -6,12 +6,9 @@ Example Note:
 ## Example Heading
 Details about the thing that changed that needs to get included in the Release Notes in markdown.
 -->
-# knife-windows 1.9.0 release notes:
+# knife-windows 1.9.1 release notes:
 
-This release re-introduces support for concurrent WinRM connections when
-running `knife winrm`. Simply specify the number of concurrent connections
-you would like using the `-C` (or `--concurrency`) flag.
-
+This release contains a bugfix for an issue causing a Windows system bootstrap to fail with the following error:
 ```
-knife winrm "role:web" "net stats srv" -X Administrator -P 'super_secret_password' -C 4
+The input line is too long.
 ```

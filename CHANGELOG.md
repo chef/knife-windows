@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.9.1
+
+* [knife-windows #444](https://github.com/chef/knife-windows/pull/444) Change the %PATH% env to use windows default values 
+
 ## Release 1.9.0
 
 * [knife-windows #416](https://github.com/chef/knife-windows/pull/416) Add concurrency support via the `--concurrency` flag
