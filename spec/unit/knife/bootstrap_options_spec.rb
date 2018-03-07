@@ -44,7 +44,7 @@ expected: #{expected}
   end
 
   shared_examples 'compare_options' do
-    it 'contains the option flags' do
+    it 'contains the option flags', :chef_lt_14_only do
       opt_map.default_proc = proc { |map, key| key }
       filtered_keys = (win_bootstrap.options.keys - win_ignore).map! { |key| opt_map[key] }
 
