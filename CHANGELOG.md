@@ -1,5 +1,9 @@
 # knife-windows Change Log
 
+## Release 1.9.1 (2018-03-07)
+
+* [knife-windows #444](https://github.com/chef/knife-windows/pull/444) Fixes issue when bootstrapping windows systems failing with the message: The input line is too long.
+
 ## Release 1.9.0
 
 * [knife-windows #416](https://github.com/chef/knife-windows/pull/416) Add concurrency support via the `--concurrency` flag
