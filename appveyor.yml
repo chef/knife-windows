@@ -8,8 +8,8 @@ environment:
   bundle_gemfile: ci.gemfile
 
   matrix:
-    - ruby_version: "23"
-      chef_version: "~> 12.0"
+    - ruby_version: "24"
+      chef_version: "~> 13.0"
 
     - ruby_version: "24"
       chef_version: "master"

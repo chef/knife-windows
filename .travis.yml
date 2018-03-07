@@ -4,7 +4,6 @@ dist: trusty
 sudo: false
 
 rvm:
-  - 2.2.7
   - 2.3.4
   - 2.4.1
   - ruby-head
@@ -16,11 +15,11 @@ gemfile: ci.gemfile
 
 env:
   - CHEF_VERSION="master"
-  - CHEF_VERSION="~> 12.0"
+  - CHEF_VERSION="~> 13.0"
 
 matrix:
   exclude:
-  - rvm: 2.2.7
+  - rvm: 2.3.4
     env: CHEF_VERSION="master"
   allow_failures:
     - rvm: ruby-head

@@ -75,6 +75,14 @@ def chef_lt_13?
   Gem::Version.new(Chef::VERSION) < Gem::Version.new('13')
 end
 
+def chef_lt_14?
+  Gem::Version.new(Chef::VERSION) < Gem::Version.new('14')
+end
+
+def chef_gte_14?
+  Gem::Version.new(Chef::VERSION) >= Gem::Version.new('14')
+end
+
 def sample_data(file_name)
   file =  File.expand_path(File.dirname("spec/assets/*"))+"/#{file_name}"
   File.read(file)
@@ -90,4 +98,6 @@ RSpec.configure do |config|
   config.filter_run_excluding :chef_gte_13_only => true unless chef_gte_13?
   config.filter_run_excluding :chef_lt_12_5_only => true unless chef_lt_12_5?
   config.filter_run_excluding :chef_lt_13_only => true unless chef_lt_13?
+  config.filter_run_excluding :chef_lt_14_only => true unless chef_lt_14?
+  config.filter_run_excluding :chef_gte_14_only => true unless chef_gte_14?
 end
