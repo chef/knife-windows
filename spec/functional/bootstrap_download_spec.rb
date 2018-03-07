@@ -167,7 +167,7 @@ describe "bootstrap_install_command functionality through WinRM protocol" do
       end
     end
 
-    context "when running chef-client 13.0 or greater", :chef_gte_13_only => true do
+    context "when running chef-client 13.0 or greater", :chef_gte_13_only => true, :chef_lt_14_only => true do
       let(:template_13_output) { sample_data('win_template_rendered_without_bootstrap_install_command_on_13_client.txt') }
       it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil"  do
         expect(bootstrap.send(:render_template,@template_input)).to eq(
@@ -189,7 +189,7 @@ describe "bootstrap_install_command functionality through WinRM protocol" do
         @template_output)
     end
 
-    context "when running chef-client 12.5.0 or greater", :chef_gte_12_5_only => true do
+    context "when running chef-client 12.5.0 or greater", :chef_gte_12_5_only => true, :chef_lt_14_only => true  do
       let(:template_12_5_output) { sample_data('win_template_rendered_with_bootstrap_install_command_on_12_5_client.txt') }
       it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template" do
         expect(bootstrap.send(:render_template,@template_input)).to eq(
