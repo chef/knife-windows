@@ -86,6 +86,10 @@ goto architecture_select
 :Version6.3
 goto Version6.2
 
+:Version10.0
+@set MACHINE_OS=2016
+goto architecture_select
+
 :architecture_select
 <% if knife_config[:architecture] %>
   @set MACHINE_ARCH=<%= knife_config[:architecture] %>
