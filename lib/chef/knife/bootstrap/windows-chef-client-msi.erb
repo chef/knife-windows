@@ -101,7 +101,18 @@ goto Version6.2
   @set MACHINE_ARCH=x86_64
   IF "%PROCESSOR_ARCHITECTURE%"=="x86" IF not defined PROCESSOR_ARCHITEW6432 @set MACHINE_ARCH=i686
 <% end %>
-goto install
+goto chef_installed
+
+:chef_installed
+@echo Checking for existing chef installation
+WHERE chef-client >nul 2>nul
+If !ERRORLEVEL!==0 (
+  @echo Existing Chef installation detected, skipping download
+  goto key_create
+) else (
+  @echo No existing installation of chef detected
+  goto install
+)
 
 :install
 @rem If user has provided the custom installation command for chef-client then execute it
@@ -190,6 +201,7 @@ goto install
 
 <% end %>
 
+:key_create
 @endlocal
 
 @echo off
@@ -243,4 +255,3 @@ mkdir <%= bootstrap_directory %>\ohai\hints
 
 @echo Starting chef to bootstrap the node...
 <%= start_chef %>
-
