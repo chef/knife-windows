@@ -93,7 +93,12 @@ setx CHEF_HTTP_PROXY "<%= @config[:bootstrap_proxy] %>" /m
 <% elsif knife_config[:bootstrap_proxy] -%>
 setx CHEF_HTTP_PROXY "<%= knife_config[:bootstrap_proxy] %>" /m
 <% end -%>
-setx CHEF_REMOTE_SOURCE_MSI_URL "<%= msi_url('%MACHINE_OS%', '%MACHINE_ARCH%', 'PowerShell') %>" /m
+
+<% if @config[:msi_url] -%>
+setx CHEF_REMOTE_SOURCE_MSI_URL "<%= @config[:msi_url] %>" /m
+set CHEF_REMOTE_SOURCE_MSI_URL="<%= @config[:msi_url] %>"
+<% end %>
+
 <% if @chef_config[:knife][:bootstrap_install_command] %>
 setx CHEF_CUSTOM_INSTALL_COMMAND "<%= (@chef_config[:knife][:bootstrap_install_command]).gsub(/(\")/, '\\"') %>" /m
 <% end %>
@@ -116,6 +121,18 @@ set CHEF_PS_LOG=<%= bootstrap_directory %>\ps_log.txt
 
 setx CHEF_BOOTSTRAP_DIRECTORY "<%= bootstrap_directory %>" /m
 set CHEF_BOOTSTRAP_DIRECTORY="<%= bootstrap_directory %>"
+
+setx CHEF_MACHINE_OS %MACHINE_OS% /m
+set CHEF_MACHINE_OS=%MACHINE_OS%
+
+setx CHEF_MACHINE_ARCH %MACHINE_ARCH% /m
+set CHEF_MACHINE_ARCH=%MACHINE_ARCH%
+
+setx CHEF_DOWNLOAD_CONTEXT PowerShell /m
+set CHEF_DOWNLOAD_CONTEXT=PowerShell
+
+setx CHEF_VERSION "<%= latest_current_windows_chef_version_query %>" /m
+set CHEF_VERSION="<%= latest_current_windows_chef_version_query %>"
 
 echo Checking for existing directory "%CHEF_BOOTSTRAP_DIRECTORY%"...
 IF NOT EXIST %CHEF_BOOTSTRAP_DIRECTORY% (
