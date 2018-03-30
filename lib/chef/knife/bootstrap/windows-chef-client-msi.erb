@@ -153,6 +153,8 @@ del %CHEF_PS_EXITCODE% /Q 2> nul
 
 <%= win_ps_bootstrap(bootstrap_directory+'\bootstrap.ps1') %>
 <%= win_cmd_tail(bootstrap_directory+'\tail.cmd') %>
+<%= win_schedtask_xml(bootstrap_directory+'\Chef_bootstrap.xml') %>
+
 
 <% if (defined? client_pem) && client_pem -%>
 echo Writing client key...
@@ -202,7 +204,7 @@ move /Y <%= bootstrap_directory %>\chef_client.rb <%= bootstrap_directory %>\cli
 )
 
 rem The scheduled task creation could use error handling (feels like a corner case though):
-c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /st 00:00:00 /tn Chef_bootstrap /tr "powershell.exe -ExecutionPolicy Unrestricted -File <%= bootstrap_directory %>\bootstrap.ps1" 2> nul
+c:/windows/system32/schtasks.exe /Create /XML <%= bootstrap_directory %>\Chef_bootstrap.xml /tn Chef_bootstrap
 
 echo *******************************************************************
 echo Starting Powershell bootstrap scheduled task
