@@ -36,33 +36,39 @@ if ($config['CHEF_http_proxy'] -ne '') {
   $WebClient.Proxy = $WebProxy
 }
 
-log "Starting download from $( $config['CHEF_REMOTE_SOURCE_MSI_URL'] ) to $( $config['CHEF_LOCAL_MSI_PATH'] )"
-$webClient.DownloadFile($config['CHEF_REMOTE_SOURCE_MSI_URL'], $config['CHEF_LOCAL_MSI_PATH'] );
-
-log "Download done. Checking local file."
-if (!(Test-Path "$($config['CHEF_LOCAL_MSI_PATH'])")) {
-  log "Download failed. Local MSI not found."
-  report_status 3; ps_exit
-}
-$filesize = (Get-Item "$($config['CHEF_LOCAL_MSI_PATH'])").length
-if ($filesize -eq 0) {
-  log "DOWNLOAD FAILED - Filesize is 0."
-  report_status 2; ps_exit
-}
-log "Download filesize is $filesize"
-
-log "Starting Chef client install"
-if ($config['CHEF_CUSTOM_INSTALL_COMMAND'] ) {
-  log "Running custom install command $($config['CHEF_CUSTOM_INSTALL_COMMAND'])"
-  $install_process = Start-Process -PassThru -Wait "$env:comspec" -ArgumentList "/v /e /c`"start /wait cmd /c %CHEF_CUSTOM_INSTALL_COMMAND% & exit !errorlevel!;`""
+log "Testing for existing Chef client install"
+if (Test-Path HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes\\C58A706DAFDB80F438DEE2BCD4DCB65C) {
+  log "Existing install detected. Skipping Chef-client download and install"
 } else {
-  log "msiexec.exe /qn /log `"$($config['CHEF_CLIENT_MSI_LOG_PATH'])`" /i `"$($config['CHEF_LOCAL_MSI_PATH'])`" $($config['CHEF_EXTRA_MSI_PARAMETERS'])"
-  $install_process = Start-Process -PassThru -Wait msiexec.exe -ArgumentList "/qn /log `"$($config['CHEF_CLIENT_MSI_LOG_PATH'])`" /i `"$($config['CHEF_LOCAL_MSI_PATH'])`" $($config['CHEF_EXTRA_MSI_PARAMETERS'])"
+  log "No Chef client install detected."
+  log "Starting download from $( $config['CHEF_REMOTE_SOURCE_MSI_URL'] ) to $( $config['CHEF_LOCAL_MSI_PATH'] )"
+  $webClient.DownloadFile($config['CHEF_REMOTE_SOURCE_MSI_URL'], $config['CHEF_LOCAL_MSI_PATH'] );
+  
+  log "Download done. Checking local file."
+  if (!(Test-Path "$($config['CHEF_LOCAL_MSI_PATH'])")) {
+    log "Download failed. Local MSI not found."
+    report_status 3; ps_exit
+  }
+  $filesize = (Get-Item "$($config['CHEF_LOCAL_MSI_PATH'])").length
+  if ($filesize -eq 0) {
+    log "DOWNLOAD FAILED - Filesize is 0."
+    report_status 2; ps_exit
+  }
+  log "Download filesize is $filesize"
+  
+  log "Starting Chef client install"
+  if ($config['CHEF_CUSTOM_INSTALL_COMMAND'] ) {
+    log "Running custom install command $($config['CHEF_CUSTOM_INSTALL_COMMAND'])"
+    $install_process = Start-Process -PassThru -Wait "$env:comspec" -ArgumentList "/v /e /c`"start /wait cmd /c %CHEF_CUSTOM_INSTALL_COMMAND% & exit !errorlevel!;`""
+  } else {
+    log "msiexec.exe /qn /log `"$($config['CHEF_CLIENT_MSI_LOG_PATH'])`" /i `"$($config['CHEF_LOCAL_MSI_PATH'])`" $($config['CHEF_EXTRA_MSI_PARAMETERS'])"
+    $install_process = Start-Process -PassThru -Wait msiexec.exe -ArgumentList "/qn /log `"$($config['CHEF_CLIENT_MSI_LOG_PATH'])`" /i `"$($config['CHEF_LOCAL_MSI_PATH'])`" $($config['CHEF_EXTRA_MSI_PARAMETERS'])"
+  }
+  $install_exitcode = $install_process.ExitCode
+  
+  log "MSI install returned exit code $install_exitcode"
+  if ($install_exitcode -ne 0) { report_status $install_exitcode; ps_exit }
 }
-$install_exitcode = $install_process.ExitCode
-
-log "MSI install returned exit code $install_exitcode"
-if ($install_exitcode -ne 0) { report_status $install_exitcode; ps_exit }
 
 log "Cleaning up Chef bootstrap environment variables"
 $cmd_input_variables | ForEach-Object {
