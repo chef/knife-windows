@@ -10,17 +10,17 @@ function msi_url() {
   $version = $config['CHEF_VERSION']
   $msi_url = $config['CHEF_REMOTE_SOURCE_MSI_URL']
 
-  if ($version -eq $null) { $version = 'latest' }
+  if ($version -eq $null) { $version = '&v=latest' }
 
-  if ($msi_url -ne $null) {
-    return $msi_url
+  if ($msi_url.length -gt 4) {
+    $msi_url
   } else {
     $url = "https://www.chef.io/chef/download?p=windows"
-    if ($machine_os -ne $null) { $url += "&pv=#{machine_os}" }
-    if ($machine_arch -ne $null) { $url += "&m=#{machine_arch}" }
+    if ($machine_os -ne $null) { $url += "&pv=$($machine_os)" }
+    if ($machine_arch -ne $null) { $url += "&m=$($machine_arch)" }
     if ($download_context -ne $null) { $url += "&DownloadContext=$($download_context)" }
-    $url += "&v=$($version)"
-    return $url
+    $url += $version
+    $url
   }
 }
 
