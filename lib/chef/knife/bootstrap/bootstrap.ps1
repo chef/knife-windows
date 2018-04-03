@@ -64,7 +64,7 @@ if (Test-Path HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\Up
   log "No Chef client install detected."
   $download_link = msi_url
   log "Starting download from $($download_link) to $( $config['CHEF_LOCAL_MSI_PATH'] )"
-  $webClient.DownloadFile($($download_link), $config['CHEF_LOCAL_MSI_PATH'] );
+  $webClient.DownloadFile($download_link, $config['CHEF_LOCAL_MSI_PATH'] );
   
   log "Download done. Checking local file."
   if (!(Test-Path "$($config['CHEF_LOCAL_MSI_PATH'])")) {
