@@ -1,3 +1,5 @@
+$global:config = @{}
+
 function log($msg) {
   $timestamp = Get-Date -Format "[yyyy-MM-dd hh:mm:ss]"
   add-content "$($config['CHEF_PS_LOG'])" "$timestamp $msg"
@@ -29,7 +31,7 @@ function report_status($exitcode) {
 }
 
 function ps_exit() {
-  Start-Sleep 1
+  Start-Sleep 5
   while (Test-Path "$($config['CHEF_PS_LOG'])") { Remove-Item "$($config['CHEF_PS_LOG'])" -Force -ErrorAction SilentlyContinue }
   exit 99
 }
