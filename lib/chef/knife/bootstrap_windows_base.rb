@@ -206,6 +206,12 @@ class Chef
             :description => "Comma separated list of tags to apply to the node",
             :proc => lambda { |o| o.split(/[\s,]+/) },
             :default => []
+
+          option :chef_server,
+            :long        => "--[no-]chef_server",
+            :description => "Register node in chef server. Or not.",
+            :boolean     => true,
+            :default     => true
         end
       end
 
@@ -313,7 +319,9 @@ class Chef
             exit 1
           end
 
-          client_builder.run
+          if config[:chef_server]
+            client_builder.run
+          end
 
           if client_builder.respond_to?(:client)
             chef_vault_handler.run(client_builder.client)

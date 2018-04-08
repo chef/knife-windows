@@ -110,7 +110,6 @@ class Chef
         ssh.config[:host_key_verify] = config[:host_key_verify]
         ssh.run
       end
-
     end
   end
 end

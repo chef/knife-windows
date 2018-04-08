@@ -156,7 +156,7 @@ del %CHEF_PS_EXITCODE% /Q 2> nul
 <%= win_schedtask_xml(bootstrap_directory+'\Chef_bootstrap.xml') %>
 
 
-<% if (defined? client_pem) && client_pem -%>
+<% if @config[:chef_server] && (defined? client_pem) && client_pem -%>
 echo Writing client key...
 > <%= bootstrap_directory %>\client.pem (
  <%= escape_and_echo(::File.read(::File.expand_path(client_pem))) %>
