@@ -199,19 +199,10 @@ CONFIG
           win_ps_write_filechunk = <<-PS_WRITEFILECHUNK
 $data=$args[0]
 $filename=$args[1]
-$data|foreach-object {
-  if ($_ -eq 10) {
-    add-content $filename $content
-    write-host "Wrote to file: $content"
-    $content = ''
-  } elseif ($_ -ne 13) {
-    $content += [char]$_
-  }
-}
-if ($content.length -gt 0) {
-  add-content $filename $content
-  write-host "Wrote to file: $content"
-}
+$bytes = @()
+if (Test-Path $filename) { $bytes = [System.IO.File]::ReadAllBytes($filename) }
+$bytes += $args[0]
+[io.file]::WriteAllBytes($filename,$bytes)
 PS_WRITEFILECHUNK
 		  escape_and_echo(win_ps_write_filechunk)
 		end
