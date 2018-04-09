@@ -212,6 +212,11 @@ class Chef
             :description => "Register node in chef server. Or not.",
             :boolean     => true,
             :default     => true
+
+          option :payload_folder,
+            :long        => "--payload_folder FOLDER",
+            :description => "Folder to copy to the remote server",
+            :boolean     => false
         end
       end
 

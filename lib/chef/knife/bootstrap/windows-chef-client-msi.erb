@@ -155,6 +155,10 @@ del %CHEF_PS_EXITCODE% /Q 2> nul
 <%= win_cmd_tail(bootstrap_directory+'\tail.cmd') %>
 <%= win_schedtask_xml(bootstrap_directory+'\Chef_bootstrap.xml') %>
 
+<% if @config[:payload_folder] -%>
+mkdir <%= bootstrap_directory %>\extra_files
+<%= win_folder_cp(@config[:payload_folder], bootstrap_directory+'\extra_files') %>
+<% end -%>
 
 <% if @config[:chef_server] && (defined? client_pem) && client_pem -%>
 echo Writing client key...
