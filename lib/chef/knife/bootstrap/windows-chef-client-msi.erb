@@ -108,7 +108,7 @@ setx CHEF_CUSTOM_RUN_COMMAND "<%= (@chef_config[:knife][:bootstrap_run_command])
 <% end %>
 
 <% if @config[:bootstrap_run_command] %>
-setx CHEF_CUSTOM_RUN_COMMAND "<%= (@chef_config[:knife][:bootstrap_run_command]).gsub(/(\")/, '\\"') %>" /m
+setx CHEF_CUSTOM_RUN_COMMAND "<%= (@config[:bootstrap_run_command]).gsub(/(\")/, '\\"') %>" /m
 <% end %>
 
 <% if @config[:install_as_service] %>
@@ -248,7 +248,7 @@ IF NOT !psexitcode!==0 (
 )
 echo Powershell bootstrap script reported succesful Chef install.
 
-<% unless @chef_config[:knife][:bootstrap_run_command] %>
+<% unless @chef_config[:knife][:bootstrap_run_command] || @config[:bootstrap_run_command] %>
 set CHEF_CLIENT_LOG=<%= bootstrap_directory %>\firstrun.log
 <%= win_cmd_wait_for_file('CHEF_CLIENT_LOG') %>
 echo *******************************************************************
