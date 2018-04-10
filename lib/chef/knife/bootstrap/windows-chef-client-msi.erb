@@ -103,6 +103,10 @@ set CHEF_REMOTE_SOURCE_MSI_URL="<%= @config[:msi_url] %>"
 setx CHEF_CUSTOM_INSTALL_COMMAND "<%= (@chef_config[:knife][:bootstrap_install_command]).gsub(/(\")/, '\\"') %>" /m
 <% end %>
 
+<% if @chef_config[:knife][:bootstrap_run_command] %>
+setx CHEF_CUSTOM_RUN_COMMAND "<%= (@chef_config[:knife][:bootstrap_run_command]).gsub(/(\")/, '\\"') %>" /m
+<% end %>
+
 <% if @config[:install_as_service] %>
 setx CHEF_EXTRA_MSI_PARAMETERS "ADDLOCAL=\"ChefClientFeature,ChefServiceFeature\"" /m
 <% end %>
@@ -240,12 +244,12 @@ IF NOT !psexitcode!==0 (
 )
 echo Powershell bootstrap script reported succesful Chef install.
 
+<% unless @chef_config[:knife][:bootstrap_run_command] %>
 set CHEF_CLIENT_LOG=<%= bootstrap_directory %>\firstrun.log
-
 <%= win_cmd_wait_for_file('CHEF_CLIENT_LOG') %>
-
 echo *******************************************************************
 call <%= bootstrap_directory %>\tail.cmd "<%= bootstrap_directory %>\firstrun.log" 2> nul
+<% end %>
 
 echo *******************************************************************
 echo Chef Powershell Bootstrap exited. Checking exit code.
@@ -253,9 +257,17 @@ echo Chef Powershell Bootstrap exited. Checking exit code.
 <%= win_ps_exitcheck %>
 IF NOT !psexitcode!==0 (
   echo *******************************************************************
+<% unless @chef_config[:knife][:bootstrap_run_command] %>
   echo First Chef run exit code was not 0
+<% else %>
+  echo Custom bootstrap command run exit code was not 0
+<% end %>
 ) else (
+<% unless @chef_config[:knife][:bootstrap_run_command] %>
   echo Powershell bootstrap script and the first Chef run ran successfully! Running cleanup.
+<% else %>
+  echo Custom bootstrap command ran succesfully. Running cleanup.
+<% end %>
 )
 
 del %CHEF_PS_LOG% /Q 2> nul
