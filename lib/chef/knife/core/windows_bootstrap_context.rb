@@ -243,8 +243,25 @@ filename_in_envvar
           win_parse_file_content(Erubis::Eruby.new(sched_xml_file_content).evaluate(bootstrap_context), target_filename)
         end
 
-		def win_parse_file_content(content, target_filename)
-		  byte_chunks = data_to_byte_chunks(content, 4000)
+        def win_folder_cp(folder_src,folder_dest, folder_src_original = nil)
+          win_folder_cp = ''
+          Dir.foreach(folder_src) do |item|
+            next if item == '.' or item == '..'
+            folder_src_original = folder_src_original ? folder_src_original : folder_src
+            if File.file?(File.join(folder_src,item))
+              filename_target = File.join(folder_src,item).gsub(folder_src_original, folder_dest).gsub("/","\\")
+              win_folder_cp << win_parse_file_content(IO.read(File.join(folder_src,item)).force_encoding('binary'), filename_target)
+            else
+              folder = File.join(folder_src,item).gsub(folder_src_original, folder_dest).gsub("/","\\")
+              win_folder_cp << "mkdir #{folder}\n"
+              win_folder_cp << win_folder_cp(File.join(folder_src,item), folder_dest, folder_src_original)
+            end
+          end
+          win_folder_cp
+        end
+
+    def win_parse_file_content(content, target_filename)
+		  byte_chunks = data_to_byte_chunks(content, 2000)
 		  win_parse_file_content = ''
 		  win_parse_file_content << "del \"#{target_filename}\" /Q 2> nul\n"
 		  byte_chunks.each { |file_chunk|
@@ -265,17 +282,12 @@ filename_in_envvar
 		  data_to_byte_chunks = []
 		  data.split('').each { |char|
 		    chunk_buffer << char.ord.to_s << ','
-		    if char.ord == 10
-		      chunk << chunk_buffer
-		      chunk_buffer = ''
-		    end
-		    if (chunk_buffer.length + chunk.length) > max_chuck_size
-		      data_to_byte_chunks.push(chunk.chomp(','))
-		      chunk = ''
+		    if (chunk_buffer.length) >= max_chuck_size
+		      data_to_byte_chunks.push(chunk_buffer.chomp(','))
+          chunk_buffer = ''
 		    end
 		  }
-		  chunk << chunk_buffer
-		  data_to_byte_chunks.push(chunk.chomp(','))
+		  data_to_byte_chunks.push(chunk_buffer.chomp(','))
 		  data_to_byte_chunks
 		end
 
