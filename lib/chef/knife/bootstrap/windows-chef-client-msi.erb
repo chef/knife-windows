@@ -107,6 +107,10 @@ setx CHEF_CUSTOM_INSTALL_COMMAND "<%= (@chef_config[:knife][:bootstrap_install_c
 setx CHEF_CUSTOM_RUN_COMMAND "<%= (@chef_config[:knife][:bootstrap_run_command]).gsub(/(\")/, '\\"') %>" /m
 <% end %>
 
+<% if @config[:bootstrap_run_command] %>
+setx CHEF_CUSTOM_RUN_COMMAND "<%= (@config[:bootstrap_run_command]).gsub(/(\")/, '\\"') %>" /m
+<% end %>
+
 <% if @config[:install_as_service] %>
 setx CHEF_EXTRA_MSI_PARAMETERS "ADDLOCAL=\"ChefClientFeature,ChefServiceFeature\"" /m
 <% end %>
