@@ -75,6 +75,11 @@ class Chef
             :description => "Custom command to install chef-client",
             :proc        => Proc.new { |ic| Chef::Config[:knife][:bootstrap_install_command] = ic }
 
+          option :bootstrap_run_command,
+            :long        => "--bootstrap_run_command COMMANDS",
+            :description => "Custom command to run (chef-client)",
+            :proc        => Proc.new { |ic| Chef::Config[:knife][:bootstrap_run_command] = ic }
+
           # DEPR: Remove this option in Chef 13
           option :distro,
             :short => "-d DISTRO",

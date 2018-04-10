@@ -44,7 +44,7 @@ function cleanup() {
 # Windows 2008 compatible way of loading config:
 $shell_variables = Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
 
-$cmd_input_variables = @("CHEF_PS_LOG", "CHEF_PS_EXITCODE", "CHEF_REMOTE_SOURCE_MSI_URL", "CHEF_LOCAL_MSI_PATH", "CHEF_http_proxy","CHEF_CLIENT_MSI_LOG_PATH","CHEF_ENVIRONMENT_OPTION","CHEF_BOOTSTRAP_DIRECTORY","CHEF_CUSTOM_INSTALL_COMMAND","CHEF_EXTRA_MSI_PARAMETERS","CHEF_MACHINE_OS","CHEF_MACHINE_ARCH","CHEF_DOWNLOAD_CONTEXT","CHEF_VERSION")
+$cmd_input_variables = @("CHEF_PS_LOG", "CHEF_PS_EXITCODE", "CHEF_REMOTE_SOURCE_MSI_URL", "CHEF_LOCAL_MSI_PATH", "CHEF_http_proxy","CHEF_CLIENT_MSI_LOG_PATH","CHEF_ENVIRONMENT_OPTION","CHEF_BOOTSTRAP_DIRECTORY","CHEF_CUSTOM_INSTALL_COMMAND","CHEF_CUSTOM_RUN_COMMAND","CHEF_EXTRA_MSI_PARAMETERS","CHEF_MACHINE_OS","CHEF_MACHINE_ARCH","CHEF_DOWNLOAD_CONTEXT","CHEF_VERSION")
 $cmd_input_variables | ForEach-Object {
   $config[$_] = $shell_variables.$($_)
 }
@@ -106,7 +106,11 @@ report_status 0
 Start-Sleep 1
 while (Test-Path "$($config['CHEF_PS_LOG'])") { Remove-Item "$($config['CHEF_PS_LOG'])" -Force -ErrorAction SilentlyContinue }
 
-$chefrun_process = Start-Process -PassThru -Wait c:/opscode/chef/bin/chef-client.bat -ArgumentList "-c `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/client.rb`" -j `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/first-boot.json`" $($config['CHEF_ENVIRONMENT_OPTION']) -L `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/firstrun.log`""
+if ($config['CHEF_CUSTOM_RUN_COMMAND']) {
+  $chefrun_process = Start-Process -PassThru -Wait $config['CHEF_CUSTOM_RUN_COMMAND']
+} else {
+  $chefrun_process = Start-Process -PassThru -Wait c:/opscode/chef/bin/chef-client.bat -ArgumentList "-c `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/client.rb`" -j `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/first-boot.json`" $($config['CHEF_ENVIRONMENT_OPTION']) -L `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/firstrun.log`""
+}
 $chefrun_exitcode = $chefrun_process.ExitCode
 
 log "Chef run done. Cleaning up Chef firstrun logfile to get control back to bootstrap cmd"
