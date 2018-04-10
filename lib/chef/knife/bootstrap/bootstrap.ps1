@@ -107,7 +107,7 @@ Start-Sleep 1
 while (Test-Path "$($config['CHEF_PS_LOG'])") { Remove-Item "$($config['CHEF_PS_LOG'])" -Force -ErrorAction SilentlyContinue }
 
 if ($config['CHEF_CUSTOM_RUN_COMMAND']) {
-  $chefrun_process = $config['CHEF_CUSTOM_RUN_COMMAND']
+  Invoke-Expression $config['CHEF_CUSTOM_RUN_COMMAND']
 } else {
   $chefrun_process = Start-Process -PassThru -Wait c:/opscode/chef/bin/chef-client.bat -ArgumentList "-c `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/client.rb`" -j `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/first-boot.json`" $($config['CHEF_ENVIRONMENT_OPTION']) -L `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/firstrun.log`""
 }
