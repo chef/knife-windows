@@ -101,6 +101,9 @@ expected: #{expected}
       :ssh_gateway_identity,
       :bootstrap_proxy_user,
       :bootstrap_proxy_pass,
+      :bootstrap_preinstall_command,
+      :distro, # Deprecated - remove this when the flag is removed.
+      :template_file, # Deprecated - remove this when the flag is removed.
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -120,6 +123,8 @@ expected: #{expected}
       :winrm_codepage,
       :concurrency,
       :winrm_shell,
+      :distro, # Deprecated - remove this when the flag is removed.
+      :template_file, # Deprecated - remove this when the flag is removed.
     ] }
 
     include_examples 'compare_options'
@@ -148,12 +153,17 @@ expected: #{expected}
       :ssh_gateway_identity,
       :bootstrap_proxy_user,
       :bootstrap_proxy_pass,
+      :bootstrap_preinstall_command,
+      :distro, # Deprecated - remove this when the flag is removed.
+      :template_file, # Deprecated - remove this when the flag is removed.
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
       :auth_timeout,
       :install_as_service,
       :host_key_verification,  # Deprecated - remove this when the flag is removed.
+      :distro, # Deprecated - remove this when the flag is removed.
+      :template_file, # Deprecated - remove this when the flag is removed.
     ] }
 
     include_examples 'compare_options'
