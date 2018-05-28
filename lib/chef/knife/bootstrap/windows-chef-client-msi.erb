@@ -265,7 +265,7 @@ IF NOT !psexitcode!==0 (
   echo First Chef run exit code was not 0
   echo Now dumping Chef stacktrace log
   echo *******************************************************************
-  type c:\chef\cache 2> nul
+  type c:\chef\cache\chef-stacktrace.out 2> nul
   echo *******************************************************************
   echo Done dumping Chef stacktrace log. Exiting...
 <% else %>
