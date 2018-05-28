@@ -169,7 +169,8 @@ mkdir <%= bootstrap_directory %>\extra_files
 <% end -%>
 
 <% if @config[:chef_server] && (defined? client_pem) && client_pem -%>
-echo Writing client key...
+echo Clearing and writing client key...
+del <%= bootstrap_directory %>\client.pem /Q 2> nul
 > <%= bootstrap_directory %>\client.pem (
  <%= escape_and_echo(::File.read(::File.expand_path(client_pem))) %>
 )
