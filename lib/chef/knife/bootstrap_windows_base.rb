@@ -74,21 +74,21 @@ class Chef
           option :distro,
             :short => "-d DISTRO",
             :long => "--distro DISTRO",
-            :description => "Bootstrap a distro using a template. [DEPRECATED] Use -t / --bootstrap-template option instead.",
+            :description => "Bootstrap a distro using a template. [DEPRECATED] Use -b / --bootstrap-template option instead.",
             :proc        => Proc.new { |v|
               Chef::Log.warn("[DEPRECATED] -d / --distro option is deprecated. Use --bootstrap-template option instead.")
               v
             }
 
           option :bootstrap_template,
-            :short => "-t TEMPLATE",
+            :short => "-b TEMPLATE",
             :long => "--bootstrap-template TEMPLATE",
             :description => "Bootstrap Chef using a built-in or custom template. Set to the full path of an erb template or use one of the built-in templates."
 
           # DEPR: Remove this option in Chef 13
           option :template_file,
             :long => "--template-file TEMPLATE",
-            :description => "Full path to location of template to use. [DEPRECATED] Use -t / --bootstrap-template option instead.",
+            :description => "Full path to location of template to use. [DEPRECATED] Use -b / --bootstrap-template option instead.",
             :proc        => Proc.new { |v|
               Chef::Log.warn("[DEPRECATED] --template-file option is deprecated. Use --bootstrap-template option instead.")
               v
