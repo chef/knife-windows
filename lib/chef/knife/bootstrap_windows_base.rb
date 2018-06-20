@@ -81,8 +81,8 @@ class Chef
             }
 
           option :bootstrap_template,
-            :short => "-b TEMPLATE",
-            :long => "--bootstrap-template TEMPLATE",
+            :short => "-b BOOTSTRAP_TEMPLATE",
+            :long => "--bootstrap-template BOOTSTRAP_TEMPLATE",
             :description => "Bootstrap Chef using a built-in or custom template. Set to the full path of an erb template or use one of the built-in templates."
 
           # DEPR: Remove this option in Chef 13
