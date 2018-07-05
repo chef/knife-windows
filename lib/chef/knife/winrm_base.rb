@@ -58,7 +58,7 @@ class Chef
             :proc => Proc.new { |shell| shell.to_sym }
 
           option :winrm_transport,
-            :short => "-t TRANSPORT",
+            :short => "-w TRANSPORT",
             :long => "--winrm-transport TRANSPORT",
             :description => "The WinRM transport type. Valid choices are [ssl, plaintext]",
             :default => 'plaintext',
