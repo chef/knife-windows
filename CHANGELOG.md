@@ -1,5 +1,18 @@
 # knife-windows Change Log
 
+Note: this log contains only changes from knife-windows release 0.6.0 and later
+-- it does not contain the changes from prior releases. To view change history
+prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
+
+<!-- latest_release -->
+<!-- latest_release -->
+
+<!-- release_rollup -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
+<!-- latest_stable_release -->
+
 ## Release 1.9.1 (2018-03-07)
 
 * [knife-windows #444](https://github.com/chef/knife-windows/pull/444) Fixes issue when bootstrapping windows systems failing with the message: The input line is too long.
