@@ -4,18 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 1.9.3 -->
-## [v1.9.3](https://github.com/chef/knife-windows/tree/v1.9.3) (2018-07-05)
+<!-- latest_release 1.9.4 -->
+## [v1.9.4](https://github.com/chef/knife-windows/tree/v1.9.4) (2018-07-09)
 
 #### Merged Pull Requests
-- [MSYS-841]fix bootstrap template short name [#457](https://github.com/chef/knife-windows/pull/457) ([dheerajd-msys](https://github.com/dheerajd-msys))
-- [MSYS-850] enable expeditor [#458](https://github.com/chef/knife-windows/pull/458) ([dheerajd-msys](https://github.com/dheerajd-msys))
+- MSYS-831 : Fixed windows detection code for windows 2016, windows 2012r2 [#455](https://github.com/chef/knife-windows/pull/455) ([piyushawasthi](https://github.com/piyushawasthi))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.9.1 -->
 ### Changes since 1.9.1 release
 
 #### Merged Pull Requests
+- MSYS-831 : Fixed windows detection code for windows 2016, windows 2012r2 [#455](https://github.com/chef/knife-windows/pull/455) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 1.9.4 -->
 - [MSYS-841]fix bootstrap template short name [#457](https://github.com/chef/knife-windows/pull/457) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 1.9.3 -->
 - [MSYS-850] enable expeditor [#458](https://github.com/chef/knife-windows/pull/458) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 1.9.2 -->
 <!-- release_rollup -->
