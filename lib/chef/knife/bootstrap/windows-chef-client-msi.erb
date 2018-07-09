@@ -1,6 +1,6 @@
 @rem
 @rem Author:: Seth Chisamore (<schisamo@chef.io>)
-@rem Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
+@rem Copyright:: Copyright (c) 2011-2017 Chef Software, Inc.
 @rem License:: Apache License, Version 2.0
 @rem
 @rem Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,8 +50,8 @@
 
 @echo Detected Windows Version %WinMajor%.%WinMinor% Build %WinBuild%
 
-@set LATEST_OS_VERSION_MAJOR=6
-@set LATEST_OS_VERSION_MINOR=3
+@set LATEST_OS_VERSION_MAJOR=10
+@set LATEST_OS_VERSION_MINOR=1
 
 @if /i %WinMajor% GTR %LATEST_OS_VERSION_MAJOR% goto VersionUnknown
 @if /i %WinMajor% EQU %LATEST_OS_VERSION_MAJOR%  (
@@ -62,7 +62,7 @@ goto Version%WinMajor%.%WinMinor%
 
 :VersionUnknown
 @rem If this is an unknown version of windows set the default
-@set MACHINE_OS=2008r2
+@set MACHINE_OS=2012r2
 @echo Warning: Unknown version of Windows, assuming default of Windows %MACHINE_OS%
 goto architecture_select
 
@@ -84,7 +84,16 @@ goto architecture_select
 
 @rem Currently Windows Server 2012 R2 is treated as equivalent to Windows Server 2012
 :Version6.3
-goto Version6.2
+@set MACHINE_OS=2012r2
+goto architecture_select
+
+:Version10.0
+@set MACHINE_OS=2016
+goto architecture_select
+
+@rem Currently Windows Server 2016 R2 is treated as equivalent to Windows Server 2016
+:Version10.1
+goto Version10.0
 
 :architecture_select
 <% if knife_config[:architecture] %>
