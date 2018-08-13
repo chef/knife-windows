@@ -84,7 +84,7 @@ describe Chef::Knife::Winrm do
         '-m', 'localhost',
         '-x', winrm_user,
         '-P', password,
-        '-t', transport,
+        '-w', transport,
         '--winrm-authentication-protocol', protocol,
         'echo helloworld'
       ]
@@ -155,7 +155,7 @@ describe Chef::Knife::Winrm do
           [
             '-m', 'localhost',
             '-x', winrm_user,
-            '-t', transport,
+            '-w', transport,
             '--winrm-authentication-protocol', protocol,
             'echo helloworld'
           ]
@@ -230,7 +230,7 @@ describe Chef::Knife::Winrm do
           allow(Chef::Platform).to receive(:windows?).and_return(false)
         end
 
-        let(:winrm_command_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '-t', 'plaintext', '--winrm-authentication-protocol', 'basic', 'echo helloworld']) }
+        let(:winrm_command_http) { Chef::Knife::Winrm.new(['-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '-w', 'plaintext', '--winrm-authentication-protocol', 'basic', 'echo helloworld']) }
 
         it "defaults to the http uri scheme" do
           expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(:transport => :plaintext)).and_call_original
