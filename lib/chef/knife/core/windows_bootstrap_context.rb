@@ -176,7 +176,7 @@ CONFIG
         def chef_version_in_url
           installer_version_string = nil
           if @config[:bootstrap_version]
-            installer_version_string = "&v=#{@config['bootstrap_version']}"
+            installer_version_string = "&v=#{@config[:bootstrap_version]}"
           elsif @config[:prerelease]
             installer_version_string = "&prerelease=true"
           else
