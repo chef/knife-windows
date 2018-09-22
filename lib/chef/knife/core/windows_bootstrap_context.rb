@@ -173,9 +173,11 @@ CONFIG
           end
         end
 
-        def latest_current_windows_chef_version_query
+        def chef_version_in_url
           installer_version_string = nil
-          if @config[:prerelease]
+          if @config[:bootstrap_version]
+            installer_version_string = "&v=#{@config['bootstrap_version']}"
+          elsif @config[:prerelease]
             installer_version_string = "&prerelease=true"
           else
             chef_version_string = if knife_config[:bootstrap_version]

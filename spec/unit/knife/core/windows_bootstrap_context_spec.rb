@@ -179,20 +179,20 @@ EXPECTED
     end
   end
 
-  describe "latest_current_windows_chef_version_query" do
+  describe "chef_version_in_url" do
     it "returns the major version of the current version of Chef" do
       stub_const("Chef::VERSION", '11.1.2')
-      expect(mock_bootstrap_context.latest_current_windows_chef_version_query).to eq("&v=11")
+      expect(mock_bootstrap_context.chef_version_in_url).to eq("&v=11")
     end
 
     it "does not add prerelease if the version of Chef installed is a prerelease" do
       stub_const("Chef::VERSION", '42.0.1.alpha.1')
-      expect(mock_bootstrap_context.latest_current_windows_chef_version_query).not_to match(/&prerelease=true/)
+      expect(mock_bootstrap_context.chef_version_in_url).not_to match(/&prerelease=true/)
     end
 
     it "does add prerelease if the version specified to be installed is a prerelease" do
       allow(mock_bootstrap_context).to receive(:knife_config).and_return(Mash.new(:bootstrap_version => "12.0.0.alpha.1"))
-      expect(mock_bootstrap_context.latest_current_windows_chef_version_query).to eq("&v=12.0.0.alpha.1&prerelease=true")
+      expect(mock_bootstrap_context.chef_version_in_url).to eq("&v=12.0.0.alpha.1&prerelease=true")
     end
 
     context "when the prerelease config option is set" do
@@ -201,7 +201,7 @@ EXPECTED
       end
 
       it "sets prerelease to true in the returned string" do
-        expect(mock_bootstrap_context.latest_current_windows_chef_version_query).to eq("&prerelease=true")
+        expect(mock_bootstrap_context.chef_version_in_url).to eq("&prerelease=true")
       end
     end
   end
@@ -209,7 +209,7 @@ EXPECTED
   describe "msi_url" do
     context "when config option is not set" do
       before do
-        expect(mock_bootstrap_context).to receive(:latest_current_windows_chef_version_query).and_return("&v=something")
+        expect(mock_bootstrap_context).to receive(:chef_version_in_url).and_return("&v=something")
       end
 
       it "returns a chef.io msi url with minimal url parameters" do

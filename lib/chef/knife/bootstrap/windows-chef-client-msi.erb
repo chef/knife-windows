@@ -139,8 +139,8 @@ set CHEF_MACHINE_ARCH=%MACHINE_ARCH%
 setx CHEF_DOWNLOAD_CONTEXT PowerShell /m
 set CHEF_DOWNLOAD_CONTEXT=PowerShell
 
-setx CHEF_VERSION "<%= latest_current_windows_chef_version_query %>" /m
-set CHEF_VERSION="<%= latest_current_windows_chef_version_query %>"
+setx CHEF_VERSION "<%= chef_version_in_url %>" /m
+set CHEF_VERSION="<%= chef_version_in_url %>"
 
 echo Checking for existing directory "%CHEF_BOOTSTRAP_DIRECTORY%"...
 IF NOT EXIST %CHEF_BOOTSTRAP_DIRECTORY% (
