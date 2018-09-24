@@ -239,12 +239,18 @@ echo Chef Powershell Bootstrap exited. Checking exit code.
 
 <%= win_ps_exitcheck %>
 IF NOT !psexitcode!==0 (
+  IF !psexitcode!==36512 (
+    echo *******************************************************************
+    echo Now dumping MSI error log %CHEF_CLIENT_MSI_LOG_PATH%
+    echo *******************************************************************
+    type %CHEF_CLIENT_MSI_LOG_PATH% 2> nul
+    echo *******************************************************************
+    echo Done dumping MSI log. Exiting...
+    exit !psexitcode!
+  )
   echo *******************************************************************
-  echo Now dumping MSI error log %CHEF_CLIENT_MSI_LOG_PATH%
-  echo *******************************************************************
-  type %CHEF_CLIENT_MSI_LOG_PATH% 2> nul
-  echo *******************************************************************
-  echo Done dumping MSI log. Exiting...
+  echo Powershell bootstrap script exit code was not 0! Stopping!
+  echo The exit code of the script was !psexitcode!
   exit !psexitcode!
 )
 echo Powershell bootstrap script reported succesful Chef install.

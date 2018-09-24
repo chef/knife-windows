@@ -93,7 +93,7 @@ if (Test-Path HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\Up
   $install_exitcode = $install_process.ExitCode
   
   log "MSI install returned exit code $install_exitcode"
-  if ($install_exitcode -ne 0) { report_status $install_exitcode; ps_exit }
+  if ($install_exitcode -ne 0) { report_status 36512; ps_exit }
 }
 
 log "Cleaning up Chef bootstrap environment variables"
