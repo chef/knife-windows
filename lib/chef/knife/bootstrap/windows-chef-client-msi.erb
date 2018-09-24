@@ -248,12 +248,19 @@ IF NOT !psexitcode!==0 (
   exit !psexitcode!
 )
 echo Powershell bootstrap script reported succesful Chef install.
-
 <% unless @chef_config[:knife][:bootstrap_run_command] || @config[:bootstrap_run_command] %>
 set CHEF_CLIENT_LOG=<%= bootstrap_directory %>\firstrun.log
 <%= win_cmd_wait_for_file('CHEF_CLIENT_LOG') %>
 echo *******************************************************************
 call <%= bootstrap_directory %>\tail.cmd "<%= bootstrap_directory %>\firstrun.log" 2> nul
+<% end %>
+
+<% if @config[:bootstrap_tail_file] %>
+echo Tailing custom log file <%= @config[:bootstrap_tail_file] %>
+set CUSTOM_LOG=<%= @config[:bootstrap_tail_file] %>
+<%= win_cmd_wait_for_file('CUSTOM_LOG') %>
+echo *******************************************************************
+call <%= bootstrap_directory %>\tail.cmd "<%= @config[:bootstrap_tail_file] %>" 2> nul
 <% end %>
 
 echo *******************************************************************

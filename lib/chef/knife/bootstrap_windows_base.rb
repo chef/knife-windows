@@ -78,7 +78,12 @@ class Chef
           option :bootstrap_run_command,
             :long        => "--bootstrap_run_command COMMANDS",
             :description => "Custom command to run (chef-client)",
-            :proc        => Proc.new { |ic| Chef::Config[:knife][:bootstrap_run_command] = ic }
+            :proc        => Proc.new { |rc| Chef::Config[:knife][:bootstrap_run_command] = rc }
+
+          option :bootstrap_tail_file,
+            :long        => "--bootstrap_tail_file FILENAME",
+            :description => "Custom (log)file to tail on console",
+            :proc        => Proc.new { |tf| Chef::Config[:knife][:bootstrap_tail_file] = tf }
 
           # DEPR: Remove this option in Chef 13
           option :distro,
