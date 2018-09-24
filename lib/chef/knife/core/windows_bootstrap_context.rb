@@ -297,14 +297,20 @@ filename_in_envvar
         def win_ps_exitcheck
           <<-ps_exitcheck
 @powershell.exe -command Start-Sleep 1
-@if EXIST "%CHEF_PS_EXITCODE%" (
-  @for /f "delims=" %%x in (%CHEF_PS_EXITCODE%) do set psexitcode=%%x
-  @IF NOT !psexitcode!==0 (
-    @echo ERROR -- Powershell bootstrap script exit code was !psexitcode!
+@echo off
+@if EXIST %CHEF_PS_EXITCODE% (
+  setlocal disabledelayedexpansion
+  for /f "tokens=1* delims=]" %%A in ('type "%CHEF_PS_EXITCODE%"^|find /v /n ""') do (
+    set psexitcode=%%B
+    setlocal enabledelayedexpansion
+    if NOT !psexitcode!==0 (
+      echo ERROR -- Powershell bootstrap script exit code was !psexitcode!
+    )
+    endlocal
   )
 ) else (
-  @echo %CHEF_PS_EXITCODE% not found. This should never happen
-  @exit 328
+  echo %CHEF_PS_EXITCODE% not found. This should never happen
+  exit 328
 )
 ps_exitcheck
         end
