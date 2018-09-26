@@ -298,6 +298,11 @@ filename_in_envvar
           <<-ps_exitcheck
 @powershell.exe -command Start-Sleep 1
 @echo off
+REM Wait for the file to exist
+:wff
+if NOT EXIST "%CHEF_PS_EXITCODE%" (
+  goto wff
+)
 if EXIST %CHEF_PS_EXITCODE% (
   setlocal disabledelayedexpansion
   for /f "tokens=1* delims=]" %%A in ('type "%CHEF_PS_EXITCODE%"^|find /v /n ""') do (

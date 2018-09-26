@@ -107,11 +107,17 @@ Start-Sleep 1
 while (Test-Path "$($config['CHEF_PS_LOG'])") { Remove-Item "$($config['CHEF_PS_LOG'])" -Force -ErrorAction SilentlyContinue }
 
 if ($config['CHEF_CUSTOM_RUN_COMMAND']) {
-  Invoke-Expression $config['CHEF_CUSTOM_RUN_COMMAND']
+  # Default to successful run of custom command
+  $chefrun_exitcode = 0
+  Try {
+    Invoke-Expression $config['CHEF_CUSTOM_RUN_COMMAND']
+  } catch {
+    $chefrun_exitcode = $_.FullyQualifiedErrorId
+  }
 } else {
   $chefrun_process = Start-Process -PassThru -Wait c:/opscode/chef/bin/chef-client.bat -ArgumentList "-c `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/client.rb`" -j `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/first-boot.json`" $($config['CHEF_ENVIRONMENT_OPTION']) -L `"$($config['CHEF_BOOTSTRAP_DIRECTORY'])/firstrun.log`""
+  $chefrun_exitcode = [int]$chefrun_process.ExitCode
 }
-$chefrun_exitcode = [int]$chefrun_process.ExitCode
 
 log "Chef run done. Cleaning up Chef firstrun logfile to get control back to bootstrap cmd"
 While (Test-Path "$($config['CHEF_BOOTSTRAP_DIRECTORY'])/firstrun.log") { Remove-Item "$($config['CHEF_BOOTSTRAP_DIRECTORY'])/firstrun.log" -Force -ErrorAction SilentlyContinue }
