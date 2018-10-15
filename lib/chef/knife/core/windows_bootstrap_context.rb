@@ -357,7 +357,7 @@ WGET_PS
             root.find do |f|
               relative = f.relative_path_from(root)
               if f != root
-                file_on_node = "#{bootstrap_directory}/client.d/#{relative}"
+                file_on_node = "#{bootstrap_directory}/client.d/#{relative}".gsub("/","\\")
                 if f.directory?
                   content << "mkdir #{file_on_node}\n"
                 else
@@ -369,7 +369,6 @@ WGET_PS
           end
           content
         end
-
 
         def fallback_install_task_command
           # This command will be executed by schtasks.exe in the batch

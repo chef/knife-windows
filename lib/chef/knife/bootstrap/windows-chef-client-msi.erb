@@ -251,8 +251,8 @@ mkdir <%= bootstrap_directory %>\ohai\hints
 )
 
 <% unless client_d.empty? -%>
-mkdir <%= bootstrap_directory %>\client.d
-<%= client_d %>
+  mkdir <%= bootstrap_directory %>\client.d
+  <%= client_d %>
 <% end -%>
 
 @echo Starting chef to bootstrap the node...
