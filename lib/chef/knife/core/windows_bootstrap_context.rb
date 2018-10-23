@@ -350,6 +350,26 @@ WGET_PS
           content
         end
 
+        def client_d_content
+          content = ""
+          if @chef_config[:client_d_dir] && File.exist?(@chef_config[:client_d_dir])
+            root = Pathname(@chef_config[:client_d_dir])
+            root.find do |f|
+              relative = f.relative_path_from(root)
+              if f != root
+                file_on_node = "#{bootstrap_directory}/client.d/#{relative}".gsub("/","\\")
+                if f.directory?
+                  content << "mkdir #{file_on_node}\n"
+                else
+                  content << "> #{file_on_node} (\n" +
+                    escape_and_echo(IO.read(File.expand_path(f))) + "\n)\n"
+                end
+              end
+            end
+          end
+          content
+        end
+
         def fallback_install_task_command
           # This command will be executed by schtasks.exe in the batch
           # code below. To handle tasks that contain arguments that
