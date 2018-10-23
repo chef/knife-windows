@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 1.9.5 -->
-## [v1.9.5](https://github.com/chef/knife-windows/tree/v1.9.5) (2018-10-23)
+<!-- latest_release 1.9.6 -->
+## [v1.9.6](https://github.com/chef/knife-windows/tree/v1.9.6) (2018-10-23)
 
 #### Merged Pull Requests
-- Adds client_d support to knife-windows [#461](https://github.com/chef/knife-windows/pull/461) ([btm](https://github.com/btm))
+- Slim down the size of the install and the gem [#462](https://github.com/chef/knife-windows/pull/462) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.9.1 -->
 ### Changes since 1.9.1 release
 
 #### Merged Pull Requests
+- Slim down the size of the install and the gem [#462](https://github.com/chef/knife-windows/pull/462) ([tas50](https://github.com/tas50)) <!-- 1.9.6 -->
 - Adds client_d support to knife-windows [#461](https://github.com/chef/knife-windows/pull/461) ([btm](https://github.com/btm)) <!-- 1.9.5 -->
 - MSYS-831 : Fixed windows detection code for windows 2016, windows 2012r2 [#455](https://github.com/chef/knife-windows/pull/455) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 1.9.4 -->
 - [MSYS-841]fix bootstrap template short name [#457](https://github.com/chef/knife-windows/pull/457) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 1.9.3 -->
