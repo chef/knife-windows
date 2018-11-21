@@ -164,6 +164,7 @@ expected: #{expected}
       :host_key_verification,  # Deprecated - remove this when the flag is removed.
       :distro, # Deprecated - remove this when the flag is removed.
       :template_file, # Deprecated - remove this when the flag is removed.
+      :identity_file,
     ] }
 
     include_examples 'compare_options'
