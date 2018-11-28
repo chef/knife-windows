@@ -19,8 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'pry'
 
-  s.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\..*|DOC_CHANGES.md|VERSION|appveyor.yml|RELEASE_NOTES.md)}) }
+  s.files         =  %w{LICENSE} + Dir.glob("{spec,lib}/**/*")
   s.test_files    = `git ls-files -- spec/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 end
