@@ -67,7 +67,11 @@ class Chef
 
       option :identity_file,
         :long => "--identity-file IDENTITY_FILE",
-        :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead."
+        :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead.",
+        :proc        => Proc.new { |v|
+          Chef::Log.warn("[DEPRECATED] --identity-file option is deprecated. Use --ssh-identity-file option instead.")
+          v
+        }
 
       option :ssh_identity_file,
         :short => "-i IDENTITY_FILE",

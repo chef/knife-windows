@@ -70,29 +70,10 @@ class Chef
             :description => "Custom command to install chef-client",
             :proc        => Proc.new { |ic| Chef::Config[:knife][:bootstrap_install_command] = ic }
 
-          # DEPR: Remove this option in Chef 13
-          option :distro,
-            :short => "-d DISTRO",
-            :long => "--distro DISTRO",
-            :description => "Bootstrap a distro using a template. [DEPRECATED] Use -t / --bootstrap-template option instead.",
-            :proc        => Proc.new { |v|
-              Chef::Log.warn("[DEPRECATED] -d / --distro option is deprecated. Use --bootstrap-template option instead.")
-              v
-            }
-
           option :bootstrap_template,
             :short => "-t TEMPLATE",
             :long => "--bootstrap-template TEMPLATE",
             :description => "Bootstrap Chef using a built-in or custom template. Set to the full path of an erb template or use one of the built-in templates."
-
-          # DEPR: Remove this option in Chef 13
-          option :template_file,
-            :long => "--template-file TEMPLATE",
-            :description => "Full path to location of template to use. [DEPRECATED] Use -t / --bootstrap-template option instead.",
-            :proc        => Proc.new { |v|
-              Chef::Log.warn("[DEPRECATED] --template-file option is deprecated. Use --bootstrap-template option instead.")
-              v
-            }
 
           option :run_list,
             :short => "-r RUN_LIST",

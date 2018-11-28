@@ -102,8 +102,8 @@ expected: #{expected}
       :bootstrap_proxy_user,
       :bootstrap_proxy_pass,
       :bootstrap_preinstall_command,
-      :distro, # Deprecated - remove this when the flag is removed.
-      :template_file, # Deprecated - remove this when the flag is removed.
+      :distro, # Deprecated - remove this when we drop support for Chef 13.
+      :template_file, # Deprecated - remove this when we drop support for Chef 13.
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -123,8 +123,6 @@ expected: #{expected}
       :winrm_codepage,
       :concurrency,
       :winrm_shell,
-      :distro, # Deprecated - remove this when the flag is removed.
-      :template_file, # Deprecated - remove this when the flag is removed.
     ] }
 
     include_examples 'compare_options'
@@ -154,17 +152,15 @@ expected: #{expected}
       :bootstrap_proxy_user,
       :bootstrap_proxy_pass,
       :bootstrap_preinstall_command,
-      :distro, # Deprecated - remove this when the flag is removed.
-      :template_file, # Deprecated - remove this when the flag is removed.
       :identity_file,
+      :distro, # Deprecated - remove this when we drop support for Chef 13.
+      :template_file, # Deprecated - remove this when we drop support for Chef 13.
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
       :auth_timeout,
       :install_as_service,
       :host_key_verification,  # Deprecated - remove this when the flag is removed.
-      :distro, # Deprecated - remove this when the flag is removed.
-      :template_file, # Deprecated - remove this when the flag is removed.
       :identity_file,
     ] }
 
