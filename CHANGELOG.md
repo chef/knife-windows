@@ -4,10 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release -->
+<!-- latest_release 1.9.7 -->
+## [v1.9.7](https://github.com/chef/knife-windows/tree/v1.9.7) (2018-11-28)
+
+#### Merged Pull Requests
+- Detect if chef-client is already present [#464](https://github.com/chef/knife-windows/pull/464) ([vijaymmali1990](https://github.com/vijaymmali1990))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=1.9.6 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- Detect if chef-client is already present [#464](https://github.com/chef/knife-windows/pull/464) ([vijaymmali1990](https://github.com/vijaymmali1990)) <!-- 1.9.7 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
