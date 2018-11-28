@@ -4,8 +4,9 @@ dist: trusty
 sudo: false
 
 rvm:
-  - 2.3.4
-  - 2.4.1
+  - 2.3.8
+  - 2.4.5
+  - 2.5.3
   - ruby-head
 
 before_install:
@@ -19,7 +20,7 @@ env:
 
 matrix:
   exclude:
-  - rvm: 2.3.4
+  - rvm: 2.3.8
     env: CHEF_VERSION="master"
   allow_failures:
     - rvm: ruby-head
