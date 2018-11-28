@@ -156,6 +156,7 @@ expected: #{expected}
       :bootstrap_preinstall_command,
       :distro, # Deprecated - remove this when the flag is removed.
       :template_file, # Deprecated - remove this when the flag is removed.
+      :identity_file,
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
@@ -164,6 +165,7 @@ expected: #{expected}
       :host_key_verification,  # Deprecated - remove this when the flag is removed.
       :distro, # Deprecated - remove this when the flag is removed.
       :template_file, # Deprecated - remove this when the flag is removed.
+      :identity_file,
     ] }
 
     include_examples 'compare_options'
