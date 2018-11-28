@@ -65,23 +65,28 @@ class Chef
         :description => "Enable SSH agent forwarding",
         :boolean => true
 
+      # @todo When we no longer support Chef 14 this can just go away
       option :identity_file,
         :long => "--identity-file IDENTITY_FILE",
-        :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead."
+        :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead.",
+        :proc        => Proc.new { |v|
+          Chef::Log.fatal("[DEPRECATED] --identify-file option is deprecated. Use --ssh-identity-template option instead.")
+          v
+        }
 
       option :ssh_identity_file,
         :short => "-i IDENTITY_FILE",
         :long => "--ssh-identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
 
-      # DEPR: Remove this option for the next release.
+      # @todo Remove this option for the next release.
       option :host_key_verification,
         :long => "--[no-]host-key-verify",
         :description => "Verify host key, enabled by default. [DEPRECATED] Use --host-key-verify option instead.",
         :boolean => true,
         :default => true,
         :proc => Proc.new { |key|
-          Chef::Log.warn("[DEPRECATED] --host-key-verification option is deprecated. Use --host-key-verify option instead.")
+          Chef::Log.fatal("[DEPRECATED] --host-key-verification option is deprecated. Use --host-key-verify option instead.")
           config[:host_key_verify] = key
         }
 
