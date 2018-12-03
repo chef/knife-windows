@@ -1,11 +1,12 @@
 language: ruby
 cache: bundler
-dist: trusty
+dist: xenial
 sudo: false
 
 rvm:
-  - 2.3.4
-  - 2.4.1
+  - 2.3.8
+  - 2.4.5
+  - 2.5.3
   - ruby-head
 
 before_install:
@@ -15,11 +16,16 @@ gemfile: ci.gemfile
 
 env:
   - CHEF_VERSION="master"
+  - CHEF_VERSION="~> 14.0"
   - CHEF_VERSION="~> 13.0"
 
 matrix:
   exclude:
-  - rvm: 2.3.4
+  - rvm: 2.3.8
+    env: CHEF_VERSION="master"
+  - rvm: 2.3.8
+    env: CHEF_VERSION="~> 14.0"
+  - rvm: 2.4.5
     env: CHEF_VERSION="master"
   allow_failures:
     - rvm: ruby-head
