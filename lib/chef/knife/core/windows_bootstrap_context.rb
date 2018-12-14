@@ -274,10 +274,15 @@ param(
 )
 
 $ProxyUrl = $env:http_proxy;
+$ProxyByPass = $env:no_proxy;
 $webClient = new-object System.Net.WebClient;
 
 if ($ProxyUrl -ne '') {
-  $WebProxy = New-Object System.Net.WebProxy($ProxyUrl,$true)
+  if ($ProxyByPass -ne '') {
+    $WebProxy = New-Object System.Net.WebProxy($ProxyUrl,$true,$ProxyByPass)
+  } else {
+    $WebProxy = New-Object System.Net.WebProxy($ProxyUrl,$true)
+  }
   $WebClient.Proxy = $WebProxy
 }
 
