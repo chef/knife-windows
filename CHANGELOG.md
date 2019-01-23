@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 1.9.8 -->
-## [v1.9.8](https://github.com/chef/knife-windows/tree/v1.9.8) (2018-12-03)
+<!-- latest_release 1.9.9 -->
+## [v1.9.9](https://github.com/chef/knife-windows/tree/v1.9.9) (2019-01-23)
 
 #### Merged Pull Requests
-- Require Ruby 2.2+ and slim down the files we ship [#465](https://github.com/chef/knife-windows/pull/465) ([tas50](https://github.com/tas50))
+- Using chef/chef path_helper and removed the knife-windows path_helper [#471](https://github.com/chef/knife-windows/pull/471) ([Vasu1105](https://github.com/Vasu1105))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.9.6 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Using chef/chef path_helper and removed the knife-windows path_helper [#471](https://github.com/chef/knife-windows/pull/471) ([Vasu1105](https://github.com/Vasu1105)) <!-- 1.9.9 -->
 - Require Ruby 2.2+ and slim down the files we ship [#465](https://github.com/chef/knife-windows/pull/465) ([tas50](https://github.com/tas50)) <!-- 1.9.8 -->
 - Detect if chef-client is already present [#464](https://github.com/chef/knife-windows/pull/464) ([vijaymmali1990](https://github.com/vijaymmali1990)) <!-- 1.9.7 -->
 <!-- release_rollup -->
