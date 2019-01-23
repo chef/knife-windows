@@ -156,6 +156,7 @@ expected: #{expected}
     let(:win_ignore) { [
       :auth_timeout,
       :install_as_service,
+      :identity_file,
     ] }
 
     include_examples 'compare_options'
