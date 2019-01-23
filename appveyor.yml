@@ -10,7 +10,6 @@ environment:
   matrix:
     - ruby_version: "24"
       chef_version: "~> 14.0"
-
     - ruby_version: "25"
       chef_version: "master"
 
@@ -26,7 +25,7 @@ install:
   - echo %PATH%
   - ruby --version
   - gem --version
-  - gem install bundler -v 1.11.2 --quiet --no-ri --no-rdoc
+  - gem install bundler --quiet --no-document || true
   - bundler --version
 
 build_script:
