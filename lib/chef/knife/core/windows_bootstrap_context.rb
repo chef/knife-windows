@@ -17,9 +17,7 @@
 #
 
 require 'chef/knife/core/bootstrap_context'
-# Chef::Util::PathHelper in Chef 11 is a bit juvenile still
-require 'knife-windows/path_helper'
-# require 'chef/util/path_helper'
+require 'chef/util/path_helper'
 
 class Chef
   class Knife
@@ -31,8 +29,6 @@ class Chef
       # * @run_list - the run list for the node to boostrap
       #
       class WindowsBootstrapContext < BootstrapContext
-        PathHelper = ::Knife::Windows::PathHelper
-
         attr_accessor :client_pem
 
         def initialize(config, run_list, chef_config, secret=nil)
@@ -342,7 +338,7 @@ WGET_PS
         def trusted_certs_content
           content = ""
           if @chef_config[:trusted_certs_dir]
-            Dir.glob(File.join(PathHelper.escape_glob_dir(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
+            Dir.glob(File.join(Chef::Util::PathHelper.escape_glob_dir(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
               content << "> #{bootstrap_directory}/trusted_certs/#{File.basename(cert)} (\n" +
                          escape_and_echo(IO.read(File.expand_path(cert))) + "\n)\n"
             end
