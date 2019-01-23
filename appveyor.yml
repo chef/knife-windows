@@ -11,7 +11,7 @@ environment:
     - ruby_version: "24"
       chef_version: "~> 13.0"
 
-    - ruby_version: "24"
+    - ruby_version: "25"
       chef_version: "master"
 
 clone_folder: c:\projects\knife-windows
