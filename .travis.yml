@@ -4,9 +4,9 @@ dist: xenial
 sudo: false
 
 rvm:
-  - 2.3.8
   - 2.4.5
   - 2.5.3
+  - 2.6.0
   - ruby-head
 
 before_install:
@@ -20,8 +20,6 @@ env:
 
 matrix:
   exclude:
-  - rvm: 2.3.8
-    env: CHEF_VERSION="master"
   - rvm: 2.3.8
     env: CHEF_VERSION="~> 14.0"
   - rvm: 2.4.5
