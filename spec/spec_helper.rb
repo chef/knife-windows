@@ -80,10 +80,6 @@ def windows2016?
   is_win2k16
 end
 
-def chef_lt_12_5?
-  Gem::Version.new(Chef::VERSION) < Gem::Version.new('12.5')
-end
-
 def chef_gte_12?
   Chef::VERSION.split('.').first.to_i >= 12
 end
@@ -125,7 +121,6 @@ RSpec.configure do |config|
   config.filter_run_excluding :chef_gte_12_5_only => true unless chef_gte_12_5?
   config.filter_run_excluding :chef_gte_12_7_only => true unless chef_gte_12_7?
   config.filter_run_excluding :chef_gte_13_only => true unless chef_gte_13?
-  config.filter_run_excluding :chef_lt_12_5_only => true unless chef_lt_12_5?
   config.filter_run_excluding :chef_lt_13_only => true unless chef_lt_13?
   config.filter_run_excluding :chef_lt_14_only => true unless chef_lt_14?
   config.filter_run_excluding :chef_gte_14_only => true unless chef_gte_14?
