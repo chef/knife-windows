@@ -79,7 +79,7 @@ cache_options     ({:path => "c:/chef/cache/checksums", :skip_expires => true})
           if @chef_config[:config_log_level]
             client_rb << %Q{log_level :#{@chef_config[:config_log_level]}\n}
           else
-            client_rb << "log_level        :info\n"
+            client_rb << "log_level        :auto\n"
           end
 
           client_rb << "log_location       #{get_log_location}"
