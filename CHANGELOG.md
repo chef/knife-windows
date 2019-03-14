@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 2.0.1 -->
-## [v2.0.1](https://github.com/chef/knife-windows/tree/v2.0.1) (2019-01-23)
+<!-- latest_release 2.0.2 -->
+## [v2.0.2](https://github.com/chef/knife-windows/tree/v2.0.2) (2019-03-14)
 
 #### Merged Pull Requests
-- Require Ruby 2.4 or later [#473](https://github.com/chef/knife-windows/pull/473) ([tas50](https://github.com/tas50))
+- fix log_level incosistency [#476](https://github.com/chef/knife-windows/pull/476) ([dheerajd-msys](https://github.com/dheerajd-msys))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.9.6 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- fix log_level incosistency [#476](https://github.com/chef/knife-windows/pull/476) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.2 -->
 - Require Ruby 2.4 or later [#473](https://github.com/chef/knife-windows/pull/473) ([tas50](https://github.com/tas50)) <!-- 2.0.1 -->
 - Removed deprecated host_key_verification, distro and template_file options [#470](https://github.com/chef/knife-windows/pull/470) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.0 -->
 - Using chef/chef path_helper and removed the knife-windows path_helper [#471](https://github.com/chef/knife-windows/pull/471) ([Vasu1105](https://github.com/Vasu1105)) <!-- 1.9.9 -->
