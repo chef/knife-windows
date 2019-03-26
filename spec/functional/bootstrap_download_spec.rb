@@ -171,11 +171,11 @@ describe "bootstrap_install_command functionality through WinRM protocol" do
       @template_output = sample_data('win_template_rendered_with_bootstrap_install_command.txt')
     end
 
-    context "when running chef-client 12.5.0 or greater", :chef_gte_12_5_only => true, :chef_lt_14_only => true  do
-      let(:template_12_5_output) { sample_data('win_template_rendered_with_bootstrap_install_command_on_12_5_client.txt') }
+    context "when running chef-client 13.0 or greater", :chef_gte_13_only => true, :chef_lt_14_only => true  do
+      let(:template_13_output) { sample_data('win_template_rendered_with_bootstrap_install_command_on_13_client.txt') }
       it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template" do
         expect(bootstrap.send(:render_template,@template_input)).to eq(
-                                                                      template_12_5_output)
+                                                                      template_13_output)
       end
     end
 
