@@ -4,8 +4,8 @@ source "https://rubygems.org"
 gemspec
 
 if ENV['CHEF_VERSION'] == 'master'
-  gem 'chef', github: 'chef/chef'
-  gem 'ohai', github: 'chef/ohai'
+  gem 'chef', git: 'https://github.com/chef/chef.git', branch: "master"
+  gem 'ohai', git: 'https://github.com/chef/ohai.git', branch: "master"
 else
   gem 'chef', ENV['CHEF_VERSION']
 end
