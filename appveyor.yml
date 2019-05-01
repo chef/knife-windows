@@ -1,16 +1,14 @@
 version: "master-{build}"
 
-os: Windows Server 2012
-platform:
-  - x64
+os: Visual Studio 2017
 
 environment:
   bundle_gemfile: ci.gemfile
 
   matrix:
-    - ruby_version: "24"
-      chef_version: "~> 14.0"
-    - ruby_version: "25"
+    - RUBY_VERSION: 25
+      chef_version: "master"
+    - RUBY_VERSION: 26
       chef_version: "master"
 
 clone_folder: c:\projects\knife-windows
@@ -18,10 +16,11 @@ clone_depth: 1
 branches:
   only:
     - master
+    - 2-stable
 
 install:
   - winrm quickconfig -q
-  - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
+  - SET PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
   - echo %PATH%
   - ruby --version
   - gem --version
