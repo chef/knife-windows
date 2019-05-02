@@ -10,6 +10,16 @@ configuring / interacting with nodes running Microsoft Windows:
 * Remote command execution using the WinRM protocol
 * Utilities to configure WinRM SSL endpoints on managed nodes
 
+## **Knife bootstrap windows ssh/winrm**
+
+Bootstrapping has been moved into chef-core and is no longer a part of knife-window
+
+| Old knife-windows | New knife (chef-core) | Notes |
+|-----:|:-----------|:-----------|
+| knife windows bootstrap ssh |knife bootstrap -o ssh or knife bootstrap | Default is 'ssh'. | |
+| knife windows bootstrap winrm | knife bootstrap -o winrm| | |
+
+
 ## Subcommands
 
 This plugin provides the following Knife subcommands. Specific command options can be found by invoking the subcommand with a `--help` flag
