@@ -12,13 +12,14 @@ configuring / interacting with nodes running Microsoft Windows:
 
 ## **Knife bootstrap windows ssh/winrm**
 
-Bootstrapping has been moved into chef-core and is no longer a part of knife-window
+Core Chef now supports bootstrapping Windows systems without a knife plugin
 
-| Old knife-windows | New knife (chef-core) | Notes |
+|  knife-windows plugin | Chef Infra Client 15+ | Notes |
 |-----:|:-----------|:-----------|
-| knife windows bootstrap ssh |knife bootstrap -o ssh or knife bootstrap | Default is 'ssh'. | |
-| knife windows bootstrap winrm | knife bootstrap -o winrm| | |
+| knife windows bootstrap ssh | knife bootstrap -o ssh or knife bootstrap | Default is 'ssh'|
+| knife windows bootstrap winrm | knife bootstrap -o winrm|
 
+For more detail https://github.com/chef/chef/blob/master/RELEASE_NOTES.md#knife-bootstrap
 
 ## Subcommands
 
