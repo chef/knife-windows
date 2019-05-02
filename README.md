@@ -7,7 +7,6 @@ Knife Windows Plugin
 This plugin adds additional functionality to the Chef Knife CLI tool for
 configuring / interacting with nodes running Microsoft Windows:
 
-* Bootstrap of nodes via the [Windows Remote Management (WinRM)](http://msdn.microsoft.com/en-us/library/aa384426\(v=VS.85\).aspx) or SSH protocols
 * Remote command execution using the WinRM protocol
 * Utilities to configure WinRM SSL endpoints on managed nodes
 
@@ -39,17 +38,9 @@ This subcommand operates in a manner similar to [knife ssh](https://docs.chef.io
 
 By default, `knife winrm` runs in a `cmd.exe` shell. You can use the `--winrm-shell` argument to change the shell to `powershell` or `elevated`. An elevated shell is similar to the `powershell` shell but the powershell command is executed from a scheduled task using a local identity. This may be desirable for some operations such as running `chef-client` to converge recipes that work with windows updates, install sql server, etc.
 
-### knife bootstrap windows winrm
-
-Performs a Chef Bootstrap (via the WinRM protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.
-
-This subcommand operates in a manner similar to [knife bootstrap](https://docs.chef.io/knife_bootstrap.html)...just leveraging the WinRM protocol for communication. An initial run_list for the node can also be passed to the subcommand. Example usage:
-
-    knife bootstrap windows winrm myserver.myorganization.net -r 'role[webserver],role[production]' -x Administrator -P 'super_secret_password'
-
 #### Tip: Use SSL for WinRM communication
 
-By default, the `knife winrm` and `knife bootstrap windows winrm` subcommands use a plaintext transport,
+By default, the `knife winrm` subcommands use a plaintext transport,
 but they support an option `--winrm-transport` (or `-t`) with the argument
 `ssl` that allows the SSL to secure the WinRM payload. Here's an example:
 
@@ -62,16 +53,6 @@ support](#platform-winrm-authentication-support).
 
 SSL will become the default transport in future revisions of
 `knife-windows`.
-
-#### Specifying the package architecture
-
-You can configure which package architecture (32 bit or 64 bit) to install on the bootstrapped system.  In your knife config specify `knife[:bootstrap_architecture]`.  Valid values are `:i386` for 32 bit or `:x86_64` for 64 bit.  By default the architecture will be whatever the target system is.  If you try to install a 64 bit package on a 32 bit system you will receive an error, but installing a 32 bit package on a 64 bit system is supported.
-
-Currently (March 2016) the `stable` channel of omnibus (where downloads using the install script fetch) only has 32 bit packages but this will be updated soon to include both 32 and 64 bit packages.  Until then you will need to access the `current` channel by specifying `--prerelease` in your `knife bootstrap windows` if you want 64 bit packages.
-
-#### Using a custom install URL
-
-By default, the bootstrap command tries to download the latest `chef-client` installer from the Internet.  This may be a problem in the enterprise, for example if your node is behind a proxy or firewall.  In that case, you can specify a custom install URL with the `--msi-url` option.
 
 ### knife wsman test
 
@@ -88,22 +69,12 @@ or to test all windows nodes registered with your Chef Server organization
 
     knife wsman test platform:windows
 
-### knife bootstrap windows ssh
-
-Performs a Chef Bootstrap (via the SSH protocol) on the target node. The goal of the bootstrap is to get Chef installed on the target system so it can run Chef Client with a Chef Server. The main assumption is a baseline OS installation exists. It is primarily intended for Chef Client systems that talk to a Chef server.
-
-This subcommand assumes the SSH session will use the Windows native cmd.exe command shell vs a bash shell through an emulated cygwin layer. Most popular Windows based SSHd daemons like [freeSSHd](http://www.freesshd.com/) and [WinSSHD](http://www.bitvise.com/winsshd) behave this way.
-
-An initial run_list for the node can also be passed to the subcommand. Example usage:
-
-    knife bootstrap windows ssh myserver.myorganization.net -r "role[webserver],role[production]" -x Administrator -i ~/.ssh/id_rsa
-
 ### knife windows cert generate
 
 Generates a certificate(x509) containing a public / private key pair for WinRM 'SSL' communication.
 The certificate will be generated in three different formats:
-* **.pem** - The *.pem is Base64 encoded public certificate only. One can use this file with the `-f` argument on `knife bootstrap windows winrm` and `knife winrm` commands.
-* **.pfx** - The PKCS12(i.e .pfx) contains both the public and private keys, usually used on the server. This can be added to a WinRM Server's Certificate Store using `knife windows cert install` (see command description below). **Note:** Do not use the *.pfx file with the `-f` argument on the `knife bootstrap windows winrm` and `knife winrm` commands. Use the *.pem file instead.
+* **.pem** - The *.pem is Base64 encoded public certificate only. One can use this file with the `-f` argument on `knife winrm` command.
+* **.pfx** - The PKCS12(i.e .pfx) contains both the public and private keys, usually used on the server. This can be added to a WinRM Server's Certificate Store using `knife windows cert install` (see command description below). **Note:** Do not use the *.pfx file with the `-f` argument on the `knife winrm` command. Use the *.pem file instead.
 * **.b64** - The *.b64 is Base64 PKCS12 key pair. Contains both the public and private keys, for upload to the Cloud REST API. e.g. Azure.
 
 This command also displays the thumbprint of the generated certificate.
@@ -131,18 +102,6 @@ The command also allows you to use existing certificates from local store to cre
 You can get the thumbprint for existing certificates in the local store using the following PowerShell command:
 
     ls cert:\LocalMachine\My
-
-## Bootstrap template
-
-This gem provides the bootstrap template `windows-chef-client-msi`,
-which does the following:
-
-* Installs the latest version of Chef Client (and all dependencies) using the `chef-client` msi.
-* Writes the validation.pem per the local knife configuration.
-* Writes a default config file for Chef (`C:\chef\client.rb`) using values from the `knife.rb`.
-* Creates a JSON attributes file containing the specified run list and run Chef.
-
-This template is used by both `knife bootstrap windows winrm` and `knife bootstrap windows ssh` subcommands.
 
 ## Requirements / setup
 
@@ -189,10 +148,10 @@ This will set up an WinRM listener using the HTTP (plaintext)
 transport -- WinRM also supports the SSL transport for improved
 robustness against information disclosure and other threats.
 
-The chef-client installation and bootstrap may take more
+The chef-client installation may take more
 memory than the default 150MB WinRM allocates per shell on older versions of
-Windows (prior to Windows Server 2012) -- this can slow down
-bootstrap or cause it to fail. The memory limit was increased to 1GB with Windows Management Framework 3
+Windows (prior to Windows Server 2012) -- this can slow it down
+or cause it to fail. The memory limit was increased to 1GB with Windows Management Framework 3
 (and Server 2012). However, there is a bug in Windows Management Framework 3
 (and Server 2012) which requires a [hotfix from Microsoft](https://support.microsoft.com/en-us/kb/2842230/en-us).
 You can increase the memory limit to 1GB with the following PowerShell
@@ -202,8 +161,8 @@ command:
     set-item wsman:\localhost\shell\maxmemorypershellmb 1024
 ```
 
-Bootstrap commands can take longer than the WinRM default 60 seconds to
-complete, optionally increase to 30 minutes if bootstrap terminates a command prematurely:
+Commands can take longer than the WinRM default 60 seconds to
+complete, optionally increase to 30 minutes if terminates a command prematurely:
 
 ```powershell
     set-item wsman:\localhost\MaxTimeoutms 300000
@@ -221,7 +180,7 @@ README but details can be found on the
 
 ### Working with legacy Windows versions
 
-If you are attempting to use `knife winrm` or `knife bootstrap windows winrm` with a version of windows that is older than server 2008 R2 or older than Windows 7 then you may need to alter the default UTF-8 codepage (65001) using the `--winrm-codepage` argument. You can use the codepage native to your locale but `437` is a safe codepage for older Windows versions.
+If you are attempting to use `knife winrm` with a version of windows that is older than server 2008 R2 or older than Windows 7 then you may need to alter the default UTF-8 codepage (65001) using the `--winrm-codepage` argument. You can use the codepage native to your locale but `437` is a safe codepage for older Windows versions.
 
 #### Configure SSL on a Windows node
 
@@ -314,16 +273,16 @@ The fingerprint can be supplied to ```--ssl-peer-fingerprint``` and instead of u
 The default authentication protocol for `knife-windows` subcommands that use
 WinRM is the Negotiate protocol. The following commands show authentication for domain and local accounts respectively:
 
-    knife bootstrap windows winrm web1.cloudapp.net -r "server::web" -x "proddomain\webuser" -P "super_secret_password"
-    knife bootstrap windows winrm db1.cloudapp.net -r "server::db" -x "localadmin" -P "super_secret_password"
+    knife winrm -m web1.cloudapp.net -x "proddomain\webuser" -P "super_secret_password"
+    knife winrm -m db1.cloudapp.net -x "localadmin" -P "super_secret_password"
 
 The remote system may also be configured with an SSL WinRM listener instead of a
 plaintext listener. Then the above commands should be modified to use the SSL
 transport as follows using the `-t` (or `--winrm-transport`) option with the
 `ssl` argument:
 
-    knife bootstrap windows winrm -t ssl web1.cloudapp.net -r "server::web" -x "proddomain\webuser" -P "super_secret_password" -f ~/mycert.crt
-    knife bootstrap windows winrm -t ssl db1.cloudapp.net -r "server::db" -x "localadmin" -P "super_secret_password" ~/mycert.crt
+    knife winrm -m web1.cloudapp.net -t ssl -x "proddomain\webuser" -P "super_secret_password" -f ~/mycert.crt
+    knife winrm -m db1.cloudapp.net -t ssl -x "localadmin" -P "super_secret_password" ~/mycert.crt
 
 ### Troubleshooting authentication
 
@@ -354,7 +313,7 @@ The following table shows the authentication protocols that can be used with
 system, the transport, and whether or not the target user is a domain user or
 local to the target Windows system.
 
-> \* There is a known defect in the `knife winrm` and `knife bootstrap windows
+> \* There is a known defect in the `knife winrm`
 > winrm` subcommands invoked on any OS  platform when authenticating with the Negotiate protocol over
 > the SSL transport. The defect is tracked by
 > [knife-windows issue #176](https://github.com/chef/knife-windows/issues/176): If the remote system is
