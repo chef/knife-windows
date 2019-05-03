@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.0 -->
-## [v3.0.0](https://github.com/chef/knife-windows/tree/v3.0.0) (2019-05-01)
+<!-- latest_release 3.0.1 -->
+## [v3.0.1](https://github.com/chef/knife-windows/tree/v3.0.1) (2019-05-03)
 
 #### Merged Pull Requests
-- Prep branch for knife-windows v3 [#477](https://github.com/chef/knife-windows/pull/477) ([btm](https://github.com/btm))
+- [WIP] Remove knife bootstrap windows [#478](https://github.com/chef/knife-windows/pull/478) ([vsingh-msys](https://github.com/vsingh-msys))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.9.6 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- [WIP] Remove knife bootstrap windows [#478](https://github.com/chef/knife-windows/pull/478) ([vsingh-msys](https://github.com/vsingh-msys)) <!-- 3.0.1 -->
 - Prep branch for knife-windows v3 [#477](https://github.com/chef/knife-windows/pull/477) ([btm](https://github.com/btm)) <!-- 3.0.0 -->
 - Removed support &amp; specs for chefv12 and lower [#475](https://github.com/chef/knife-windows/pull/475) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.3 -->
 - fix log_level incosistency [#476](https://github.com/chef/knife-windows/pull/476) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.2 -->
