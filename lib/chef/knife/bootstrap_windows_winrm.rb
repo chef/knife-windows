@@ -31,7 +31,6 @@ class Chef
       include Chef::Knife::WinrmCommandSharedFunctions
 
       deps do
-        require 'chef/knife/core/windows_bootstrap_context'
         require 'chef/json_compat'
         require 'tempfile'
         Chef::Knife::Winrm.load_deps
@@ -40,63 +39,17 @@ class Chef
       banner 'knife bootstrap windows winrm FQDN (options)'
 
       def run
-        validate_name_args!
-
-        if (Chef::Config[:validation_key] && !File.exist?(File.expand_path(Chef::Config[:validation_key])))
-          if !negotiate_auth? && !(locate_config_value(:winrm_transport) == 'ssl')
-            ui.error('Validatorless bootstrap over unsecure winrm channels could expose your key to network sniffing')
-            exit 1
-          end
-        end
-
-        unless locate_config_value(:winrm_shell) == :cmd
-          ui.warn("The cmd shell is the only valid winrm-shell for 'knife bootstrap windows winrm'. Switching to the cmd shell.")
-          config[:winrm_shell] = :cmd
-        end
-
-        config[:manual] = true
-        configure_session
-
-        bootstrap
+         Chef::Application.fatal!(<<~EOM
+         *knife windows bootstrap winrm*
+          Core Chef now supports bootstrapping Windows systems without a knife plugin
+          
+          Use 'knife bootstrap -o winrm' instead.
+          
+          For more detail https://github.com/chef/chef/blob/master/RELEASE_NOTES.md#knife-bootstrap
+          EOM
+          )
       end
 
-      protected
-
-      def wait_for_remote_response(wait_max_minutes)
-        wait_max_seconds = wait_max_minutes * 60
-        retry_interval_seconds = 10
-        retries_left = wait_max_seconds / retry_interval_seconds
-        print(ui.color("\nWaiting for remote response before bootstrap", :magenta))
-        wait_start_time = Time.now
-        begin
-          print(".")
-          # Return status of the command is non-zero, typically nil,
-          # for our simple echo command in cases where run_command
-          # swallows the exception, such as 401's. Treat such cases
-          # the same as the case where we encounter an exception.
-          status = run_command("echo . & echo Response received.")
-          raise RuntimeError, 'Command execution failed.' if status != 0
-          ui.info(ui.color("Remote node responded after #{elapsed_time_in_minutes(wait_start_time)} minutes.", :magenta))
-          return
-        rescue Errno::ECONNREFUSED => e
-          ui.error("Connection refused connecting to #{locate_config_value(:server_name)}:#{locate_config_value(:winrm_port)}.")
-          raise
-        rescue Exception => e
-          retries_left -= 1
-          if retries_left <= 0 || (elapsed_time_in_minutes(wait_start_time) > wait_max_minutes)
-            ui.error("No response received from remote node after #{elapsed_time_in_minutes(wait_start_time)} minutes, giving up.")
-            ui.error("Exception: #{e.message}")
-            raise
-          end
-          print '.'
-          sleep retry_interval_seconds
-          retry
-        end
-      end
-
-      def elapsed_time_in_minutes(start_time)
-        ((Time.now - start_time) / 60).round(2)
-      end
     end
   end
 end

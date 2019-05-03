@@ -25,7 +25,6 @@ class Chef
       include Chef::Knife::BootstrapWindowsBase
 
       deps do
-        require 'chef/knife/core/windows_bootstrap_context'
         require 'chef/json_compat'
         require 'tempfile'
         require 'highline'
@@ -81,23 +80,15 @@ class Chef
         :default => true
 
       def run
-        validate_name_args!
-        bootstrap
-      end
-
-      def run_command(command = '')
-        ssh = Chef::Knife::Ssh.new
-        ssh.name_args = [ server_name, command ]
-        ssh.config[:ssh_user] = locate_config_value(:ssh_user)
-        ssh.config[:ssh_password] = locate_config_value(:ssh_password)
-        ssh.config[:ssh_port] = locate_config_value(:ssh_port)
-        ssh.config[:ssh_gateway] =  locate_config_value(:ssh_gateway)
-        ssh.config[:identity_file] = config[:identity_file]
-        ssh.config[:ssh_identity_file] = config[:ssh_identity_file] || config[:identity_file]
-        ssh.config[:forward_agent] = config[:forward_agent]
-        ssh.config[:manual] = true
-        ssh.config[:host_key_verify] = config[:host_key_verify]
-        ssh.run
+         Chef::Application.fatal!(<<~EOM
+         *knife windows bootstrap ssh*
+          Core Chef now supports bootstrapping Windows systems without a knife plugin
+          
+          Use 'knife bootstrap -o ssh' instead.
+          
+          For more detail https://github.com/chef/chef/blob/master/RELEASE_NOTES.md#knife-bootstrap
+          EOM
+          )
       end
 
     end
