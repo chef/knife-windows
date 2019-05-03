@@ -18,15 +18,18 @@
 
 require 'chef/knife'
 require 'chef/knife/winrm'
+require 'chef/knife/bootstrap_windows_ssh'
+require 'chef/knife/bootstrap_windows_winrm'
 require 'chef/knife/wsman_test'
 
 class Chef
   class Knife
     class WindowsHelper < Knife
 
-      banner "#{Winrm.banner}\n" +
+      banner "#{BootstrapWindowsWinrm.banner}\n" +
+              "#{BootstrapWindowsSsh.banner}\n" +
+              "#{Winrm.banner}\n" +
               "#{WsmanTest.banner}"
     end
   end
 end
-
