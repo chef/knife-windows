@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+require 'chef/knife'
+require 'chef/knife/bootstrap'
 require 'chef/encrypted_data_bag_item'
 require 'chef/knife/knife_windows_base'
 require 'chef/util/path_helper'
