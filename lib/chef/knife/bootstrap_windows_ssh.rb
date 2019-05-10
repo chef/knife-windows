@@ -31,6 +31,7 @@ class Chef
         require 'net/ssh'
         require 'net/ssh/multi'
         Chef::Knife::Ssh.load_deps
+        Chef::Knife::Bootstrap.load_deps
       end
 
       banner "knife bootstrap windows ssh FQDN (options)"

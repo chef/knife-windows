@@ -34,6 +34,7 @@ class Chef
         require 'chef/json_compat'
         require 'tempfile'
         Chef::Knife::Winrm.load_deps
+        Chef::Knife::Bootstrap.load_deps
       end
 
       banner 'knife bootstrap windows winrm FQDN (options)'
