@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.2 -->
-## [v3.0.2](https://github.com/chef/knife-windows/tree/v3.0.2) (2019-05-10)
+<!-- latest_release 3.0.3 -->
+## [v3.0.3](https://github.com/chef/knife-windows/tree/v3.0.3) (2019-05-17)
 
 #### Merged Pull Requests
-- Load bootstrap dependency [#480](https://github.com/chef/knife-windows/pull/480) ([vsingh-msys](https://github.com/vsingh-msys))
+- Require Chef Infra 15 [#481](https://github.com/chef/knife-windows/pull/481) ([btm](https://github.com/btm))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.9.6 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Require Chef Infra 15 [#481](https://github.com/chef/knife-windows/pull/481) ([btm](https://github.com/btm)) <!-- 3.0.3 -->
 - Load bootstrap dependency [#480](https://github.com/chef/knife-windows/pull/480) ([vsingh-msys](https://github.com/vsingh-msys)) <!-- 3.0.2 -->
 - [WIP] Remove knife bootstrap windows [#478](https://github.com/chef/knife-windows/pull/478) ([vsingh-msys](https://github.com/vsingh-msys)) <!-- 3.0.1 -->
 - Prep branch for knife-windows v3 [#477](https://github.com/chef/knife-windows/pull/477) ([btm](https://github.com/btm)) <!-- 3.0.0 -->
