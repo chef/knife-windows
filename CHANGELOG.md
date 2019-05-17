@@ -4,31 +4,29 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.3 -->
-## [v3.0.3](https://github.com/chef/knife-windows/tree/v3.0.3) (2019-05-17)
-
-#### Merged Pull Requests
-- Require Chef Infra 15 [#481](https://github.com/chef/knife-windows/pull/481) ([btm](https://github.com/btm))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=1.9.6 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Require Chef Infra 15 [#481](https://github.com/chef/knife-windows/pull/481) ([btm](https://github.com/btm)) <!-- 3.0.3 -->
-- Load bootstrap dependency [#480](https://github.com/chef/knife-windows/pull/480) ([vsingh-msys](https://github.com/vsingh-msys)) <!-- 3.0.2 -->
-- [WIP] Remove knife bootstrap windows [#478](https://github.com/chef/knife-windows/pull/478) ([vsingh-msys](https://github.com/vsingh-msys)) <!-- 3.0.1 -->
-- Prep branch for knife-windows v3 [#477](https://github.com/chef/knife-windows/pull/477) ([btm](https://github.com/btm)) <!-- 3.0.0 -->
-- Removed support &amp; specs for chefv12 and lower [#475](https://github.com/chef/knife-windows/pull/475) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.3 -->
-- fix log_level incosistency [#476](https://github.com/chef/knife-windows/pull/476) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.2 -->
-- Require Ruby 2.4 or later [#473](https://github.com/chef/knife-windows/pull/473) ([tas50](https://github.com/tas50)) <!-- 2.0.1 -->
-- Removed deprecated host_key_verification, distro and template_file options [#470](https://github.com/chef/knife-windows/pull/470) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.0 -->
-- Using chef/chef path_helper and removed the knife-windows path_helper [#471](https://github.com/chef/knife-windows/pull/471) ([Vasu1105](https://github.com/Vasu1105)) <!-- 1.9.9 -->
-- Require Ruby 2.2+ and slim down the files we ship [#465](https://github.com/chef/knife-windows/pull/465) ([tas50](https://github.com/tas50)) <!-- 1.9.8 -->
-- Detect if chef-client is already present [#464](https://github.com/chef/knife-windows/pull/464) ([vijaymmali1990](https://github.com/vijaymmali1990)) <!-- 1.9.7 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [v3.0.3](https://github.com/chef/knife-windows/tree/v3.0.3) (2019-05-17)
+
+#### Merged Pull Requests
+- Detect if chef-client is already present [#464](https://github.com/chef/knife-windows/pull/464) ([vijaymmali1990](https://github.com/vijaymmali1990))
+- Require Ruby 2.2+ and slim down the files we ship [#465](https://github.com/chef/knife-windows/pull/465) ([tas50](https://github.com/tas50))
+- Using chef/chef path_helper and removed the knife-windows path_helper [#471](https://github.com/chef/knife-windows/pull/471) ([Vasu1105](https://github.com/Vasu1105))
+- Removed deprecated host_key_verification, distro and template_file options [#470](https://github.com/chef/knife-windows/pull/470) ([dheerajd-msys](https://github.com/dheerajd-msys))
+- Require Ruby 2.4 or later [#473](https://github.com/chef/knife-windows/pull/473) ([tas50](https://github.com/tas50))
+- fix log_level incosistency [#476](https://github.com/chef/knife-windows/pull/476) ([dheerajd-msys](https://github.com/dheerajd-msys))
+- Removed support &amp; specs for chefv12 and lower [#475](https://github.com/chef/knife-windows/pull/475) ([dheerajd-msys](https://github.com/dheerajd-msys))
+- Prep branch for knife-windows v3 [#477](https://github.com/chef/knife-windows/pull/477) ([btm](https://github.com/btm))
+- [WIP] Remove knife bootstrap windows [#478](https://github.com/chef/knife-windows/pull/478) ([vsingh-msys](https://github.com/vsingh-msys))
+- Load bootstrap dependency [#480](https://github.com/chef/knife-windows/pull/480) ([vsingh-msys](https://github.com/vsingh-msys))
+- Require Chef Infra 15 [#481](https://github.com/chef/knife-windows/pull/481) ([btm](https://github.com/btm))
+<!-- latest_stable_release -->
+
 ## [v1.9.6](https://github.com/chef/knife-windows/tree/v1.9.6) (2018-10-23)
 
 #### Merged Pull Requests
@@ -37,7 +35,6 @@ prior to release 0.6.0, please visit the [source repository](https://github.com/
 - MSYS-831 : Fixed windows detection code for windows 2016, windows 2012r2 [#455](https://github.com/chef/knife-windows/pull/455) ([piyushawasthi](https://github.com/piyushawasthi))
 - Adds client_d support to knife-windows [#461](https://github.com/chef/knife-windows/pull/461) ([btm](https://github.com/btm))
 - Slim down the size of the install and the gem [#462](https://github.com/chef/knife-windows/pull/462) ([tas50](https://github.com/tas50))
-<!-- latest_stable_release -->
 
 
 
