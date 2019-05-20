@@ -13,14 +13,13 @@ Gem::Specification.new do |s|
   s.summary     = %q{Plugin that adds functionality to Chef's Knife CLI for configuring/interacting with nodes running Microsoft Windows}
   s.description = s.summary
 
-  s.required_ruby_version	= ">= 1.9.1"
+  s.required_ruby_version	= ">= 2.4"
   s.add_dependency "winrm", "~> 2.1"
   s.add_dependency "winrm-elevated", "~> 1.0"
 
   s.add_development_dependency 'pry'
 
-  s.files         = `git ls-files`.split("\n")
+  s.files         =  %w{LICENSE} + Dir.glob("{spec,lib}/**/*")
   s.test_files    = `git ls-files -- spec/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 end

@@ -5,6 +5,7 @@ gemspec
 
 if ENV['CHEF_VERSION'] == 'master'
   gem 'chef', github: 'chef/chef'
+  gem 'ohai', github: 'chef/ohai'
 else
   gem 'chef', ENV['CHEF_VERSION']
 end

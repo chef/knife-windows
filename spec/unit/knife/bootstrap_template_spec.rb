@@ -95,4 +95,45 @@ describe Chef::Knife::BootstrapWindowsWinrm do
     end
   end
 
+  describe "when setting client_d_dir" do
+    before do
+      Chef::Config[:client_d_dir] = client_d_dir
+    end
+
+    context "client_d_dir is nil" do
+      let(:client_d_dir) { nil }
+
+      it "does not create c:/chef/client.d" do
+        expect(rendered_template).not_to match(%r{mkdir c:\chef\client.d})
+      end
+    end
+
+    context "client_d_dir is set" do
+      let(:client_d_dir) do
+        Chef::Util::PathHelper.cleanpath(
+        File.join(File.dirname(__FILE__), "../../data/client.d_00")) end
+
+      it "creates c:/chef/client.d" do
+        expect(rendered_template).to match(/mkdir C:\\chef\\client.d/)
+      end
+
+      context "a flat directory structure" do
+
+        it "creates a foo directory" do
+          expect(rendered_template).to match(/C:\\chef\\client.d\\foo/)
+        end
+
+        it "creates a file 00-foo.rb" do
+          expect(rendered_template).to match(/C:\\chef\\client.d\\00-foo.rb/)
+          expect(rendered_template).to match("d6f9b976-289c-4149-baf7-81e6ffecf228")
+        end
+
+        it "creates a file bar" do
+          expect(rendered_template).to match(/C:\\chef\\client.d\\foo\\bar.rb/)
+          expect(rendered_template).to match("1 / 0")
+        end
+      end
+    end
+  end
+
 end
