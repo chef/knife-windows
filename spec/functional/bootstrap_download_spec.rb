@@ -154,20 +154,7 @@ describe "bootstrap_install_command functionality through WinRM protocol" do
       @template_output = sample_data('win_template_rendered_without_bootstrap_install_command.txt')
     end
 
-    it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil", :chef_lt_12_5_only => true do
-      expect(bootstrap.send(:render_template,@template_input)).to eq(
-        @template_output)
-    end
-
-    context "when running chef-client ~12.5", :chef_gte_12_5_only => true, :chef_lt_13_only => true do
-      let(:template_12_5_output) { sample_data('win_template_rendered_without_bootstrap_install_command_on_12_5_client.txt') }
-      it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil"  do
-        expect(bootstrap.send(:render_template,@template_input)).to eq(
-                                                                      template_12_5_output)
-      end
-    end
-
-    context "when running chef-client 13.0 or greater", :chef_gte_13_only => true do
+    context "when running chef-client 13.0 or greater", :chef_gte_13_only => true, :chef_lt_14_only => true do
       let(:template_13_output) { sample_data('win_template_rendered_without_bootstrap_install_command_on_13_client.txt') }
       it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil"  do
         expect(bootstrap.send(:render_template,@template_input)).to eq(
@@ -184,51 +171,12 @@ describe "bootstrap_install_command functionality through WinRM protocol" do
       @template_output = sample_data('win_template_rendered_with_bootstrap_install_command.txt')
     end
 
-    it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template", :chef_lt_12_5_only => true do
-      expect(bootstrap.send(:render_template,@template_input)).to eq(
-        @template_output)
-    end
-
-    context "when running chef-client 12.5.0 or greater", :chef_gte_12_5_only => true do
-      let(:template_12_5_output) { sample_data('win_template_rendered_with_bootstrap_install_command_on_12_5_client.txt') }
+    context "when running chef-client 13.0 or greater", :chef_gte_13_only => true, :chef_lt_14_only => true  do
+      let(:template_13_output) { sample_data('win_template_rendered_with_bootstrap_install_command_on_13_client.txt') }
       it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template" do
         expect(bootstrap.send(:render_template,@template_input)).to eq(
-                                                                      template_12_5_output)
+                                                                      template_13_output)
       end
-    end
-
-    after do
-      bootstrap.config.delete(:bootstrap_install_command)
-      Chef::Config[:knife].delete(:bootstrap_install_command)
-    end
-  end
-end
-
-describe "bootstrap_install_command functionality through SSH protocol", :chef_lt_12_5_only => true do
-  context "bootstrap_install_command option is not specified" do
-    let(:bootstrap) { Chef::Knife::BootstrapWindowsSsh.new([]) }
-    before do
-      @template_input = sample_data('win_template_unrendered.txt')
-      @template_output = sample_data('win_template_rendered_without_bootstrap_install_command.txt')
-    end
-
-    it "bootstrap_install_command option is not rendered in the windows-chef-client-msi.erb template as its value is nil" do
-      expect(bootstrap.send(:render_template,@template_input)).to eq(
-        @template_output)
-    end
-  end
-
-  context "bootstrap_install_command option is specified" do
-    let(:bootstrap) { Chef::Knife::BootstrapWindowsSsh.new(['--bootstrap-install-command', 'chef-client -o recipe[cbk1::rec2]']) }
-    before do
-      bootstrap.config[:bootstrap_install_command] = "chef-client -o recipe[cbk1::rec2]"
-      @template_input = sample_data('win_template_unrendered.txt')
-      @template_output = sample_data('win_template_rendered_with_bootstrap_install_command.txt')
-    end
-
-    it "bootstrap_install_command option is rendered in the windows-chef-client-msi.erb template" do
-      expect(bootstrap.send(:render_template,@template_input)).to eq(
-        @template_output)
     end
 
     after do

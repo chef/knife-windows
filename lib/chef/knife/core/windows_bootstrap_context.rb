@@ -17,9 +17,7 @@
 #
 
 require 'chef/knife/core/bootstrap_context'
-# Chef::Util::PathHelper in Chef 11 is a bit juvenile still
-require 'knife-windows/path_helper'
-# require 'chef/util/path_helper'
+require 'chef/util/path_helper'
 
 class Chef
   class Knife
@@ -31,8 +29,6 @@ class Chef
       # * @run_list - the run list for the node to boostrap
       #
       class WindowsBootstrapContext < BootstrapContext
-        PathHelper = ::Knife::Windows::PathHelper
-
         attr_accessor :client_pem
 
         def initialize(config, run_list, chef_config, secret=nil)
@@ -83,7 +79,7 @@ cache_options     ({:path => "c:/chef/cache/checksums", :skip_expires => true})
           if @chef_config[:config_log_level]
             client_rb << %Q{log_level :#{@chef_config[:config_log_level]}\n}
           else
-            client_rb << "log_level        :info\n"
+            client_rb << "log_level        :auto\n"
           end
 
           client_rb << "log_location       #{get_log_location}"
@@ -170,7 +166,7 @@ CONFIG
 
         def start_chef
           bootstrap_environment_option = bootstrap_environment.nil? ? '' : " -E #{bootstrap_environment}"
-          start_chef = "SET \"PATH=%PATH%;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
+          start_chef = "SET \"PATH=%SystemRoot%\\system32;%SystemRoot%;%SystemRoot%\\System32\\Wbem;%SYSTEMROOT%\\System32\\WindowsPowerShell\\v1.0\\;C:\\ruby\\bin;C:\\opscode\\chef\\bin;C:\\opscode\\chef\\embedded\\bin\"\n"
           start_chef << "chef-client -c c:/chef/client.rb -j c:/chef/first-boot.json#{bootstrap_environment_option}\n"
         end
 
@@ -342,9 +338,29 @@ WGET_PS
         def trusted_certs_content
           content = ""
           if @chef_config[:trusted_certs_dir]
-            Dir.glob(File.join(PathHelper.escape_glob_dir(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
+            Dir.glob(File.join(Chef::Util::PathHelper.escape_glob_dir(@chef_config[:trusted_certs_dir]), "*.{crt,pem}")).each do |cert|
               content << "> #{bootstrap_directory}/trusted_certs/#{File.basename(cert)} (\n" +
                          escape_and_echo(IO.read(File.expand_path(cert))) + "\n)\n"
+            end
+          end
+          content
+        end
+
+        def client_d_content
+          content = ""
+          if @chef_config[:client_d_dir] && File.exist?(@chef_config[:client_d_dir])
+            root = Pathname(@chef_config[:client_d_dir])
+            root.find do |f|
+              relative = f.relative_path_from(root)
+              if f != root
+                file_on_node = "#{bootstrap_directory}/client.d/#{relative}".gsub("/","\\")
+                if f.directory?
+                  content << "mkdir #{file_on_node}\n"
+                else
+                  content << "> #{file_on_node} (\n" +
+                    escape_and_echo(IO.read(File.expand_path(f))) + "\n)\n"
+                end
+              end
             end
           end
           content

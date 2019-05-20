@@ -74,17 +74,6 @@ class Chef
         :long => "--ssh-identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
 
-      # DEPR: Remove this option for the next release.
-      option :host_key_verification,
-        :long => "--[no-]host-key-verify",
-        :description => "Verify host key, enabled by default. [DEPRECATED] Use --host-key-verify option instead.",
-        :boolean => true,
-        :default => true,
-        :proc => Proc.new { |key|
-          Chef::Log.warn("[DEPRECATED] --host-key-verification option is deprecated. Use --host-key-verify option instead.")
-          config[:host_key_verify] = key
-        }
-
       option :host_key_verify,
         :long => "--[no-]host-key-verify",
         :description => "Verify host key, enabled by default.",

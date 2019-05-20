@@ -1,5 +1,46 @@
 # knife-windows Change Log
 
+Note: this log contains only changes from knife-windows release 0.6.0 and later
+-- it does not contain the changes from prior releases. To view change history
+prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
+
+<!-- latest_release 2.0.3 -->
+## [v2.0.3](https://github.com/chef/knife-windows/tree/v2.0.3) (2019-03-28)
+
+#### Merged Pull Requests
+- Removed support &amp; specs for chefv12 and lower [#475](https://github.com/chef/knife-windows/pull/475) ([dheerajd-msys](https://github.com/dheerajd-msys))
+<!-- latest_release -->
+
+<!-- release_rollup since=1.9.6 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- Removed support &amp; specs for chefv12 and lower [#475](https://github.com/chef/knife-windows/pull/475) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.3 -->
+- fix log_level incosistency [#476](https://github.com/chef/knife-windows/pull/476) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.2 -->
+- Require Ruby 2.4 or later [#473](https://github.com/chef/knife-windows/pull/473) ([tas50](https://github.com/tas50)) <!-- 2.0.1 -->
+- Removed deprecated host_key_verification, distro and template_file options [#470](https://github.com/chef/knife-windows/pull/470) ([dheerajd-msys](https://github.com/dheerajd-msys)) <!-- 2.0.0 -->
+- Using chef/chef path_helper and removed the knife-windows path_helper [#471](https://github.com/chef/knife-windows/pull/471) ([Vasu1105](https://github.com/Vasu1105)) <!-- 1.9.9 -->
+- Require Ruby 2.2+ and slim down the files we ship [#465](https://github.com/chef/knife-windows/pull/465) ([tas50](https://github.com/tas50)) <!-- 1.9.8 -->
+- Detect if chef-client is already present [#464](https://github.com/chef/knife-windows/pull/464) ([vijaymmali1990](https://github.com/vijaymmali1990)) <!-- 1.9.7 -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
+## [v1.9.6](https://github.com/chef/knife-windows/tree/v1.9.6) (2018-10-23)
+
+#### Merged Pull Requests
+- [MSYS-850] enable expeditor [#458](https://github.com/chef/knife-windows/pull/458) ([dheerajd-msys](https://github.com/dheerajd-msys))
+- [MSYS-841]fix bootstrap template short name [#457](https://github.com/chef/knife-windows/pull/457) ([dheerajd-msys](https://github.com/dheerajd-msys))
+- MSYS-831 : Fixed windows detection code for windows 2016, windows 2012r2 [#455](https://github.com/chef/knife-windows/pull/455) ([piyushawasthi](https://github.com/piyushawasthi))
+- Adds client_d support to knife-windows [#461](https://github.com/chef/knife-windows/pull/461) ([btm](https://github.com/btm))
+- Slim down the size of the install and the gem [#462](https://github.com/chef/knife-windows/pull/462) ([tas50](https://github.com/tas50))
+<!-- latest_stable_release -->
+
+
+
+## Release 1.9.1 (2018-03-07)
+
+* [knife-windows #444](https://github.com/chef/knife-windows/pull/444) Fixes issue when bootstrapping windows systems failing with the message: The input line is too long.
+
 ## Release 1.9.0
 
 * [knife-windows #416](https://github.com/chef/knife-windows/pull/416) Add concurrency support via the `--concurrency` flag
@@ -83,18 +124,18 @@
 * [knife-windows #213](https://github.com/chef/knife-windows/pull/213) Search possibilities of HOME for bootstrap templates
 * [knife-windows #206](https://github.com/chef/knife-windows/pull/206) Add a flag msi_url that allows one to fetch the Chef client msi from a non-chef.io path
 * [knife-windows #192](https://github.com/chef/knife-windows/issues/192) deprecate knife bootstrap --distro
-* [knife-windows #159](https://github.com/opscode/knife-windows/issues/159) `winrm_port` option should default to 5986 if `winrm_transport` option is `ssl`
+* [knife-windows #159](https://github.com/chef/knife-windows/issues/159) `winrm_port` option should default to 5986 if `winrm_transport` option is `ssl`
 * [knife-windows #149](https://github.com/chef/knife-windows/pull/149) Adding knife wsman test to validate WSMAN/WinRM availability
-* [knife-windows #139](https://github.com/opscode/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
-* [knife-windows #126](https://github.com/opscode/knife-windows/pull/126) Allow disabling of SSL peer verification in knife-windows for testing
-* [knife-windows #154](https://github.com/opscode/knife-windows/issues/154) Unreleased regression in master: NameError: undefined local variable or method `path_separator
-* [knife-windows #143](https://github.com/opscode/knife-windows/issues/143) Unreleased regression in master: WinRM::WinRMHTTPTransportError: Bad HTTP response returned from server (503) in the middle of bootstrap
-* [knife-windows #133](https://github.com/opscode/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
-* [knife-windows #132](https://github.com/opscode/knife-windows/issues/132) New subcommands for WinRM: windows listener create, cert generate, and cert install
-* [knife-windows #129](https://github.com/opscode/knife-windows/issues/129) New --winrm-authentication-protocol option for explicit control of authentication
-* [knife-windows #125](https://github.com/opscode/knife-windows/issues/125) knife-windows should use PowerShell first before cscript to download the  Chef Client msi
-* [knife-windows #92](https://github.com/opscode/knife-windows/issues/92) EventMachine issue: knife bootstrap windows winrm error
-* [knife-windows #94](https://github.com/opscode/knife-windows/issues/94) Remove Eventmachine dependency
+* [knife-windows #139](https://github.com/chef/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
+* [knife-windows #126](https://github.com/chef/knife-windows/pull/126) Allow disabling of SSL peer verification in knife-windows for testing
+* [knife-windows #154](https://github.com/chef/knife-windows/issues/154) Unreleased regression in master: NameError: undefined local variable or method `path_separator
+* [knife-windows #143](https://github.com/chef/knife-windows/issues/143) Unreleased regression in master: WinRM::WinRMHTTPTransportError: Bad HTTP response returned from server (503) in the middle of bootstrap
+* [knife-windows #133](https://github.com/chef/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
+* [knife-windows #132](https://github.com/chef/knife-windows/issues/132) New subcommands for WinRM: windows listener create, cert generate, and cert install
+* [knife-windows #129](https://github.com/chef/knife-windows/issues/129) New --winrm-authentication-protocol option for explicit control of authentication
+* [knife-windows #125](https://github.com/chef/knife-windows/issues/125) knife-windows should use PowerShell first before cscript to download the  Chef Client msi
+* [knife-windows #92](https://github.com/chef/knife-windows/issues/92) EventMachine issue: knife bootstrap windows winrm error
+* [knife-windows #94](https://github.com/chef/knife-windows/issues/94) Remove Eventmachine dependency
 * [knife-windows #252](https://github.com/chef/knife-windows/pull/252) Fail early on ECONNREFUSED, Closes #244.
 * [knife-windows #260](https://github.com/chef/knife-windows/pull/260) Fail quickly on invalid option combinations, Closes #259
 
@@ -102,18 +143,18 @@
 * [knife-windows #228](https://github.com/chef/knife-windows/pull/228) make winrm-s dep more strict on knife-windows 0.8.x
 
 ## Release: 0.8.4
-* [knife-windows #133](https://github.com/opscode/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
+* [knife-windows #133](https://github.com/chef/knife-windows/issues/133) Bootstrap failure -- unable to validate SSL chef server endpoints
 
 ## Release: 0.8.3
-* [knife-windows #131](https://github.com/opscode/knife-windows/issues/108) Issue #131: Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems
-* [knife-windows #139](https://github.com/opscode/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
+* [knife-windows #131](https://github.com/chef/knife-windows/issues/108) Issue #131: Windows should be bootstrapped using latest Chef Client version compatible with knife's version just like non-Windows systems
+* [knife-windows #139](https://github.com/chef/knife-windows/issues/139) Force dev dependency on Chef 11 for test scenarios to avoid Ohai 8 conflict on Ruby 1.9.x
 
 ## Release: 0.8.2
-* [knife-windows #108](https://github.com/opscode/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption
+* [knife-windows #108](https://github.com/chef/knife-windows/issues/108) Error: Unencrypted communication not supported if remote server does not require encryption
 
 ## Release: 0.8.0
-* [knife-windows #98](https://github.com/opscode/knife-windows/issues/98) Get winrm command exit code if it is not expected
-* [knife-windows #96](https://github.com/opscode/knife-windows/issues/96) Fix break from OS patch KB2918614
+* [knife-windows #98](https://github.com/chef/knife-windows/issues/98) Get winrm command exit code if it is not expected
+* [knife-windows #96](https://github.com/chef/knife-windows/issues/96) Fix break from OS patch KB2918614
 * Remove the 'instance data' method of creating EC2 servers
 * Update winrm-s dependency along with em-winrm and winrm dependencies
 * Return failure codes from knife winrm even when `returns` is not set

@@ -1,6 +1,6 @@
 
 # Author:: Adam Edwards (<adamed@chef.io>)
-# Copyright:: Copyright (c) 2012-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) 2012-2017 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,24 +55,41 @@ def windows2012?
   is_win2k12
 end
 
-def chef_lt_12_5?
-  Gem::Version.new(Chef::VERSION) < Gem::Version.new('12.5')
-end
+def windows2016?
+  is_win2k16 = false
 
-def chef_gte_12_5?
-  Gem::Version.new(Chef::VERSION) >= Gem::Version.new('12.5')
-end
+  if  windows?
+    this_operating_system = WMI::Win32_OperatingSystem.find(:first)
+    os_version = this_operating_system.send('Version')
 
-def chef_gte_12_7?
-  Gem::Version.new(Chef::VERSION) >= Gem::Version.new('12.7')
+    # The operating system version is a string in the following form
+    # that can be split into components based on the '.' delimiter:
+    # MajorVersionNumber.MinorVersionNumber.BuildNumber
+    os_version_components = os_version.split('.')
+
+    if os_version_components.length < 2
+      raise 'WMI returned a Windows version from Win32_OperatingSystem.Version ' +
+        'with an unexpected format. The Windows version could not be determined.'
+    end
+
+    # Windows 10.0 is Windows Server 2016, so test the major and
+    # minor version components
+    is_win2k16 = os_version_components[0] == '10' && os_version_components[1] == '0'
+  end
+
+  is_win2k16
 end
 
 def chef_gte_13?
   Gem::Version.new(Chef::VERSION) >= Gem::Version.new('13')
 end
 
-def chef_lt_13?
-  Gem::Version.new(Chef::VERSION) < Gem::Version.new('13')
+def chef_lt_14?
+  Gem::Version.new(Chef::VERSION) < Gem::Version.new('14')
+end
+
+def chef_gte_14?
+  Gem::Version.new(Chef::VERSION) >= Gem::Version.new('14')
 end
 
 def sample_data(file_name)
@@ -85,9 +102,7 @@ RSpec.configure do |config|
   config.filter_run :focus => true
   config.filter_run_excluding :windows_only => true unless windows?
   config.filter_run_excluding :windows_2012_only => true unless windows2012?
-  config.filter_run_excluding :chef_gte_12_5_only => true unless chef_gte_12_5?
-  config.filter_run_excluding :chef_gte_12_7_only => true unless chef_gte_12_7?
   config.filter_run_excluding :chef_gte_13_only => true unless chef_gte_13?
-  config.filter_run_excluding :chef_lt_12_5_only => true unless chef_lt_12_5?
-  config.filter_run_excluding :chef_lt_13_only => true unless chef_lt_13?
+  config.filter_run_excluding :chef_lt_14_only => true unless chef_lt_14?
+  config.filter_run_excluding :chef_gte_14_only => true unless chef_gte_14?
 end

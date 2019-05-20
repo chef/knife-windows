@@ -45,7 +45,7 @@ describe Chef::Knife::BootstrapWindowsWinrm do
       host: "localhost"
     }
   end
-  let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-d', 'windows-chef-client-msi',  '-x', session_opts[:user], '-P', session_opts[:password], session_opts[:host]]) }
+  let(:bootstrap) { Chef::Knife::BootstrapWindowsWinrm.new(['winrm', '-t', 'windows-chef-client-msi',  '-x', session_opts[:user], '-P', session_opts[:password], session_opts[:host]]) }
   let(:session) { Chef::Knife::WinrmSession.new(session_opts) }
   let(:arch_session_result) {
     o = WinRM::Output.new

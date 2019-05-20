@@ -44,7 +44,7 @@ expected: #{expected}
   end
 
   shared_examples 'compare_options' do
-    it 'contains the option flags' do
+    it 'contains the option flags', :chef_lt_14_only do
       opt_map.default_proc = proc { |map, key| key }
       filtered_keys = (win_bootstrap.options.keys - win_ignore).map! { |key| opt_map[key] }
 
@@ -101,6 +101,7 @@ expected: #{expected}
       :ssh_gateway_identity,
       :bootstrap_proxy_user,
       :bootstrap_proxy_pass,
+      :bootstrap_preinstall_command,
     ]}
 
     # win_ignore: Options in windows that aren't relevant to core.
@@ -148,12 +149,14 @@ expected: #{expected}
       :ssh_gateway_identity,
       :bootstrap_proxy_user,
       :bootstrap_proxy_pass,
+      :bootstrap_preinstall_command,
+      :identity_file,
     ]}
     # win_ignore: Options in windows that aren't relevant to core.
     let(:win_ignore) { [
       :auth_timeout,
       :install_as_service,
-      :host_key_verification,  # Deprecated - remove this when the flag is removed.
+      :identity_file,
     ] }
 
     include_examples 'compare_options'
