@@ -447,6 +447,22 @@ describe Chef::Knife::Winrm do
       expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
     end
 
+    context "impact of concurrency value" do
+      before(:each) do
+        allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session)
+        @winrms = Chef::Knife::Winrm.new(['-C', '3', '-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-authentication-protocol', 'basic', 'echo helloworld'])
+      end
+      it "create sessions to equal number of concurrent value if concurrent option is given" do
+        @winrms.config[:concurrency] = 1
+        allow(@winrms).to receive(:relay_winrm_command).and_return(true)
+        expect { @winrms.run_with_pretty_exceptions }.not_to raise_error
+      end
+      it "create sessions to equal number of IP's if concurrent option is not given" do
+        allow(@winrm).to receive(:relay_winrm_command).and_return(true)
+        expect { @winrm.run_with_pretty_exceptions }.not_to raise_error
+      end
+    end
+
     context "when winrm_authentication_protocol specified" do
       before do
         Chef::Config[:knife] = { winrm_transport: "plaintext" }

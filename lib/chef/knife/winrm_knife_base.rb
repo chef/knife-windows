@@ -121,11 +121,12 @@ class Chef
 
             queue = Queue.new
             @winrm_sessions.each { |s| queue << s }
+            number_of_session = config[:concurrency] ? locate_config_value(:concurrency) : @name_args[0].split(" ").count || queue.size
             # These nils will kill the Threads once no more sessions are left
-            locate_config_value(:concurrency).times { queue << nil }
+            number_of_session.times { queue << nil }
 
             threads = []
-            locate_config_value(:concurrency).times do
+            number_of_session.times do
               threads << Thread.new do
                 while session = queue.pop
                   run_command_in_thread(session, command)

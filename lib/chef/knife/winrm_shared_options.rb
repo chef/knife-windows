@@ -44,7 +44,6 @@ class Chef
             short: "-C NUM",
             long: "--concurrency NUM",
             description: "The number of allowed concurrent connections",
-            default: 1,
             proc: lambda { |o| o.to_i }
         end
       end
