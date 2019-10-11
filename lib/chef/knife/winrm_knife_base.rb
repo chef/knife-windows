@@ -118,15 +118,16 @@ class Chef
           def relay_winrm_command(command)
             Chef::Log.debug(command)
             @session_results = []
-
             queue = Queue.new
             @winrm_sessions.each { |s| queue << s }
-            number_of_session = config[:concurrency] ? locate_config_value(:concurrency) : @name_args[0].split(" ").count || queue.size
-            # These nils will kill the Threads once no more sessions are left
-            number_of_session.times { queue << nil }
+            num_sessions = locate_config_value(:concurrency)
+            num_targets = @winrm_sessions.length
+            num_sessions = (num_sessions.nil? || num_sessions == 0) ? num_targets : [num_sessions, num_targets].min
 
+            # These nils will kill the Threads once no more sessions are left
+            num_sessions.times { queue << nil }
             threads = []
-            number_of_session.times do
+            num_sessions.times do
               threads << Thread.new do
                 while session = queue.pop
                   run_command_in_thread(session, command)

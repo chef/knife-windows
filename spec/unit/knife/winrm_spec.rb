@@ -447,22 +447,6 @@ describe Chef::Knife::Winrm do
       expect { @winrm.run_with_pretty_exceptions }.to raise_error(SystemExit)
     end
 
-    context "impact of concurrency value" do
-      before(:each) do
-        allow(Chef::Knife::WinrmSession).to receive(:new).and_return(session)
-        @winrms = Chef::Knife::Winrm.new(['-C', '3', '-m', 'localhost', '-x', 'testuser', '-P', 'testpassword', '--winrm-authentication-protocol', 'basic', 'echo helloworld'])
-      end
-      it "create sessions to equal number of concurrent value if concurrent option is given" do
-        @winrms.config[:concurrency] = 1
-        allow(@winrms).to receive(:relay_winrm_command).and_return(true)
-        expect { @winrms.run_with_pretty_exceptions }.not_to raise_error
-      end
-      it "create sessions to equal number of IP's if concurrent option is not given" do
-        allow(@winrm).to receive(:relay_winrm_command).and_return(true)
-        expect { @winrm.run_with_pretty_exceptions }.not_to raise_error
-      end
-    end
-
     context "when winrm_authentication_protocol specified" do
       before do
         Chef::Config[:knife] = { winrm_transport: "plaintext" }
@@ -508,6 +492,97 @@ describe Chef::Knife::Winrm do
         allow(Chef::Platform).to receive(:windows?).and_return(true)
         expect(@winrm.ui).to receive(:error)
         expect { @winrm.run }.to raise_error(SystemExit)
+      end
+    end
+  end
+
+  context "Impact of concurrency value when target nodes are 3" do
+    let(:winrm_user) { "testuser" }
+    let(:transport) { "plaintext" }
+    let(:password) { "testpassword" }
+    let(:protocol) { "basic" }
+    let(:knife_args) do
+      [
+        "-m", "localhost knownhost somehost",
+        "-x", winrm_user,
+        "-P", password,
+        "-w", transport,
+        "--winrm-authentication-protocol", protocol,
+        "echo helloworld"
+      ]
+    end
+    let(:winrm_connection) { Dummy::Connection.new }
+
+    subject { Chef::Knife::Winrm.new(knife_args) }
+
+    context "when concurrency limit is not set" do
+      it "spawns a number of connection threads equal to the number of target nodes" do
+        allow(subject).to receive(:run_command_in_thread).and_return("echo helloworld")
+        expect(Thread).to receive(:new).exactly(3).times.and_call_original
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+    end
+
+    context "when concurrency limit is set" do
+      it "starts only the required number of threads when there are fewer targets than threads" do
+        knife_args.push("-C", "4")
+        allow(subject).to receive(:run_command_in_thread).and_return("echo helloworld")
+        expect(Thread).to receive(:new).exactly(3).times.and_call_original
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+      it "starts only the requested number of threads when there are as many targets as threads" do
+        knife_args.push("-C", "3")
+        allow(subject).to receive(:run_command_in_thread).and_return("echo helloworld")
+        expect(Thread).to receive(:new).exactly(3).times.and_call_original
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+      it "starts only the requested number of threads when there are more targets then threads" do
+        knife_args.push("-C", "2")
+        allow(subject).to receive(:run_command_in_thread).and_return("echo helloworld")
+        expect(Thread).to receive(:new).exactly(2).times.and_call_original
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+    end
+
+    context "should call run_command_in_thread thrice when" do
+      it "concurrency not set" do
+        expect(subject).to receive(:run_command_in_thread).thrice
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+      it "concurrency set to 4" do
+        knife_args.push("-C", "4")
+        expect(subject).to receive(:run_command_in_thread).thrice
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+      it "concurrency set to 3" do
+        knife_args.push("-C", "3")
+        expect(subject).to receive(:run_command_in_thread).thrice
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+      it "concurrency set to 2" do
+        knife_args.push("-C", "2")
+        expect(subject).to receive(:run_command_in_thread).thrice
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+      it "concurrency set to 1" do
+        knife_args.push("-C", "1")
+        expect(subject).to receive(:run_command_in_thread).thrice
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
+      end
+      it "concurrency set to 0" do
+        knife_args.push("-C", "0")
+        expect(subject).to receive(:run_command_in_thread).thrice
+        subject.configure_session
+        subject.relay_winrm_command(knife_args.last)
       end
     end
   end
