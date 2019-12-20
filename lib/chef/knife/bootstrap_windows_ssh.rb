@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-require 'chef/knife/bootstrap_windows_base'
+require_relative 'bootstrap_windows_base'
 
 class Chef
   class Knife

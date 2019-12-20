@@ -18,9 +18,9 @@
 
 
 require 'chef/knife'
-require 'chef/knife/winrm_base'
-require 'chef/knife/winrm_shared_options'
-require 'chef/knife/knife_windows_base'
+require_relative 'winrm_base'
+require_relative 'winrm_shared_options'
+require_relative 'knife_windows_base'
 
 class Chef
   class Knife

@@ -18,8 +18,8 @@
 
 require 'httpclient'
 require 'chef/knife'
-require 'chef/knife/winrm_knife_base'
-require 'chef/knife/wsman_endpoint'
+require_relative 'winrm_knife_base'
+require_relative 'wsman_endpoint'
 
 class Chef
   class Knife

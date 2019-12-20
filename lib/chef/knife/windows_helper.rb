@@ -17,10 +17,10 @@
 #
 
 require 'chef/knife'
-require 'chef/knife/winrm'
-require 'chef/knife/bootstrap_windows_ssh'
-require 'chef/knife/bootstrap_windows_winrm'
-require 'chef/knife/wsman_test'
+require_relative 'winrm'
+require_relative 'bootstrap_windows_ssh'
+require_relative 'bootstrap_windows_winrm'
+require_relative 'wsman_test'
 
 class Chef
   class Knife

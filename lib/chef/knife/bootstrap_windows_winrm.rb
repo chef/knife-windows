@@ -16,10 +16,10 @@
 # limitations under the License.
 #
 
-require 'chef/knife/bootstrap_windows_base'
-require 'chef/knife/winrm'
-require 'chef/knife/winrm_base'
-require 'chef/knife/winrm_knife_base'
+require_relative 'bootstrap_windows_base'
+require_relative 'winrm'
+require_relative 'winrm_base'
+require_relative 'winrm_knife_base'
 
 
 class Chef
