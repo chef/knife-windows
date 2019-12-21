@@ -4,23 +4,21 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.6 -->
-## [v3.0.6](https://github.com/chef/knife-windows/tree/v3.0.6) (2019-12-21)
-
-#### Merged Pull Requests
-- Substitute require for require_relative [#487](https://github.com/chef/knife-windows/pull/487) ([tas50](https://github.com/tas50))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=3.0.3 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Substitute require for require_relative [#487](https://github.com/chef/knife-windows/pull/487) ([tas50](https://github.com/tas50)) <!-- 3.0.6 -->
-- Add testing in Buildkite [#488](https://github.com/chef/knife-windows/pull/488) ([tas50](https://github.com/tas50)) <!-- 3.0.5 -->
-- Update README.md as per Chef OSS Best Practices [#483](https://github.com/chef/knife-windows/pull/483) ([vsingh-msys](https://github.com/vsingh-msys)) <!-- 3.0.4 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [v3.0.6](https://github.com/chef/knife-windows/tree/v3.0.6) (2019-12-21)
+
+#### Merged Pull Requests
+- Update README.md as per Chef OSS Best Practices [#483](https://github.com/chef/knife-windows/pull/483) ([vsingh-msys](https://github.com/vsingh-msys))
+- Add testing in Buildkite [#488](https://github.com/chef/knife-windows/pull/488) ([tas50](https://github.com/tas50))
+- Substitute require for require_relative [#487](https://github.com/chef/knife-windows/pull/487) ([tas50](https://github.com/tas50))
+<!-- latest_stable_release -->
+
 ## [v3.0.3](https://github.com/chef/knife-windows/tree/v3.0.3) (2019-05-17)
 
 #### Merged Pull Requests
@@ -35,7 +33,6 @@ prior to release 0.6.0, please visit the [source repository](https://github.com/
 - [WIP] Remove knife bootstrap windows [#478](https://github.com/chef/knife-windows/pull/478) ([vsingh-msys](https://github.com/vsingh-msys))
 - Load bootstrap dependency [#480](https://github.com/chef/knife-windows/pull/480) ([vsingh-msys](https://github.com/vsingh-msys))
 - Require Chef Infra 15 [#481](https://github.com/chef/knife-windows/pull/481) ([btm](https://github.com/btm))
-<!-- latest_stable_release -->
 
 ## [v1.9.6](https://github.com/chef/knife-windows/tree/v1.9.6) (2018-10-23)
 
