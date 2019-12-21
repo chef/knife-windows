@@ -17,12 +17,12 @@
 #
 
 require 'chef/knife'
-require 'chef/knife/winrm_knife_base'
-require 'chef/knife/windows_cert_generate'
-require 'chef/knife/windows_cert_install'
-require 'chef/knife/windows_listener_create'
-require 'chef/knife/winrm_session'
-require 'chef/knife/knife_windows_base'
+require_relative 'winrm_knife_base'
+require_relative 'windows_cert_generate'
+require_relative 'windows_cert_install'
+require_relative 'windows_listener_create'
+require_relative 'winrm_session'
+require_relative 'knife_windows_base'
 
 class Chef
   class Knife

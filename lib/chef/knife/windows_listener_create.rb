@@ -16,7 +16,7 @@
 #
 
 require 'chef/knife'
-require 'chef/knife/winrm_base'
+require_relative 'winrm_base'
 require 'openssl'
 
 class Chef
