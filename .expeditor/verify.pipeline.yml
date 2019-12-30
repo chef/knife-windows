@@ -1,11 +1,10 @@
 ---
 
 steps:
-  
+
 - label: run-specs-ruby-2.5
   command:
     - .expeditor/run_linux_tests.sh rake
-
   expeditor:
     executor:
       docker:
@@ -17,10 +16,10 @@ steps:
     executor:
       docker:
         image: ruby:2.6-buster
-- label: run-cookstyle-and-specs-ruby-2.7-rc
+- label: run-specs-ruby-2.7
   command:
     - .expeditor/run_linux_tests.sh rake
   expeditor:
     executor:
       docker:
-        image: ruby:2.7-rc-buster
+        image: ruby:2.7-buster
