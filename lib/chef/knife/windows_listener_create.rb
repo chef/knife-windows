@@ -15,9 +15,9 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require_relative 'winrm_base'
-require 'openssl'
+require "chef/knife"
+require_relative "winrm_base"
+require "openssl"
 
 class Chef
   class Knife
@@ -26,31 +26,31 @@ class Chef
       banner "knife windows listener create (options)"
 
       option :cert_install,
-        :short => "-c CERT_PATH",
-        :long => "--cert-install CERT_PATH",
-        :description => "Adds specified certificate to the Windows Certificate Store's Local Machine personal store before creating listener."
+        short: "-c CERT_PATH",
+        long: "--cert-install CERT_PATH",
+        description: "Adds specified certificate to the Windows Certificate Store's Local Machine personal store before creating listener."
 
       option :port,
-        :short => "-p PORT",
-        :long => "--port PORT",
-        :description => "Specify port. Default is 5986",
-        :default => "5986"
+        short: "-p PORT",
+        long: "--port PORT",
+        description: "Specify port. Default is 5986",
+        default: "5986"
 
       option :hostname,
-        :short => "-h HOSTNAME",
-        :long => "--hostname HOSTNAME",
-        :description => "Hostname on the listener. Default is blank",
-        :default => ""
+        short: "-h HOSTNAME",
+        long: "--hostname HOSTNAME",
+        description: "Hostname on the listener. Default is blank",
+        default: ""
 
       option :cert_thumbprint,
-        :short => "-t THUMBPRINT",
-        :long => "--cert-thumbprint THUMBPRINT",
-        :description => "Thumbprint of the certificate. Required only if --cert-install option is not used."
+        short: "-t THUMBPRINT",
+        long: "--cert-thumbprint THUMBPRINT",
+        description: "Thumbprint of the certificate. Required only if --cert-install option is not used."
 
       option :cert_passphrase,
-        :short => "-cp PASSWORD",
-        :long => "--cert-passphrase PASSWORD",
-        :description => "Password for certificate."
+        short: "-cp PASSWORD",
+        long: "--cert-passphrase PASSWORD",
+        description: "Password for certificate."
 
       def get_cert_passphrase
         print "Enter given certificate's passphrase (empty for no passphrase):"
@@ -65,10 +65,10 @@ class Chef
           begin
             if config[:cert_install]
               config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
-              result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil  -importPFX '#{config[:cert_install]}' AT_KEYEXCHANGE"}
+              result = `powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil  -importPFX '#{config[:cert_install]}' AT_KEYEXCHANGE"`
               if $?.exitstatus
                 ui.info "Certificate installed to Certificate Store"
-                result = %x{powershell.exe -Command " echo (Get-PfxCertificate #{config[:cert_install]}).thumbprint "}
+                result = `powershell.exe -Command " echo (Get-PfxCertificate #{config[:cert_install]}).thumbprint "`
                 ui.info "Certificate Thumbprint: #{result}"
                 config[:cert_thumbprint] = result.strip
               else
@@ -83,10 +83,10 @@ class Chef
               exit 1
             end
 
-            result = %x{winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:cert_thumbprint]}";Port="#{config[:port]}"}}
+            result = `winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:cert_thumbprint]}";Port="#{config[:port]}"}`
             Chef::Log.debug result
 
-            if ($?.exitstatus == 0)
+            if $?.exitstatus == 0
               ui.info "WinRM listener created with Port: #{config[:port]} and CertificateThumbprint: #{config[:cert_thumbprint]}"
             else
               ui.error "Error creating WinRM listener. use -VV for more details."

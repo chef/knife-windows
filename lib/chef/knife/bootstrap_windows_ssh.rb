@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-require_relative 'bootstrap_windows_base'
+require_relative "bootstrap_windows_base"
 
 class Chef
   class Knife
@@ -25,11 +25,11 @@ class Chef
       include Chef::Knife::BootstrapWindowsBase
 
       deps do
-        require 'chef/json_compat'
-        require 'tempfile'
-        require 'highline'
-        require 'net/ssh'
-        require 'net/ssh/multi'
+        require "chef/json_compat"
+        require "tempfile"
+        require "highline"
+        require "net/ssh"
+        require "net/ssh/multi"
         Chef::Knife::Ssh.load_deps
         Chef::Knife::Bootstrap.load_deps
       end
@@ -37,59 +37,59 @@ class Chef
       banner "knife bootstrap windows ssh FQDN (options)"
 
       option :ssh_user,
-        :short => "-x USERNAME",
-        :long => "--ssh-user USERNAME",
-        :description => "The ssh username",
-        :default => "root"
+        short: "-x USERNAME",
+        long: "--ssh-user USERNAME",
+        description: "The ssh username",
+        default: "root"
 
       option :ssh_password,
-        :short => "-P PASSWORD",
-        :long => "--ssh-password PASSWORD",
-        :description => "The ssh password"
+        short: "-P PASSWORD",
+        long: "--ssh-password PASSWORD",
+        description: "The ssh password"
 
       option :ssh_port,
-        :short => "-p PORT",
-        :long => "--ssh-port PORT",
-        :description => "The ssh port",
-        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key.strip }
+        short: "-p PORT",
+        long: "--ssh-port PORT",
+        description: "The ssh port",
+        proc: Proc.new { |key| Chef::Config[:knife][:ssh_port] = key.strip }
 
       option :ssh_gateway,
-        :short => "-G GATEWAY",
-        :long => "--ssh-gateway GATEWAY",
-        :description => "The ssh gateway",
-        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_gateway] = key }
+        short: "-G GATEWAY",
+        long: "--ssh-gateway GATEWAY",
+        description: "The ssh gateway",
+        proc: Proc.new { |key| Chef::Config[:knife][:ssh_gateway] = key }
 
       option :forward_agent,
-        :short => "-A",
-        :long => "--forward-agent",
-        :description => "Enable SSH agent forwarding",
-        :boolean => true
+        short: "-A",
+        long: "--forward-agent",
+        description: "Enable SSH agent forwarding",
+        boolean: true
 
       option :identity_file,
-        :long => "--identity-file IDENTITY_FILE",
-        :description => "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead."
+        long: "--identity-file IDENTITY_FILE",
+        description: "The SSH identity file used for authentication. [DEPRECATED] Use --ssh-identity-file instead."
 
       option :ssh_identity_file,
-        :short => "-i IDENTITY_FILE",
-        :long => "--ssh-identity-file IDENTITY_FILE",
-        :description => "The SSH identity file used for authentication"
+        short: "-i IDENTITY_FILE",
+        long: "--ssh-identity-file IDENTITY_FILE",
+        description: "The SSH identity file used for authentication"
 
       option :host_key_verify,
-        :long => "--[no-]host-key-verify",
-        :description => "Verify host key, enabled by default.",
-        :boolean => true,
-        :default => true
+        long: "--[no-]host-key-verify",
+        description: "Verify host key, enabled by default.",
+        boolean: true,
+        default: true
 
       def run
-         Chef::Application.fatal!(<<~EOM
-         *knife windows bootstrap ssh*
-          Core Chef now supports bootstrapping Windows systems without a knife plugin
-          
-          Use 'knife bootstrap -o ssh' instead.
-          
-          For more detail https://github.com/chef/chef/blob/master/RELEASE_NOTES.md#knife-bootstrap
-          EOM
-          )
+        Chef::Application.fatal!(<<~EOM
+          *knife windows bootstrap ssh*
+           Core Chef now supports bootstrapping Windows systems without a knife plugin
+
+           Use 'knife bootstrap -o ssh' instead.
+
+           For more detail https://github.com/chef/chef/blob/master/RELEASE_NOTES.md#knife-bootstrap
+        EOM
+                                )
       end
 
     end

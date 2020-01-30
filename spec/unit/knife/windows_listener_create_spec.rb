@@ -16,8 +16,8 @@
 # limitations under the License.
 #
 
-require 'spec_helper'
-require 'chef/knife/windows_listener_create'
+require "spec_helper"
+require "chef/knife/windows_listener_create"
 
 describe Chef::Knife::WindowsListenerCreate do
   context "on Windows" do

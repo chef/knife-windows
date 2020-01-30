@@ -16,9 +16,9 @@
 # limitations under the License.
 #
 
-require 'chef/application'
-require 'winrm'
-require 'winrm-elevated'
+require "chef/application"
+require "winrm"
+require "winrm-elevated"
 
 class Chef
   class Knife
@@ -34,10 +34,10 @@ class Chef
         @shell_args = [ options[:shell] ]
         @shell_args << { codepage: options[:codepage] } if options[:shell] == :cmd
         url = "#{options[:host]}:#{options[:port]}/wsman"
-        scheme = options[:transport] == :ssl ? 'https' : 'http'
+        scheme = options[:transport] == :ssl ? "https" : "http"
         @endpoint = "#{scheme}://#{url}"
 
-        opts = Hash.new
+        opts = {}
         opts = {
           user: @user,
           password: options[:password],
@@ -46,9 +46,9 @@ class Chef
           no_ssl_peer_verification: options[:no_ssl_peer_verification],
           ssl_peer_fingerprint: options[:ssl_peer_fingerprint],
           endpoint: endpoint,
-          transport: options[:transport]
+          transport: options[:transport],
         }
-        options[:transport] == :kerberos ? opts.merge!({:service => options[:service], :realm => options[:realm]}) : opts.merge!({:ca_trust_path => options[:ca_trust_path]})
+        options[:transport] == :kerberos ? opts.merge!({ service: options[:service], realm: options[:realm] }) : opts.merge!({ ca_trust_path: options[:ca_trust_path] })
         opts[:operation_timeout] = options[:operation_timeout] if options[:operation_timeout]
         Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
         Chef::Log.debug("Endpoint: #{endpoint}")

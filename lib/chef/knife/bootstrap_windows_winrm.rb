@@ -16,11 +16,10 @@
 # limitations under the License.
 #
 
-require_relative 'bootstrap_windows_base'
-require_relative 'winrm'
-require_relative 'winrm_base'
-require_relative 'winrm_knife_base'
-
+require_relative "bootstrap_windows_base"
+require_relative "winrm"
+require_relative "winrm_base"
+require_relative "winrm_knife_base"
 
 class Chef
   class Knife
@@ -31,24 +30,24 @@ class Chef
       include Chef::Knife::WinrmCommandSharedFunctions
 
       deps do
-        require 'chef/json_compat'
-        require 'tempfile'
+        require "chef/json_compat"
+        require "tempfile"
         Chef::Knife::Winrm.load_deps
         Chef::Knife::Bootstrap.load_deps
       end
 
-      banner 'knife bootstrap windows winrm FQDN (options)'
+      banner "knife bootstrap windows winrm FQDN (options)"
 
       def run
-         Chef::Application.fatal!(<<~EOM
-         *knife windows bootstrap winrm*
-          Core Chef now supports bootstrapping Windows systems without a knife plugin
-          
-          Use 'knife bootstrap -o winrm' instead.
-          
-          For more detail https://github.com/chef/chef/blob/master/RELEASE_NOTES.md#knife-bootstrap
-          EOM
-          )
+        Chef::Application.fatal!(<<~EOM
+          *knife windows bootstrap winrm*
+           Core Chef now supports bootstrapping Windows systems without a knife plugin
+
+           Use 'knife bootstrap -o winrm' instead.
+
+           For more detail https://github.com/chef/chef/blob/master/RELEASE_NOTES.md#knife-bootstrap
+        EOM
+                                )
       end
 
     end

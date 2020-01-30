@@ -16,11 +16,10 @@
 # limitations under the License.
 #
 
-require 'spec_helper'
-require 'dummy_winrm_connection'
+require "spec_helper"
+require "dummy_winrm_connection"
 
 Chef::Knife::Winrm.load_deps
-
 
 describe Chef::Knife::WinrmSession do
   let(:winrm_connection) { Dummy::Connection.new }
@@ -39,8 +38,8 @@ describe Chef::Knife::WinrmSession do
 
   describe "#initialize" do
     context "when a proxy is configured" do
-      let(:proxy_uri) { 'blah.com' }
-      let(:ssl_policy) { double('DefaultSSLPolicy', :set_custom_certs => nil) }
+      let(:proxy_uri) { "blah.com" }
+      let(:ssl_policy) { double("DefaultSSLPolicy", set_custom_certs: nil) }
 
       before do
         Chef::Config[:http_proxy] = proxy_uri
@@ -48,7 +47,7 @@ describe Chef::Knife::WinrmSession do
 
       it "sets the http_proxy to the configured proxy" do
         subject
-        expect(ENV['HTTP_PROXY']).to eq("http://#{proxy_uri}")
+        expect(ENV["HTTP_PROXY"]).to eq("http://#{proxy_uri}")
       end
 
       it "sets the ssl policy on the winrm client" do
@@ -69,7 +68,7 @@ describe Chef::Knife::WinrmSession do
     end
 
     it "exits with 401 if command execution raises a 401" do
-      expect(winrm_connection).to receive(:shell).and_raise(WinRM::WinRMHTTPTransportError.new('', '401'))
+      expect(winrm_connection).to receive(:shell).and_raise(WinRM::WinRMHTTPTransportError.new("", "401"))
       expect { subject.relay_command("cmd.exe echo 'hi'") }.to raise_error(WinRM::WinRMHTTPTransportError)
       expect(subject.exit_code).to eql(401)
     end

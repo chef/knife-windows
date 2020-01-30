@@ -1,0 +1,28 @@
+Layout/DefEndAlignment:
+  Exclude:
+    - 'lib/chef/knife/winrm_knife_base.rb'
+
+Layout/EndAlignment:
+  Exclude:
+    - 'lib/chef/knife/winrm_knife_base.rb'
+
+Lint/AmbiguousRegexpLiteral:
+  Exclude:
+    - 'lib/chef/knife/winrm_knife_base.rb'
+
+Lint/AssignmentInCondition:
+  Exclude:
+    - 'lib/chef/knife/winrm_knife_base.rb'
+
+Lint/Loop:
+  Exclude:
+    - 'lib/chef/knife/windows_cert_generate.rb'
+
+Lint/UselessAssignment:
+  Exclude:
+    - 'lib/chef/knife/winrm_session.rb'
+    - 'lib/chef/knife/wsman_test.rb'
+
+Naming/HeredocDelimiterCase:
+  Exclude:
+    - 'lib/chef/knife/winrm_knife_base.rb'

@@ -16,13 +16,13 @@
 # limitations under the License.
 #
 
-require 'spec_helper'
-require 'chef/knife/windows_cert_generate'
-require 'openssl'
+require "spec_helper"
+require "chef/knife/windows_cert_generate"
+require "openssl"
 
 describe Chef::Knife::WindowsCertGenerate do
   before(:all) do
-    @certgen = Chef::Knife::WindowsCertGenerate.new(["-H","something.mydomain.com"])
+    @certgen = Chef::Knife::WindowsCertGenerate.new(["-H", "something.mydomain.com"])
   end
 
   it "generates RSA key pair" do
@@ -62,7 +62,7 @@ describe Chef::Knife::WindowsCertGenerate do
     end
 
     it "writes out certificates" do
-      @certgen.config[:output_file] = 'winrmcert'
+      @certgen.config[:output_file] = "winrmcert"
 
       expect(@certgen).to receive(:certificates_already_exist?).and_return(false)
       expect(@certgen).to receive(:write_certificate_to_file)
@@ -70,7 +70,7 @@ describe Chef::Knife::WindowsCertGenerate do
     end
 
     it "prompts when certificates already exist" do
-      file_path = 'winrmcert'
+      file_path = "winrmcert"
       @certgen.config[:output_file] = file_path
 
       allow(Dir).to receive(:glob).and_return([file_path])

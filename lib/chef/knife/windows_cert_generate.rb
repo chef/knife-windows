@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require_relative 'winrm_base'
-require 'openssl'
-require 'socket'
+require "chef/knife"
+require_relative "winrm_base"
+require "openssl"
+require "socket"
 
 class Chef
   class Knife
@@ -29,34 +29,34 @@ class Chef
       banner "knife windows cert generate FILE_PATH (options)"
 
       option :hostname,
-        :short => "-H HOSTNAME",
-        :long => "--hostname HOSTNAME",
-        :description => "Use to specify the hostname for the listener.
+        short: "-H HOSTNAME",
+        long: "--hostname HOSTNAME",
+        description: "Use to specify the hostname for the listener.
         For example, --hostname something.mydomain.com or *.mydomain.com.",
-        :required => true
+        required: true
 
       option :output_file,
-        :short => "-o PATH",
-        :long => "--output-file PATH",
-        :description => "Specifies the file path at which to generate the 3 certificate files of type .pfx, .b64, and .pem. The default is './winrmcert'.",
-        :default => "winrmcert"
+        short: "-o PATH",
+        long: "--output-file PATH",
+        description: "Specifies the file path at which to generate the 3 certificate files of type .pfx, .b64, and .pem. The default is './winrmcert'.",
+        default: "winrmcert"
 
       option :key_length,
-        :short => "-k LENGTH",
-        :long => "--key-length LENGTH",
-        :description => "Default is 2048",
-        :default => "2048"
+        short: "-k LENGTH",
+        long: "--key-length LENGTH",
+        description: "Default is 2048",
+        default: "2048"
 
       option :cert_validity,
-        :short => "-cv MONTHS",
-        :long => "--cert-validity MONTHS",
-        :description => "Default is 24 months",
-        :default => "24"
+        short: "-cv MONTHS",
+        long: "--cert-validity MONTHS",
+        description: "Default is 24 months",
+        default: "24"
 
       option :cert_passphrase,
-        :short => "-cp PASSWORD",
-        :long => "--cert-passphrase PASSWORD",
-        :description => "Password for certificate."
+        short: "-cp PASSWORD",
+        long: "--cert-passphrase PASSWORD",
+        description: "Password for certificate."
 
       def generate_keypair
         OpenSSL::PKey::RSA.new(config[:key_length].to_i)
@@ -69,16 +69,17 @@ class Chef
           print "Enter certificate passphrase (empty for no passphrase):"
           passphrase = STDIN.gets
           return passphrase.strip if passphrase == "\n"
+
           print "Enter same passphrase again:"
           confirm_passphrase = STDIN.gets
         end until passphrase == confirm_passphrase
         passphrase.strip
       end
 
-      def generate_certificate rsa_key
+      def generate_certificate(rsa_key)
         @hostname = config[:hostname] if config[:hostname]
 
-        #Create a self-signed X509 certificate from the rsa_key (unencrypted)
+        # Create a self-signed X509 certificate from the rsa_key (unencrypted)
         cert = OpenSSL::X509::Certificate.new
         cert.version = 2
         cert.serial = Random.rand(65534) + 1 # 2 digit byte range random number for better security aspect
@@ -91,8 +92,8 @@ class Chef
         ef = OpenSSL::X509::ExtensionFactory.new
         ef.subject_certificate = cert
         ef.issuer_certificate = cert
-        cert.add_extension(ef.create_extension("subjectKeyIdentifier","hash",false))
-        cert.add_extension(ef.create_extension("authorityKeyIdentifier","keyid:always",false))
+        cert.add_extension(ef.create_extension("subjectKeyIdentifier", "hash", false))
+        cert.add_extension(ef.create_extension("authorityKeyIdentifier", "keyid:always", false))
         cert.add_extension(ef.create_extension("extendedKeyUsage", "1.3.6.1.5.5.7.3.1", false))
         cert.sign(rsa_key, OpenSSL::Digest::SHA1.new)
         @thumbprint = OpenSSL::Digest::SHA1.new(cert.to_der)
@@ -110,7 +111,7 @@ class Chef
       def certificates_already_exist?(file_path)
         certs_exists = false
         %w{pem pfx b64}.each do |extn|
-          if !Dir.glob("#{file_path}.*#{extn}").empty?
+          unless Dir.glob("#{file_path}.*#{extn}").empty?
             certs_exists = true
             break
           end
@@ -119,7 +120,7 @@ class Chef
         if certs_exists
           begin
             confirm("Do you really want to overwrite existing certificates")
-          rescue SystemExit   # Need to handle this as confirming with N/n raises SystemExit exception
+          rescue SystemExit # Need to handle this as confirming with N/n raises SystemExit exception
             exit!
           end
         end
@@ -129,7 +130,7 @@ class Chef
         STDOUT.sync = STDERR.sync = true
 
         # takes user specified first cli value as a destination file path for generated cert.
-        file_path = @name_args.empty? ? config[:output_file].sub(/\.(\w+)$/,'') : @name_args.first
+        file_path = @name_args.empty? ? config[:output_file].sub(/\.(\w+)$/, "") : @name_args.first
 
         # check if certs already exists at given file path
         certificates_already_exist? file_path
@@ -152,4 +153,3 @@ class Chef
     end
   end
 end
-

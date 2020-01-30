@@ -16,13 +16,13 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require_relative 'winrm_knife_base'
-require_relative 'windows_cert_generate'
-require_relative 'windows_cert_install'
-require_relative 'windows_listener_create'
-require_relative 'winrm_session'
-require_relative 'knife_windows_base'
+require "chef/knife"
+require_relative "winrm_knife_base"
+require_relative "windows_cert_generate"
+require_relative "windows_cert_install"
+require_relative "windows_listener_create"
+require_relative "winrm_session"
+require_relative "knife_windows_base"
 
 class Chef
   class Knife
@@ -32,8 +32,8 @@ class Chef
       include Chef::Knife::KnifeWindowsBase
 
       deps do
-        require 'readline'
-        require 'chef/search/query'
+        require "readline"
+        require "chef/search/query"
       end
 
       attr_writer :password
@@ -41,9 +41,9 @@ class Chef
       banner "knife winrm QUERY COMMAND (options)"
 
       option :returns,
-       :long => "--returns CODES",
-       :description => "A comma delimited list of return codes which indicate success",
-       :default => "0"
+        long: "--returns CODES",
+        description: "A comma delimited list of return codes which indicate success",
+        default: "0"
 
       def run
         STDOUT.sync = STDERR.sync = true
@@ -78,15 +78,15 @@ class Chef
         puts
         puts "To exit interactive mode, use 'quit!'"
         puts
-        while 1
+        loop do
           command = read_line
           case command
-          when 'quit!'
-            puts 'Bye!'
+          when "quit!"
+            puts "Bye!"
             break
           when /^on (.+?); (.+)$/
             raw_list = $1.split(" ")
-            server_list = Array.new
+            server_list = []
             @winrm_sessions.each do |session_server|
               server_list << session_server if raw_list.include?(session_server.host)
             end
@@ -104,7 +104,7 @@ class Chef
       # line is input.
       def read_line
         loop do
-          command = reader.readline("#{ui.color('knife-winrm>', :bold)} ", true)
+          command = reader.readline("#{ui.color("knife-winrm>", :bold)} ", true)
 
           if command.nil?
             command = "exit"

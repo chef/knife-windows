@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require_relative 'winrm_base'
+require "chef/knife"
+require_relative "winrm_base"
 
 class Chef
   class Knife
@@ -25,9 +25,9 @@ class Chef
       banner "knife windows cert install CERT [CERT] (options)"
 
       option :cert_passphrase,
-        :short => "-cp PASSWORD",
-        :long => "--cert-passphrase PASSWORD",
-        :description => "Password for certificate."
+        short: "-cp PASSWORD",
+        long: "--cert-passphrase PASSWORD",
+        description: "Password for certificate."
 
       def get_cert_passphrase
         print "Enter given certificate's passphrase (empty for no passphrase):"
@@ -48,7 +48,7 @@ class Chef
 
           begin
             ui.info "Adding certificate to the Windows Certificate Store..."
-            result = %x{powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{file_path}' AT_KEYEXCHANGE"}
+            result = `powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil -importPFX '#{file_path}' AT_KEYEXCHANGE"`
             if $?.exitstatus == 0
               ui.info "Certificate added to Certificate Store"
             else
