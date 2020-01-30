@@ -4,31 +4,28 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.10 -->
-## [v3.0.10](https://github.com/chef/knife-windows/tree/v3.0.10) (2020-01-30)
-
-#### Merged Pull Requests
-- Remove extra test deps we don&#39;t need [#492](https://github.com/chef/knife-windows/pull/492) ([tas50](https://github.com/tas50))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=3.0.6 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Remove extra test deps we don&#39;t need [#492](https://github.com/chef/knife-windows/pull/492) ([tas50](https://github.com/tas50)) <!-- 3.0.10 -->
-- Apply Chefstyle and enforce style [#491](https://github.com/chef/knife-windows/pull/491) ([tas50](https://github.com/tas50)) <!-- 3.0.9 -->
-- Run tests on Windows [#490](https://github.com/chef/knife-windows/pull/490) ([tas50](https://github.com/tas50)) <!-- 3.0.8 -->
-- Test on the final Ruby 2.7 container + cleanup test files [#489](https://github.com/chef/knife-windows/pull/489) ([tas50](https://github.com/tas50)) <!-- 3.0.7 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [v3.0.10](https://github.com/chef/knife-windows/tree/v3.0.10) (2020-01-30)
+
+#### Merged Pull Requests
+- Test on the final Ruby 2.7 container + cleanup test files [#489](https://github.com/chef/knife-windows/pull/489) ([tas50](https://github.com/tas50))
+- Run tests on Windows [#490](https://github.com/chef/knife-windows/pull/490) ([tas50](https://github.com/tas50))
+- Apply Chefstyle and enforce style [#491](https://github.com/chef/knife-windows/pull/491) ([tas50](https://github.com/tas50))
+- Remove extra test deps we don&#39;t need [#492](https://github.com/chef/knife-windows/pull/492) ([tas50](https://github.com/tas50))
+<!-- latest_stable_release -->
+
 ## [v3.0.6](https://github.com/chef/knife-windows/tree/v3.0.6) (2019-12-21)
 
 #### Merged Pull Requests
 - Update README.md as per Chef OSS Best Practices [#483](https://github.com/chef/knife-windows/pull/483) ([vsingh-msys](https://github.com/vsingh-msys))
 - Add testing in Buildkite [#488](https://github.com/chef/knife-windows/pull/488) ([tas50](https://github.com/tas50))
 - Substitute require for require_relative [#487](https://github.com/chef/knife-windows/pull/487) ([tas50](https://github.com/tas50))
-<!-- latest_stable_release -->
 
 ## [v3.0.3](https://github.com/chef/knife-windows/tree/v3.0.3) (2019-05-17)
 
