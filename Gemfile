@@ -4,7 +4,6 @@ source "https://rubygems.org"
 gemspec
 
 group :test do
-  gem "chef"
   gem "rspec", "~> 3.0"
   gem "rake"
   gem "chefstyle"
