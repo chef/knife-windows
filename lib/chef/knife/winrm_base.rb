@@ -17,8 +17,6 @@
 #
 
 require "chef/knife"
-require "chef/encrypted_data_bag_item"
-require "kconv"
 
 class Chef
   class Knife
@@ -34,6 +32,8 @@ class Chef
         includer.class_eval do
 
           deps do
+            require "chef/encrypted_data_bag_item"
+            require "kconv"
             require "readline"
             require "chef/json_compat"
           end

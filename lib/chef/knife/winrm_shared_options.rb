@@ -17,9 +17,6 @@
 #
 
 require "chef/knife"
-require "chef/encrypted_data_bag_item"
-require "kconv"
-
 class Chef
   class Knife
     module WinrmSharedOptions

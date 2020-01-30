@@ -17,19 +17,13 @@
 #
 
 require "chef/knife"
-require_relative "winrm"
-require_relative "bootstrap_windows_ssh"
-require_relative "bootstrap_windows_winrm"
-require_relative "wsman_test"
-
 class Chef
   class Knife
     class WindowsHelper < Knife
-
-      banner "#{BootstrapWindowsWinrm.banner}\n" +
-        "#{BootstrapWindowsSsh.banner}\n" +
-        "#{Winrm.banner}\n" +
-        "#{WsmanTest.banner}"
+      banner "#{BootstrapWindowsWinrm.banner}\n" \
+             "#{BootstrapWindowsSsh.banner}\n" \
+             "#{Winrm.banner}\n" \
+             "#{WsmanTest.banner}"
     end
   end
 end

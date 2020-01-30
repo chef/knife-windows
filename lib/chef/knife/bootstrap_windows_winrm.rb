@@ -16,10 +16,10 @@
 # limitations under the License.
 #
 
+require "chef/knife"
 require_relative "bootstrap_windows_base"
-require_relative "winrm"
 require_relative "winrm_base"
-require_relative "winrm_knife_base"
+require_relative "winrm_knife_base" # WinrmCommandSharedFunctions
 
 class Chef
   class Knife
@@ -30,6 +30,7 @@ class Chef
       include Chef::Knife::WinrmCommandSharedFunctions
 
       deps do
+        require_relative "winrm"
         require "chef/json_compat"
         require "tempfile"
         Chef::Knife::Winrm.load_deps

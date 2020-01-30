@@ -17,8 +17,6 @@
 #
 
 require "chef/knife"
-require "chef/knife/bootstrap"
-require "chef/encrypted_data_bag_item"
 require_relative "knife_windows_base"
 require "chef/util/path_helper"
 
@@ -35,6 +33,8 @@ class Chef
         includer.class_eval do
 
           deps do
+            require "chef/knife/bootstrap"
+            require "chef/encrypted_data_bag_item"
             require "readline"
             require "chef/json_compat"
           end

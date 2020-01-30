@@ -16,6 +16,7 @@
 # limitations under the License.
 #
 
+require "chef/knife"
 require "chef/application"
 require "winrm"
 require "winrm-elevated"

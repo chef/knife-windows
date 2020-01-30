@@ -17,11 +17,13 @@
 
 require "chef/knife"
 require_relative "winrm_base"
-require "openssl"
 
 class Chef
   class Knife
     class WindowsListenerCreate < Knife
+      deps do
+        require "openssl"
+      end
 
       banner "knife windows listener create (options)"
 
