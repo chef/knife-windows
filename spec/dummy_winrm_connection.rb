@@ -2,7 +2,6 @@ module Dummy
   class WinRMTransport
     attr_reader :httpcli
 
-
     def initialize
       @httpcli = HTTPClient.new
     end

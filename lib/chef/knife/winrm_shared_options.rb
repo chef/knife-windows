@@ -16,9 +16,9 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require 'chef/encrypted_data_bag_item'
-require 'kconv'
+require "chef/knife"
+require "chef/encrypted_data_bag_item"
+require "kconv"
 
 class Chef
   class Knife
@@ -28,24 +28,24 @@ class Chef
       def self.included(includer)
         includer.class_eval do
           option :manual,
-            :short => "-m",
-            :long => "--manual-list",
-            :boolean => true,
-            :description => "QUERY is a space separated list of servers",
-            :default => false
+            short: "-m",
+            long: "--manual-list",
+            boolean: true,
+            description: "QUERY is a space separated list of servers",
+            default: false
 
           option :attribute,
-            :short => "-a ATTR",
-            :long => "--attribute ATTR",
-            :description => "The attribute to use for opening the connection - default is fqdn",
-            :default => "fqdn"
+            short: "-a ATTR",
+            long: "--attribute ATTR",
+            description: "The attribute to use for opening the connection - default is fqdn",
+            default: "fqdn"
 
           option :concurrency,
-            :short => "-C NUM",
-            :long => "--concurrency NUM",
-            :description => "The number of allowed concurrent connections",
-            :default => 1,
-            :proc => lambda { |o| o.to_i }
+            short: "-C NUM",
+            long: "--concurrency NUM",
+            description: "The number of allowed concurrent connections",
+            default: 1,
+            proc: lambda { |o| o.to_i }
         end
       end
 

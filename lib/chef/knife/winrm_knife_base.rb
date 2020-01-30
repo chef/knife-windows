@@ -16,17 +16,16 @@
 # limitations under the License.
 #
 
-
-require 'chef/knife'
-require_relative 'winrm_base'
-require_relative 'winrm_shared_options'
-require_relative 'knife_windows_base'
+require "chef/knife"
+require_relative "winrm_base"
+require_relative "winrm_shared_options"
+require_relative "knife_windows_base"
 
 class Chef
   class Knife
     module WinrmCommandSharedFunctions
 
-      FAILED_BASIC_HINT ||= "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server."
+      FAILED_BASIC_HINT ||= "Hint: Please check winrm configuration 'winrm get winrm/config/service' AllowUnencrypted flag on remote server.".freeze
       FAILED_NOT_BASIC_HINT ||= <<-eos.gsub /^\s+/, ""
         Hint: Make sure to prefix domain usernames with the correct domain name.
         Hint: Local user names should be prefixed with computer name or IP address.
@@ -45,7 +44,7 @@ class Chef
           def validate_winrm_options!
             winrm_auth_protocol = locate_config_value(:winrm_authentication_protocol)
 
-            if ! Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
+            unless Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.include?(winrm_auth_protocol)
               ui.error "Invalid value '#{winrm_auth_protocol}' for --winrm-authentication-protocol option."
               ui.info "Valid values are #{Chef::Knife::WinrmBase::WINRM_AUTH_PROTOCOL_LIST.join(",")}."
               exit 1
@@ -54,8 +53,8 @@ class Chef
             warn_no_ssl_peer_verification if resolve_no_ssl_peer_verification
           end
 
-          #Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
-          #Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
+          # Overrides Chef::Knife#configure_session, as that code is tied to the SSH implementation
+          # Tracked by Issue # 3042 / https://github.com/chef/chef/issues/3042
           def configure_session
             validate_winrm_options!
             resolve_session_options
@@ -68,7 +67,7 @@ class Chef
                    when true
                      @name_args[0].split(" ")
                    when false
-                     r = Array.new
+                     r = []
                      q = Chef::Search::Query.new
                      @action_nodes = q.search(:node, @name_args[0])[0]
                      @action_nodes.each do |item|
@@ -78,16 +77,16 @@ class Chef
                      r
                    end
 
-             if @list.length == 0
+            if @list.length == 0
               if @action_nodes.length == 0
                 ui.fatal("No nodes returned from search!")
               else
-                ui.fatal("#{@action_nodes.length} #{@action_nodes.length > 1 ? "nodes":"node"} found, " +
+                ui.fatal("#{@action_nodes.length} #{@action_nodes.length > 1 ? "nodes" : "node"} found, " +
                          "but does not have the required attribute (#{config[:attribute]}) to establish the connection. " +
                          "Try setting another attribute to open the connection using --attribute.")
               end
               exit 10
-            end
+           end
           end
 
           # TODO: Copied from Knife::Core:GenericPresenter. Should be extracted
@@ -107,10 +106,10 @@ class Chef
                        end
               end
             end
-            ( !data.kind_of?(Array) && data.respond_to?(:to_hash) ) ? data.to_hash : data
+            ( !data.is_a?(Array) && data.respond_to?(:to_hash) ) ? data.to_hash : data
           end
 
-          def run_command(command = '')
+          def run_command(command = "")
             relay_winrm_command(command)
             check_for_errors!
             @exit_code
@@ -143,7 +142,7 @@ class Chef
             @session_results << s.relay_command(command)
           rescue WinRM::WinRMHTTPTransportError, WinRM::WinRMAuthorizationError => e
             if authorization_error?(e)
-              if ! config[:suppress_auth_failure]
+              unless config[:suppress_auth_failure]
                 # Display errors if the caller hasn't opted to retry
                 ui.error "Failed to authenticate to #{s.host} as #{locate_config_value(:winrm_user)}"
                 ui.info "Response: #{e.message}"
@@ -180,9 +179,10 @@ class Chef
           end
 
           def success_return_codes
-            #Redundant if the CLI options parsing occurs
+            # Redundant if the CLI options parsing occurs
             return [0] unless config[:returns]
-            return @success_return_codes ||= config[:returns].split(',').collect {|item| item.to_i}
+
+            @success_return_codes ||= config[:returns].split(",").collect(&:to_i)
           end
 
           def session_from_list
@@ -193,7 +193,7 @@ class Chef
             end
           end
 
-          def create_winrm_session(options={})
+          def create_winrm_session(options = {})
             session = Chef::Knife::WinrmSession.new(options)
             @winrm_sessions ||= []
             @winrm_sessions.push(session)
@@ -211,10 +211,10 @@ class Chef
               no_ssl_peer_verification: resolve_no_ssl_peer_verification,
               ssl_peer_fingerprint: resolve_ssl_peer_fingerprint,
               shell: locate_config_value(:winrm_shell),
-              codepage: locate_config_value(:winrm_codepage)
+              codepage: locate_config_value(:winrm_codepage),
             }
 
-            if @session_opts[:user] and (not @session_opts[:password])
+            if @session_opts[:user] && (not @session_opts[:password])
               @session_opts[:password] = Chef::Config[:knife][:winrm_password] = config[:winrm_password] = get_password
             end
 
@@ -231,9 +231,9 @@ class Chef
             # Prefixing with '.\' when using negotiate
             # to auth user against local machine domain
             if resolve_winrm_basic_auth ||
-              resolve_winrm_transport == :kerberos ||
-              user.include?("\\") ||
-              user.include?("@")
+                resolve_winrm_transport == :kerberos ||
+                user.include?("\\") ||
+                user.include?("@")
               user
             else
               ".\\#{user}"
@@ -241,7 +241,7 @@ class Chef
           end
 
           def resolve_winrm_session_timeout
-            #30 min (Default) OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
+            # 30 min (Default) OperationTimeout for long bootstraps fix for KNIFE_WINDOWS-8
             locate_config_value(:session_timeout).to_i * 60 if locate_config_value(:session_timeout)
           end
 
@@ -259,7 +259,7 @@ class Chef
 
           def resolve_winrm_transport
             transport = locate_config_value(:winrm_transport).to_sym
-            if config.any? {|k,v| k.to_s =~ /kerberos/ && !v.nil? }
+            if config.any? { |k, v| k.to_s =~ /kerberos/ && !v.nil? }
               transport = :kerberos
             elsif transport != :ssl && negotiate_auth?
               transport = :negotiate
@@ -289,22 +289,22 @@ class Chef
           end
 
           def warn_no_ssl_peer_verification
-            if ! @@ssl_warning_given
+            unless @@ssl_warning_given
               @@ssl_warning_given = true
-              ui.warn(<<-WARN)
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-SSL validation of HTTPS requests for the WinRM transport is disabled. HTTPS WinRM
-connections are still encrypted, but knife is not able to detect forged replies
-or spoofing attacks.
+              ui.warn(<<~WARN)
+                * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                SSL validation of HTTPS requests for the WinRM transport is disabled. HTTPS WinRM
+                connections are still encrypted, but knife is not able to detect forged replies
+                or spoofing attacks.
 
-To fix this issue add an entry like this to your knife configuration file:
+                To fix this issue add an entry like this to your knife configuration file:
 
-```
-  # Verify all WinRM HTTPS connections (default, recommended)
-  knife[:winrm_ssl_verify_mode] = :verify_peer
-```
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-WARN
+                ```
+                  # Verify all WinRM HTTPS connections (default, recommended)
+                  knife[:winrm_ssl_verify_mode] = :verify_peer
+                ```
+                * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+              WARN
                 end
               end
 

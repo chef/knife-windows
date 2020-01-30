@@ -16,8 +16,8 @@
 # limitations under the License.
 #
 
-require 'spec_helper'
-require 'chef/knife/windows_cert_install'
+require "spec_helper"
+require "chef/knife/windows_cert_install"
 
 describe Chef::Knife::WindowsCertInstall do
   context "on Windows" do

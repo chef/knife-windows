@@ -16,10 +16,10 @@
 # limitations under the License.
 #
 
-require 'httpclient'
-require 'chef/knife'
-require_relative 'winrm_knife_base'
-require_relative 'wsman_endpoint'
+require "httpclient"
+require "chef/knife"
+require_relative "winrm_knife_base"
+require_relative "wsman_endpoint"
 
 class Chef
   class Knife
@@ -28,7 +28,7 @@ class Chef
       include Chef::Knife::WinrmCommandSharedFunctions
 
       deps do
-        require 'chef/search/query'
+        require "chef/search/query"
       end
 
       banner "knife wsman test QUERY (options)"
@@ -36,7 +36,7 @@ class Chef
       def run
         # pass a dummy password to avoid prompt for password
         # but it does nothing
-        @config[:winrm_password] = 'cute_little_kittens'
+        @config[:winrm_password] = "cute_little_kittens"
 
         configure_session
         verify_wsman_accessiblity_for_nodes
@@ -81,8 +81,8 @@ class Chef
       def post_identity_request(endpoint)
         xml = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><s:Header/><s:Body><wsmid:Identify/></s:Body></s:Envelope>'
         header = {
-          'WSMANIDENTIFY' => 'unauthenticated',
-          'Content-Type' => 'application/soap+xml; charset=UTF-8'
+          "WSMANIDENTIFY" => "unauthenticated",
+          "Content-Type" => "application/soap+xml; charset=UTF-8",
         }
 
         client = HTTPClient.new
@@ -101,7 +101,7 @@ class Chef
           doc = REXML::Document.new(response.body)
           output_object.protocol_version = search_xpath(doc, "//wsmid:ProtocolVersion")
           output_object.product_version  = search_xpath(doc, "//wsmid:ProductVersion")
-          output_object.product_vendor  = search_xpath(doc, "//wsmid:ProductVendor")
+          output_object.product_vendor = search_xpath(doc, "//wsmid:ProductVendor")
           if output_object.protocol_version.to_s.strip.length == 0
             output_object.error_message = "Endpoint #{node.endpoint} on #{node.host} does not appear to be a WSMAN endpoint. Response body was #{response.body}"
           end
@@ -111,7 +111,7 @@ class Chef
 
       def search_xpath(document, property_name)
         result = REXML::XPath.match(document, property_name)
-        result[0].nil? ? '' : result[0].text
+        result[0].nil? ? "" : result[0].text
       end
     end
   end
