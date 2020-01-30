@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.7 -->
-## [v3.0.7](https://github.com/chef/knife-windows/tree/v3.0.7) (2019-12-30)
+<!-- latest_release 3.0.8 -->
+## [v3.0.8](https://github.com/chef/knife-windows/tree/v3.0.8) (2020-01-30)
 
 #### Merged Pull Requests
-- Test on the final Ruby 2.7 container + cleanup test files [#489](https://github.com/chef/knife-windows/pull/489) ([tas50](https://github.com/tas50))
+- Run tests on Windows [#490](https://github.com/chef/knife-windows/pull/490) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=3.0.6 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Run tests on Windows [#490](https://github.com/chef/knife-windows/pull/490) ([tas50](https://github.com/tas50)) <!-- 3.0.8 -->
 - Test on the final Ruby 2.7 container + cleanup test files [#489](https://github.com/chef/knife-windows/pull/489) ([tas50](https://github.com/tas50)) <!-- 3.0.7 -->
 <!-- release_rollup -->
 
