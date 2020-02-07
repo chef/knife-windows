@@ -37,7 +37,7 @@ class Chef
         Chef::Knife::Bootstrap.load_deps
       end
 
-      banner "knife bootstrap windows winrm FQDN (options)"
+      banner "knife bootstrap windows winrm FQDN (options) DEPRECATED"
 
       def run
         Chef::Application.fatal!(<<~EOM

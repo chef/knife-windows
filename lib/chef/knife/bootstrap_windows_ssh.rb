@@ -35,7 +35,7 @@ class Chef
         Chef::Knife::Bootstrap.load_deps
       end
 
-      banner "knife bootstrap windows ssh FQDN (options)"
+      banner "knife bootstrap windows ssh FQDN (options) DEPRECATED"
 
       option :ssh_user,
         short: "-x USERNAME",
