@@ -4,10 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release -->
+<!-- latest_release 3.0.14 -->
+## [v3.0.14](https://github.com/chef/knife-windows/tree/v3.0.14) (2020-02-07)
+
+#### Merged Pull Requests
+- Mark bootstrap deprecated and remove extra windows help [#495](https://github.com/chef/knife-windows/pull/495) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=3.0.13 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- Mark bootstrap deprecated and remove extra windows help [#495](https://github.com/chef/knife-windows/pull/495) ([tas50](https://github.com/tas50)) <!-- 3.0.14 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
