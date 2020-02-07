@@ -4,26 +4,23 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.13 -->
+<!-- latest_release -->
+<!-- latest_release -->
+
+<!-- release_rollup -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
 ## [v3.0.13](https://github.com/chef/knife-windows/tree/v3.0.13) (2020-02-07)
 
 #### Merged Pull Requests
 - Fix failures loading the banner [#494](https://github.com/chef/knife-windows/pull/494) ([tas50](https://github.com/tas50))
-<!-- latest_release -->
-
-<!-- release_rollup since=3.0.12 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Fix failures loading the banner [#494](https://github.com/chef/knife-windows/pull/494) ([tas50](https://github.com/tas50)) <!-- 3.0.13 -->
-<!-- release_rollup -->
-
 <!-- latest_stable_release -->
+
 ## [v3.0.12](https://github.com/chef/knife-windows/tree/v3.0.12) (2020-02-07)
 
 #### Merged Pull Requests
 - Require libraries only where we need them [#493](https://github.com/chef/knife-windows/pull/493) ([tas50](https://github.com/tas50))
-<!-- latest_stable_release -->
 
 ## [v3.0.11](https://github.com/chef/knife-windows/tree/v3.0.11) (2020-02-04)
 
