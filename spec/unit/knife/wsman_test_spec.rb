@@ -17,6 +17,7 @@
 #
 
 require "spec_helper"
+require_relative "../../../lib/chef/knife/wsman_test"
 
 describe Chef::Knife::WsmanTest do
   let(:http_client_mock) { HTTPClient.new }

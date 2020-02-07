@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-require "httpclient"
 require "chef/knife"
 require_relative "winrm_knife_base"
 require_relative "wsman_endpoint"
@@ -28,6 +27,7 @@ class Chef
       include Chef::Knife::WinrmCommandSharedFunctions
 
       deps do
+        require "httpclient"
         require "chef/search/query"
       end
 

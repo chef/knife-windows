@@ -17,8 +17,6 @@
 
 require "chef/knife"
 require_relative "winrm_base"
-require "openssl"
-require "socket"
 
 class Chef
   class Knife
@@ -27,6 +25,11 @@ class Chef
       attr_accessor :thumbprint, :hostname
 
       banner "knife windows cert generate FILE_PATH (options)"
+
+      deps do
+        require "openssl"
+        require "socket"
+      end
 
       option :hostname,
         short: "-H HOSTNAME",

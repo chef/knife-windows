@@ -17,9 +17,6 @@
 # limitations under the License.
 #
 
-require_relative "../lib/chef/knife/winrm"
-require_relative "../lib/chef/knife/wsman_test"
-
 def sample_data(file_name)
   file = File.expand_path(File.dirname("spec/assets/*")) + "/#{file_name}"
   File.read(file)

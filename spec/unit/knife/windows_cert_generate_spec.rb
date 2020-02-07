@@ -18,7 +18,6 @@
 
 require "spec_helper"
 require "chef/knife/windows_cert_generate"
-require "openssl"
 
 describe Chef::Knife::WindowsCertGenerate do
   before(:all) do
