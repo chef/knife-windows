@@ -20,8 +20,6 @@ require "spec_helper"
 require_relative "../../../lib/chef/knife/winrm"
 require "dummy_winrm_connection"
 
-Chef::Knife::Winrm.load_deps
-
 describe Chef::Knife::Winrm do
   before do
     Chef::Config.reset
