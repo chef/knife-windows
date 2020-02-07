@@ -17,6 +17,10 @@
 #
 
 require "chef/knife"
+require_relative "bootstrap_windows_ssh"
+require_relative "bootstrap_windows_winrm"
+require_relative "winrm"
+require_relative "wsman_test"
 class Chef
   class Knife
     class WindowsHelper < Knife
