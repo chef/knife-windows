@@ -17,7 +17,7 @@
 #
 
 require "chef/knife"
-require_relative "bootstrap_windows_base"
+require_relative "helpers/bootstrap_windows_base"
 
 class Chef
   class Knife

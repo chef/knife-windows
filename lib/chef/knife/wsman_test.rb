@@ -17,8 +17,8 @@
 #
 
 require "chef/knife"
-require_relative "winrm_knife_base"
-require_relative "wsman_endpoint"
+require_relative "helpers/winrm_knife_base"
+require_relative "helpers/wsman_endpoint"
 
 class Chef
   class Knife

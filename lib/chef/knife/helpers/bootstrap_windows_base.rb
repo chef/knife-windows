@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@chef.io>)
-# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) 2011-2020 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,13 +31,6 @@ class Chef
       # Mixlib::CLI's design :(
       def self.included(includer)
         includer.class_eval do
-
-          deps do
-            require "chef/knife/bootstrap"
-            require "chef/encrypted_data_bag_item"
-            require "readline"
-            require "chef/json_compat"
-          end
 
           option :chef_node_name,
             short: "-N NAME",
