@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@chef.io>)
-# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) 2011-2020 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,16 +24,6 @@ class Chef
     class BootstrapWindowsSsh < Bootstrap
 
       include Chef::Knife::BootstrapWindowsBase
-
-      deps do
-        require "chef/json_compat"
-        require "tempfile"
-        require "highline"
-        require "net/ssh"
-        require "net/ssh/multi"
-        Chef::Knife::Ssh.load_deps
-        Chef::Knife::Bootstrap.load_deps
-      end
 
       banner "knife bootstrap windows ssh FQDN (options) DEPRECATED"
 

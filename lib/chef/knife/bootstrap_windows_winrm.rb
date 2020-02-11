@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@chef.io>)
-# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) 2011-2020 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,25 +17,13 @@
 #
 
 require "chef/knife"
-require_relative "bootstrap_windows_base"
-require_relative "winrm_base"
-require_relative "winrm_knife_base" # WinrmCommandSharedFunctions
+require_relative "helpers/bootstrap_windows_base"
 
 class Chef
   class Knife
     class BootstrapWindowsWinrm < Bootstrap
 
       include Chef::Knife::BootstrapWindowsBase
-      include Chef::Knife::WinrmBase
-      include Chef::Knife::WinrmCommandSharedFunctions
-
-      deps do
-        require_relative "winrm"
-        require "chef/json_compat"
-        require "tempfile"
-        Chef::Knife::Winrm.load_deps
-        Chef::Knife::Bootstrap.load_deps
-      end
 
       banner "knife bootstrap windows winrm FQDN (options) DEPRECATED"
 
