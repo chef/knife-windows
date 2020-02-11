@@ -16,7 +16,7 @@
 #
 
 require "chef/knife"
-require_relative "winrm_base"
+require_relative "helpers/winrm_base"
 
 class Chef
   class Knife

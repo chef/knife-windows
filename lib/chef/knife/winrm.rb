@@ -17,8 +17,8 @@
 #
 
 require "chef/knife"
-require_relative "winrm_knife_base" # WinrmCommandSharedFunctions
-require_relative "knife_windows_base"
+require_relative "helpers/winrm_knife_base" # WinrmCommandSharedFunctions
+require_relative "helpers/knife_windows_base"
 
 class Chef
   class Knife
@@ -31,7 +31,7 @@ class Chef
         require_relative "windows_cert_generate"
         require_relative "windows_cert_install"
         require_relative "windows_listener_create"
-        require_relative "winrm_session"
+        require_relative "helpers/winrm_session"
         require "readline"
         require "chef/search/query"
       end
