@@ -20,6 +20,7 @@ require "chef/knife"
 require_relative "winrm_base"
 require_relative "winrm_shared_options"
 require_relative "knife_windows_base"
+require_relative "winrm_session"
 
 class Chef
   class Knife
