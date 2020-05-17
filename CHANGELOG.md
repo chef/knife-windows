@@ -4,26 +4,23 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 3.0.17 -->
+<!-- latest_release -->
+<!-- latest_release -->
+
+<!-- release_rollup -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
 ## [v3.0.17](https://github.com/chef/knife-windows/tree/v3.0.17) (2020-05-17)
 
 #### Merged Pull Requests
 - Fixed Exception: NameError: uninitialized constant Chef::Knife::Winrm… [#500](https://github.com/chef/knife-windows/pull/500) ([sanga1794](https://github.com/sanga1794))
-<!-- latest_release -->
-
-<!-- release_rollup since=3.0.16 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Fixed Exception: NameError: uninitialized constant Chef::Knife::Winrm… [#500](https://github.com/chef/knife-windows/pull/500) ([sanga1794](https://github.com/sanga1794)) <!-- 3.0.17 -->
-<!-- release_rollup -->
-
 <!-- latest_stable_release -->
+
 ## [v3.0.16](https://github.com/chef/knife-windows/tree/v3.0.16) (2020-02-11)
 
 #### Merged Pull Requests
 - Further optimize load times for the knife-windows plugins [#497](https://github.com/chef/knife-windows/pull/497) ([tas50](https://github.com/tas50))
-<!-- latest_stable_release -->
 
 ## [v3.0.15](https://github.com/chef/knife-windows/tree/v3.0.15) (2020-02-11)
 
