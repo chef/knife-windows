@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@chef.io>)
-# Copyright:: Copyright (c) 2011-2020 Chef Software, Inc.
+# Copyright:: Copyright (c) Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,23 +43,19 @@ class Chef
 
           option :bootstrap_version,
             long: "--bootstrap-version VERSION",
-            description: "The version of Chef to install",
-            proc: Proc.new { |v| Chef::Config[:knife][:bootstrap_version] = v }
+            description: "The version of Chef to install"
 
           option :bootstrap_proxy,
             long: "--bootstrap-proxy PROXY_URL",
-            description: "The proxy server for the node being bootstrapped",
-            proc: Proc.new { |p| Chef::Config[:knife][:bootstrap_proxy] = p }
+            description: "The proxy server for the node being bootstrapped"
 
           option :bootstrap_no_proxy,
             long: "--bootstrap-no-proxy [NO_PROXY_URL|NO_PROXY_IP]",
-            description: "Do not proxy locations for the node being bootstrapped; this option is used internally by Opscode",
-            proc: Proc.new { |np| Chef::Config[:knife][:bootstrap_no_proxy] = np }
+            description: "Do not proxy locations for the node being bootstrapped; this option is used internally by Opscode"
 
           option :bootstrap_install_command,
             long: "--bootstrap-install-command COMMANDS",
-            description: "Custom command to install chef-client",
-            proc: Proc.new { |ic| Chef::Config[:knife][:bootstrap_install_command] = ic }
+            description: "Custom command to install chef-client"
 
           option :bootstrap_template,
             short: "-t TEMPLATE",
@@ -76,10 +72,11 @@ class Chef
           option :hint,
             long: "--hint HINT_NAME[=HINT_FILE]",
             description: "Specify Ohai Hint to be set on the bootstrap target. Use multiple --hint options to specify multiple hints.",
-            proc: Proc.new { |h|
-              Chef::Config[:knife][:hints] ||= {}
+            proc: Proc.new { |h, accumulator|
+              accumulator ||= {}
               name, path = h.split("=")
-              Chef::Config[:knife][:hints][name] = path ? Chef::JSONCompat.parse(::File.read(path)) : {}
+              accumulator[name] = path ? Chef::JSONCompat.parse(::File.read(path)) : {}
+              accumulator
             }
 
           option :first_boot_attributes,
@@ -151,12 +148,12 @@ class Chef
           option :bootstrap_vault_item,
             long: "--bootstrap-vault-item VAULT_ITEM",
             description: 'A single vault and item to update as "vault:item"',
-            proc: Proc.new { |i|
+            proc: Proc.new { |i, accumulator|
               (vault, item) = i.split(/:/)
-              Chef::Config[:knife][:bootstrap_vault_item] ||= {}
-              Chef::Config[:knife][:bootstrap_vault_item][vault] ||= []
-              Chef::Config[:knife][:bootstrap_vault_item][vault].push(item)
-              Chef::Config[:knife][:bootstrap_vault_item]
+              accumulator ||= {}
+              accumulator[vault] ||= []
+              accumulator[vault].push(item)
+              accumulator
             }
 
           option :policy_name,
