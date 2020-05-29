@@ -1,6 +1,6 @@
 
 # Author:: Adam Edwards (<adamed@chef.io>)
-# Copyright:: Copyright (c) 2012-2020 Chef Software, Inc.
+# Copyright:: Copyright (c) Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,22 @@ def sample_data(file_name)
   File.read(file)
 end
 
+class UnexpectedSystemExit < RuntimeError
+  def self.from(system_exit)
+    new(system_exit.message).tap { |e| e.set_backtrace(system_exit.backtrace) }
+  end
+end
+
 RSpec.configure do |config|
+  config.raise_on_warning = true
+  config.raise_errors_for_deprecations!
   config.run_all_when_everything_filtered = true
   config.filter_run focus: true
+  config.around(:example) do |ex|
+    begin
+      ex.run
+    rescue SystemExit => e
+      raise UnexpectedSystemExit.from(e)
+    end
+  end
 end

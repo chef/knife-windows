@@ -269,7 +269,7 @@ describe Chef::Knife::Winrm do
         let(:winrm_command_https) { Chef::Knife::Winrm.new(["-m", "localhost", "-x", "testuser", "-P", "testpassword", "--winrm-transport", "ssl", "echo helloworld"]) }
 
         it "uses the https uri scheme if the ssl transport is specified" do
-          winrm_command_http.config[:winrm_transport] =  "ssl"
+          winrm_command_http.config[:winrm_transport] = "ssl"
           expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(transport: :ssl)).and_call_original
           expect(WinRM::Connection).to receive(:new).with(hash_including(endpoint: "https://localhost:5986/wsman")).and_return(winrm_connection)
           winrm_command_https.configure_chef
@@ -277,7 +277,7 @@ describe Chef::Knife::Winrm do
         end
 
         it "uses the winrm port '5986' by default for ssl transport" do
-          winrm_command_http.config[:winrm_transport] =  "ssl"
+          winrm_command_http.config[:winrm_transport] = "ssl"
           expect(Chef::Knife::WinrmSession).to receive(:new).with(hash_including(transport: :ssl)).and_call_original
           expect(WinRM::Connection).to receive(:new).with(hash_including(endpoint: "https://localhost:5986/wsman")).and_return(winrm_connection)
           winrm_command_https.configure_chef
