@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@chef.io>)
-# Copyright:: Copyright (c) 2011-2020 Chef Software, Inc.
+# Copyright:: Copyright (c) Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,13 +42,12 @@ class Chef
         short: "-p PORT",
         long: "--ssh-port PORT",
         description: "The ssh port",
-        proc: Proc.new { |key| Chef::Config[:knife][:ssh_port] = key.strip }
+        proc: Proc.new { |key| key.strip }
 
       option :ssh_gateway,
         short: "-G GATEWAY",
         long: "--ssh-gateway GATEWAY",
-        description: "The ssh gateway",
-        proc: Proc.new { |key| Chef::Config[:knife][:ssh_gateway] = key }
+        description: "The ssh gateway"
 
       option :forward_agent,
         short: "-A",

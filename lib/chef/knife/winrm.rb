@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@chef.io>)
-# Copyright:: Copyright (c) 2011-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,12 @@
 
 require "chef/knife"
 require_relative "helpers/winrm_knife_base" # WinrmCommandSharedFunctions
-require_relative "helpers/knife_windows_base"
 
 class Chef
   class Knife
     class Winrm < Knife
 
       include Chef::Knife::WinrmCommandSharedFunctions
-      include Chef::Knife::KnifeWindowsBase
 
       deps do
         require_relative "windows_cert_generate"
