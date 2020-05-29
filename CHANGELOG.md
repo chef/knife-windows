@@ -4,10 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release -->
+<!-- latest_release 4.0.0 -->
+## [v4.0.0](https://github.com/chef/knife-windows/tree/v4.0.0) (2020-05-29)
+
+#### Merged Pull Requests
+- Chef 16 fixes for knife-windows [#502](https://github.com/chef/knife-windows/pull/502) ([lamont-granquist](https://github.com/lamont-granquist))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=3.0.17 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- Chef 16 fixes for knife-windows [#502](https://github.com/chef/knife-windows/pull/502) ([lamont-granquist](https://github.com/lamont-granquist)) <!-- 4.0.0 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
