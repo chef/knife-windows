@@ -1,7 +1,6 @@
 Knife Windows Plugin
 ====================
-[![Build Status Master](https://travis-ci.org/chef/knife-windows.svg?branch=master)](https://travis-ci.org/chef/knife-windows)
-[![Build Status Master](https://ci.appveyor.com/api/projects/status/github/chef/knife-windows?branch=master&svg=true&passingText=master%20-%20Ok&pendingText=master%20-%20Pending&failingText=master%20-%20Failing)](https://ci.appveyor.com/project/Chef/knife-windows/branch/master)
+[![Build status](https://badge.buildkite.com/2e8cc60e947d9ce9e846ec6ef644717cce3ae7a40d6903c3b0.svg?branch=master)](https://buildkite.com/chef-oss/chef-knife-windows-master-verify)
 [![Gem Version](https://badge.fury.io/rb/knife-windows.svg)](https://badge.fury.io/rb/knife-windows)
 
 **Umbrella Project**: [Knife](https://github.com/chef/chef-oss-practices/blob/master/projects/knife.md)
