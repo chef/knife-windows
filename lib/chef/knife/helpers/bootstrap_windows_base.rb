@@ -17,7 +17,6 @@
 #
 
 require "chef/knife"
-require_relative "knife_windows_base"
 require "chef/util/path_helper"
 
 class Chef
