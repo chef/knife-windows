@@ -4,10 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release -->
+<!-- latest_release 4.0.1 -->
+## [v4.0.1](https://github.com/chef/knife-windows/tree/v4.0.1) (2020-05-30)
+
+#### Merged Pull Requests
+- Don&#39;t try to require the removed lib [#503](https://github.com/chef/knife-windows/pull/503) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=4.0.0 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- Don&#39;t try to require the removed lib [#503](https://github.com/chef/knife-windows/pull/503) ([tas50](https://github.com/tas50)) <!-- 4.0.1 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
