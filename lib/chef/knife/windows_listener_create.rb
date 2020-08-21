@@ -22,7 +22,7 @@ class Chef
   class Knife
     class WindowsListenerCreate < Knife
       deps do
-        require "openssl"
+        require "openssl" unless defined?(OpenSSL)
       end
 
       banner "knife windows listener create (options)"
