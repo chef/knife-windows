@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 4.0.3 -->
-## [v4.0.3](https://github.com/chef/knife-windows/tree/v4.0.3) (2020-08-20)
+<!-- latest_release 4.0.4 -->
+## [v4.0.4](https://github.com/chef/knife-windows/tree/v4.0.4) (2020-08-21)
 
 #### Merged Pull Requests
-- Fix chefstyle violations. [#508](https://github.com/chef/knife-windows/pull/508) ([phiggins](https://github.com/phiggins))
+- Remove old spec files for knife bootstrap [#507](https://github.com/chef/knife-windows/pull/507) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=4.0.2 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Remove old spec files for knife bootstrap [#507](https://github.com/chef/knife-windows/pull/507) ([tas50](https://github.com/tas50)) <!-- 4.0.4 -->
 - Fix chefstyle violations. [#508](https://github.com/chef/knife-windows/pull/508) ([phiggins](https://github.com/phiggins)) <!-- 4.0.3 -->
 <!-- release_rollup -->
 
