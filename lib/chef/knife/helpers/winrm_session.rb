@@ -18,8 +18,7 @@
 
 require "chef/knife"
 require "chef/application"
-require "winrm"
-require "winrm-elevated"
+autoload :WinRM, "winrm-elevated"
 
 class Chef
   class Knife
