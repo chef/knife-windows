@@ -1,6 +1,6 @@
 #
 # Author:: Mukta Aphale <mukta.aphale@clogeny.com>
-# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,7 @@ describe Chef::Knife::WindowsListenerCreate do
       @listener.config[:port] = "5986"
       @listener.config[:basic_auth] = true
       expect(@listener).to receive(:`).with("winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname=\"host\";CertificateThumbprint=\"CERT-THUMBPRINT\";Port=\"5986\"}")
-      expect($?).to receive(:exitstatus).and_return(100)
+      expect(@listener).to receive(:exitstatus).and_return(100)
       expect(@listener.ui).to receive(:error).with("Error creating WinRM listener. use -VV for more details.")
       expect(@listener.ui).to_not receive(:info).with("WinRM listener created with Port: 5986 and CertificateThumbprint: CERT-THUMBPRINT")
       expect { @listener.run }.to raise_error(SystemExit)
