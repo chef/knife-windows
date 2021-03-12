@@ -1,5 +1,5 @@
 # Author:: Mukta Aphale (<mukta.aphale@clogeny.com>)
-# Copyright:: Copyright (c) 2014-2016 Chef Software, Inc.
+# Copyright:: Copyright (c) Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,6 +60,10 @@ class Chef
         passphrase.strip
       end
 
+      def exitstatus
+        $?.exitstatus
+      end
+
       def run
         STDOUT.sync = STDERR.sync = true
 
@@ -68,7 +72,7 @@ class Chef
             if config[:cert_install]
               config[:cert_passphrase] = get_cert_passphrase unless config[:cert_passphrase]
               result = `powershell.exe -Command " '#{config[:cert_passphrase]}' | certutil  -importPFX '#{config[:cert_install]}' AT_KEYEXCHANGE"`
-              if $?.exitstatus
+              if exitstatus
                 ui.info "Certificate installed to Certificate Store"
                 result = `powershell.exe -Command " echo (Get-PfxCertificate #{config[:cert_install]}).thumbprint "`
                 ui.info "Certificate Thumbprint: #{result}"
@@ -88,7 +92,7 @@ class Chef
             result = `winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname="#{config[:hostname]}";CertificateThumbprint="#{config[:cert_thumbprint]}";Port="#{config[:port]}"}`
             Chef::Log.debug result
 
-            if $?.exitstatus == 0
+            if exitstatus == 0
               ui.info "WinRM listener created with Port: #{config[:port]} and CertificateThumbprint: #{config[:cert_thumbprint]}"
             else
               ui.error "Error creating WinRM listener. use -VV for more details."
