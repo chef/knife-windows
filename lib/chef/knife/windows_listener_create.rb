@@ -61,7 +61,7 @@ class Chef
       end
 
       def exitstatus
-        $?
+        $?.exitstatus
       end
 
       def run
