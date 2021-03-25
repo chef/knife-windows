@@ -4,26 +4,23 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 4.0.7 -->
-## [v4.0.7](https://github.com/chef/knife-windows/tree/v4.0.7) (2021-03-12)
-
-#### Merged Pull Requests
-- Fix test for ruby-3.0 [#510](https://github.com/chef/knife-windows/pull/510) ([lamont-granquist](https://github.com/lamont-granquist))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=4.0.6 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Fix test for ruby-3.0 [#510](https://github.com/chef/knife-windows/pull/510) ([lamont-granquist](https://github.com/lamont-granquist)) <!-- 4.0.7 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [v4.0.7](https://github.com/chef/knife-windows/tree/v4.0.7) (2021-03-25)
+
+#### Merged Pull Requests
+- Fix test for ruby-3.0 [#510](https://github.com/chef/knife-windows/pull/510) ([lamont-granquist](https://github.com/lamont-granquist))
+<!-- latest_stable_release -->
+
 ## [v4.0.6](https://github.com/chef/knife-windows/tree/v4.0.6) (2020-09-09)
 
 #### Merged Pull Requests
 - autoload winrm [#509](https://github.com/chef/knife-windows/pull/509) ([mwrock](https://github.com/mwrock))
-<!-- latest_stable_release -->
 
 ## [v4.0.5](https://github.com/chef/knife-windows/tree/v4.0.5) (2020-08-21)
 
