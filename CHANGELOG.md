@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 4.0.8 -->
-## [v4.0.8](https://github.com/chef/knife-windows/tree/v4.0.8) (2021-04-29)
+<!-- latest_release 4.0.9 -->
+## [v4.0.9](https://github.com/chef/knife-windows/tree/v4.0.9) (2021-06-25)
 
 #### Merged Pull Requests
-- Support external testing [#512](https://github.com/chef/knife-windows/pull/512) ([lamont-granquist](https://github.com/lamont-granquist))
+- Upgrade to GitHub-native Dependabot [#511](https://github.com/chef/knife-windows/pull/511) ([dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 <!-- latest_release -->
 
 <!-- release_rollup since=4.0.7 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Upgrade to GitHub-native Dependabot [#511](https://github.com/chef/knife-windows/pull/511) ([dependabot-preview[bot]](https://github.com/dependabot-preview[bot])) <!-- 4.0.9 -->
 - Support external testing [#512](https://github.com/chef/knife-windows/pull/512) ([lamont-granquist](https://github.com/lamont-granquist)) <!-- 4.0.8 -->
 <!-- release_rollup -->
 
