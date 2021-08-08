@@ -16,6 +16,7 @@
 #
 
 require "chef/knife"
+require "chef/mixin/powershell_exec"
 require_relative "helpers/winrm_base"
 
 class Chef
@@ -23,6 +24,8 @@ class Chef
     class WindowsCertGenerate < Knife
 
       attr_accessor :thumbprint, :hostname
+
+      extend Chef::Mixin::PowerShellExec
 
       banner "knife windows cert generate FILE_PATH (options)"
 
@@ -51,13 +54,11 @@ class Chef
         default: "2048"
 
       option :cert_validity,
-        short: "-cv MONTHS",
         long: "--cert-validity MONTHS",
         description: "Default is 24 months",
         default: "24"
 
       option :cert_passphrase,
-        short: "-cp PASSWORD",
         long: "--cert-passphrase PASSWORD",
         description: "Password for certificate."
 
@@ -105,10 +106,33 @@ class Chef
 
       def write_certificate_to_file(cert, file_path, rsa_key)
         File.open(file_path + ".pem", "wb") { |f| f.print cert.to_pem }
+        if config[:windows_certstore]?
+          config[:cert_passphrase] = check_for_local_password
+        end
         config[:cert_passphrase] = prompt_for_passphrase unless config[:cert_passphrase]
-        pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "winrmcert", rsa_key, cert)
+        pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "chef-#{client_name}", rsa_key, cert)
+        #pfx = OpenSSL::PKCS12.create("#{config[:cert_passphrase]}", "winrmcert", rsa_key, cert)
         File.open(file_path + ".pfx", "wb") { |f| f.print pfx.to_der }
         File.open(file_path + ".b64", "wb") { |f| f.print Base64.strict_encode64(pfx.to_der) }
+      end
+
+      # in the world of No Certs On Disk, we store a password for a p12/pfx in Keychain or the Registry. A p12/Pfx MUST have a password associated wiht it because it holds a private key
+      # Here we check to see if that password is already set.
+      def check_for_local_password
+        if ChefUtils.windows?
+          powershell_code = <<~CODE
+            Try {
+              $localpass =  Get-ItemPropertyValue -Path "HKLM:\\Software\Progress\Authenticator" -Name "PfxPass" -ErrorAction Stop
+              return $localpass
+            }
+            Catch {
+              return nil
+            }
+          CODE
+          powershell_exec!(powershell_code).result
+        elsif ChefUtils.macos?
+          return nil
+        end
       end
 
       def certificates_already_exist?(file_path)
