@@ -106,7 +106,7 @@ class Chef
 
       def write_certificate_to_file(cert, file_path, rsa_key)
         File.open(file_path + ".pem", "wb") { |f| f.print cert.to_pem }
-        if config[:windows_certstore]?
+        if config[:windows_certstore]
           config[:cert_passphrase] = check_for_local_password
         end
         config[:cert_passphrase] = prompt_for_passphrase unless config[:cert_passphrase]
