@@ -23,8 +23,6 @@ class Chef
   class Knife
     class WindowsCertGenerate < Knife
 
-
-
       attr_accessor :thumbprint, :hostname
 
       banner "knife windows cert generate FILE_PATH (options)"
