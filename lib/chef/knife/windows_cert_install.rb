@@ -16,14 +16,16 @@
 #
 
 require "chef/knife"
-require "chef/mixin/powershell_exec"
 require_relative "helpers/winrm_base"
 
 class Chef
   class Knife
     class WindowsCertInstall < Knife
 
-      extend Chef::Mixin::PowershellExec
+      deps do
+        require "chef/mixin/powershell_exec"
+        extend Chef::Mixin::PowershellExec
+      end
 
       banner "knife windows cert install CERT [CERT] (options)"
 

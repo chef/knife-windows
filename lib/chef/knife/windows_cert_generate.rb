@@ -15,23 +15,25 @@
 # limitations under the License.
 #
 
+
 require "chef/knife"
-require "chef/mixin/powershell_exec"
 require_relative "helpers/winrm_base"
 
 class Chef
   class Knife
     class WindowsCertGenerate < Knife
 
-      attr_accessor :thumbprint, :hostname
 
-      extend Chef::Mixin::PowerShellExec
+
+      attr_accessor :thumbprint, :hostname
 
       banner "knife windows cert generate FILE_PATH (options)"
 
       deps do
+        require "chef/mixin/powershell_exec"
         require "openssl" unless defined?(OpenSSL)
         require "socket" unless defined?(Socket)
+        extend Chef::Mixin::PowerShellExec
       end
 
       option :hostname,
