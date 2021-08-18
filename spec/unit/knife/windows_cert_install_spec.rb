@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-require "chef/knife"
 require "spec_helper"
 require "chef/knife/windows_cert_install"
 
