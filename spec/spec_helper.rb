@@ -34,10 +34,10 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.filter_run focus: true
   config.around(:example) do |ex|
-    begin
-      ex.run
-    rescue SystemExit => e
-      raise UnexpectedSystemExit.from(e)
-    end
+
+    ex.run
+  rescue SystemExit => e
+    raise UnexpectedSystemExit.from(e)
+
   end
 end
