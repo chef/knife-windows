@@ -1,6 +1,6 @@
 module Knife
   module Windows
-    VERSION = "4.0.10".freeze
+    VERSION = "5.0.0".freeze
     MAJOR, MINOR, TINY = VERSION.split(".")
   end
 end
