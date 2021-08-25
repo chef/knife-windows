@@ -136,7 +136,7 @@ class Chef
           CHECKFORPASSWORD
           powershell_exec!(powershell_code).result
         elsif ChefUtils.macos?
-          return
+          nil
         end
       end
 
