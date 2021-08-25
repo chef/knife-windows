@@ -27,7 +27,7 @@ class Chef
 
       attr_accessor :thumbprint, :hostname
 
-      banner "knife windows cert generate -h HOST_NAME (options)"
+      banner "knife windows cert generate -H HOST_NAME (options)"
 
       deps do
         require "openssl" unless defined?(OpenSSL)
