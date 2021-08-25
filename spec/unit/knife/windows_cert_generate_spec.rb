@@ -40,11 +40,12 @@ describe Chef::Knife::WindowsCertGenerate do
 
   it "writes certificate to file" do
     expect(File).to receive(:open).exactly(3).times
+    store_key = false
     cert = double(OpenSSL::X509::Certificate.new)
     key = double(OpenSSL::PKey::RSA.new)
     @certgen.config[:cert_passphrase] = "password"
     expect(OpenSSL::PKCS12).to receive(:create).with("password", "winrmcert", key, cert)
-    @certgen.write_certificate_to_file cert, "test", key
+    @certgen.write_certificate_to_file cert, "winrmcert", key, store_key
   end
 
   context "when creating certificate files" do
@@ -72,7 +73,7 @@ describe Chef::Knife::WindowsCertGenerate do
       file_path = "winrmcert"
       @certgen.config[:output_file] = file_path
 
-      allow(Dir).to receive(:glob).and_return([file_path])
+      allow(File).to receive(:exist?).and_return([file_path])
       expect(@certgen).to receive(:confirm).with("Do you really want to overwrite existing certificates")
       expect(@certgen).to receive(:write_certificate_to_file)
       @certgen.run
