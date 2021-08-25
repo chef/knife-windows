@@ -179,11 +179,7 @@ class Chef
 
         # takes user specified first cli value as a destination file path for generated cert.
         # allowing for output_file to be ommitted
-<<<<<<< HEAD
         if config[:output_file] == nil?
-=======
-        if config[:output_file] == nil
->>>>>>> 230cd13 (Final updates)
           config[:output_file] = File.join(::Chef::Config[:file_cache_path], "chef-#{config[:hostname]}")
         end
 
@@ -192,11 +188,7 @@ class Chef
         # check if certs already exists at given file path
         certificates_already_exist? file_path
 
-<<<<<<< HEAD
         if config[:store_in_certstore] == "true" || config[:store_in_certstore] == "True" || config[:store_in_certstore] == "TRUE"
-=======
-        if config[:store_in_certstore] == 'true' || config[:store_in_certstore] == 'True' || config[:store_in_certstore] == 'TRUE'
->>>>>>> 230cd13 (Final updates)
           store_key = true
         else
           store_key = false
