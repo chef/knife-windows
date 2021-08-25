@@ -136,7 +136,7 @@ class Chef
           CHECKFORPASSWORD
           powershell_exec!(powershell_code).result
         elsif ChefUtils.macos?
-          return nil
+          return
         end
       end
 
@@ -179,7 +179,7 @@ class Chef
 
         # takes user specified first cli value as a destination file path for generated cert.
         # allowing for output_file to be ommitted
-        if config[:output_file] == nil
+        if config[:output_file] == nil?
           config[:output_file] = File.join(::Chef::Config[:file_cache_path], "chef-#{config[:hostname]}")
         end
 
@@ -188,7 +188,7 @@ class Chef
         # check if certs already exists at given file path
         certificates_already_exist? file_path
 
-        if config[:store_in_certstore] == 'true' || config[:store_in_certstore] == 'True' || config[:store_in_certstore] == 'TRUE'
+        if config[:store_in_certstore] == "true" || config[:store_in_certstore] == "True" || config[:store_in_certstore] == "TRUE"
           store_key = true
         else
           store_key = false

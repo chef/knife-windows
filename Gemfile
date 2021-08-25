@@ -10,6 +10,7 @@ if ENV["GEMFILE_MOD"]
 else
   gem "chef", git: "https://github.com/chef/chef"
   gem "ohai", git: "https://github.com/chef/ohai"
+  gem "knife"
 end
 
 group :test do
