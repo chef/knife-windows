@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Plugin that adds functionality to Chef Infra's Knife CLI for configuring/interacting with nodes running Microsoft Windows}
   s.description = s.summary
 
-  s.required_ruby_version = ">= 3.0.0"
+  s.required_ruby_version = ">= 3.0.2"
   s.add_dependency "chef", ">= 15.11"
   s.add_dependency "winrm", "~> 2.1"
   s.add_dependency "winrm-elevated", "~> 1.0"
