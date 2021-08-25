@@ -44,7 +44,7 @@ class Chef
       option :output_file,
         short: "-o PATH",
         long: "--output-file PATH",
-        description: "Specifies the file path at which to generate the 3 certificate files of type .pfx, .b64, and .pem. If you iomit this option we use c:\\chef\\cache\\chef-<hostname> as the filename for each certificate type"
+        description: "Specifies the file path at which to generate the 3 certificate files of type .pfx, .b64, and .pem. If you omit this option we use c:\\chef\\cache\\chef-<hostname> as the filename for each certificate type"
 
       option :key_length,
         short: "-k LENGTH",
@@ -211,7 +211,7 @@ class Chef
           ui.info "- #{filename}.pfx - PKCS12 format key pair. Contains public and private keys, can be used with an SSL server."
           ui.info "- #{filename}.b64 - Base64 encoded PKCS12 key pair. Contains public and private keys, used by some cloud provider API's to configure SSL servers."
           ui.info "- #{filename}.pem - Base64 encoded public certificate only. Required by the client to connect to the server."
-          ui.info "\nCertificate Thumbprint: #{@thumbprint.to_s.upcase}"
+          ui.info "Certificate Thumbprint: #{@thumbprint.to_s.upcase}"
         rescue => e
           puts "ERROR: + #{e}"
         end
