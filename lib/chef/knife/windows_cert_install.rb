@@ -22,6 +22,11 @@ class Chef
   class Knife
     class WindowsCertInstall < Knife
 
+      deps do
+        require "chef/mixin/powershell_exec"
+        extend Chef::Mixin::PowershellExec
+      end
+
       banner "knife windows cert install CERT [CERT] (options)"
 
       option :cert_passphrase,
