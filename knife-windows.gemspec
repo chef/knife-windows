@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.required_ruby_version = ">= 2.7.0"
+  s.add_dependency "chef-utils", ">= 17.4.39"
   s.add_dependency "chef", ">= 15.11"
   s.add_dependency "winrm", "~> 2.1"
   s.add_dependency "winrm-elevated", "~> 1.0"
