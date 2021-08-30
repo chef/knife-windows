@@ -29,6 +29,7 @@ steps:
 
 - label: run-lint-and-specs-windows
   command:
+    - gem install chef
     - bundle config --local path vendor/bundle
     - bundle install --jobs=7 --retry=3
     - bundle exec rake
