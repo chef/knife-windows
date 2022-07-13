@@ -110,6 +110,7 @@ class Chef
 
           def run_command(command = "")
             relay_winrm_command(command)
+            @exit_code = 0
             check_for_errors!
             @exit_code
           end
@@ -204,8 +205,6 @@ class Chef
             config[:winrm_port] ||= ( config[:winrm_transport] == "ssl" ) ? "5986" : "5985"
 
             @session_opts = {
-              user: resolve_winrm_user,
-              password: config[:winrm_password],
               port: config[:winrm_port],
               operation_timeout: resolve_winrm_session_timeout,
               basic_auth_only: resolve_winrm_basic_auth,
@@ -217,8 +216,18 @@ class Chef
               codepage: config[:winrm_codepage],
             }
 
-            if @session_opts[:user] && (not @session_opts[:password])
-              @session_opts[:password] = config[:winrm_password] = get_password
+            if cert_auth?
+              @session_opts[:winrm_client_cert] = config[:winrm_client_cert] if config[:winrm_client_cert]
+              @session_opts[:winrm_client_key] = config[:winrm_client_key] if config[:winrm_client_key]
+              @session_opts[:transport] = :ssl
+              @session_opts.delete(:user)
+              @session_opts.delete(:password)
+            else
+              @session_opts[:user] = resolve_winrm_user
+              @session_opts[:password] = config[:winrm_password]
+              if @session_opts[:user] && (not @session_opts[:password])
+                @session_opts[:password] = config[:winrm_password] = get_password
+              end
             end
 
             if @session_opts[:transport] == :kerberos
@@ -285,6 +294,10 @@ class Chef
 
           def get_password
             @password ||= ui.ask("Enter your password: ", echo: false)
+          end
+
+          def cert_auth?
+            config[:winrm_authentication_protocol] == "cert"
           end
 
           def negotiate_auth?
