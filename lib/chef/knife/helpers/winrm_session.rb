@@ -34,10 +34,10 @@ class Chef
         @shell_args = [ options[:shell] ]
         @shell_args << { codepage: options[:codepage] } if options[:shell] == :cmd
         if options[:transport] == :ssl
-          scheme = 'https'
+          scheme = "https"
           @port ||= 5986
         else
-          scheme = 'http'
+          scheme = "http"
           @port ||= 5985
         end
         url = "#{@host}:#{@port}/wsman"
@@ -54,7 +54,7 @@ class Chef
         }
         options[:transport] == :kerberos ? opts.merge!({ service: options[:service], realm: options[:realm] }) : opts.merge!({ ca_trust_path: options[:ca_trust_path] })
         opts[:operation_timeout] = options[:operation_timeout] if options[:operation_timeout]
-        if options[:winrm_client_cert] and options[:winrm_client_key]
+        if options[:winrm_client_cert] && options[:winrm_client_key]
           opts[:client_cert] = options[:winrm_client_cert]
           opts[:client_key] = options[:winrm_client_key]
           opts.delete(:user)
