@@ -33,14 +33,18 @@ class Chef
         @user = options[:user]
         @shell_args = [ options[:shell] ]
         @shell_args << { codepage: options[:codepage] } if options[:shell] == :cmd
-        url = "#{options[:host]}:#{options[:port]}/wsman"
-        scheme = options[:transport] == :ssl ? "https" : "http"
+        if options[:transport] == :ssl
+          scheme = 'https'
+          @port ||= 5986
+        else
+          scheme = 'http'
+          @port ||= 5985
+        end
+        url = "#{@host}:#{@port}/wsman"
         @endpoint = "#{scheme}://#{url}"
 
         opts = {}
         opts = {
-          user: @user,
-          password: options[:password],
           basic_auth_only: options[:basic_auth_only],
           disable_sspi: options[:disable_sspi],
           no_ssl_peer_verification: options[:no_ssl_peer_verification],
@@ -50,6 +54,15 @@ class Chef
         }
         options[:transport] == :kerberos ? opts.merge!({ service: options[:service], realm: options[:realm] }) : opts.merge!({ ca_trust_path: options[:ca_trust_path] })
         opts[:operation_timeout] = options[:operation_timeout] if options[:operation_timeout]
+        if options[:winrm_client_cert] and options[:winrm_client_key]
+          opts[:client_cert] = options[:winrm_client_cert]
+          opts[:client_key] = options[:winrm_client_key]
+          opts.delete(:user)
+          opts.delete(:password)
+        else
+          opts[:user] = @user
+          opts[:password] = options[:password]
+        end
         Chef::Log.debug("WinRM::WinRMWebService options: #{opts}")
         Chef::Log.debug("Endpoint: #{endpoint}")
         Chef::Log.debug("Transport: #{options[:transport]}")
