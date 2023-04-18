@@ -8,7 +8,6 @@ if ENV["GEMFILE_MOD"]
   puts "GEMFILE_MOD: #{ENV["GEMFILE_MOD"]}"
   instance_eval(ENV["GEMFILE_MOD"])
 else
-  gem "chef", git: "https://github.com/chef/chef", branch: "main"
   gem "ohai", git: "https://github.com/chef/ohai", branch: "main"
   gem "knife"
 end
