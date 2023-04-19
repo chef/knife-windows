@@ -11,22 +11,13 @@ expeditor:
 
 steps:
 
-- label: run-lint-and-specs-ruby-2.7
+- label: run-lint-and-specs-ruby-3.1
   command:
     - .expeditor/run_linux_tests.sh rake
   expeditor:
     executor:
       docker:
-        image: ruby:2.7-buster
-
-- label: run-lint-and-specs-ruby-3.0
-  command:
-    - .expeditor/run_linux_tests.sh rake
-  expeditor:
-    executor:
-      docker:
-        image: ruby:3.0-buster
-
+        image: ruby:3.1-buster
 - label: run-lint-and-specs-windows
   command:
     - gem install chef-utils
@@ -36,4 +27,4 @@ steps:
     executor:
       docker:
         host_os: windows
-        image: rubydistros/windows-2019:3.0
+        image: rubydistros/windows-2019:3.1
