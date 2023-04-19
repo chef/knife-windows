@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 5.0.1 -->
-## [v5.0.1](https://github.com/chef/knife-windows/tree/v5.0.1) (2021-08-30)
+<!-- latest_release 5.0.2 -->
+## [v5.0.2](https://github.com/chef/knife-windows/tree/v5.0.2) (2023-04-19)
 
 #### Merged Pull Requests
-- Windows Certs PR #3 - this is for knife-windows to be able to consume… [#516](https://github.com/chef/knife-windows/pull/516) ([johnmccrae](https://github.com/johnmccrae))
+- CHEF-1917 Fixed the knife-windows verify test failure [#523](https://github.com/chef/knife-windows/pull/523) ([nikhil2611](https://github.com/nikhil2611))
 <!-- latest_release -->
 
 <!-- release_rollup since=4.0.7 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- CHEF-1917 Fixed the knife-windows verify test failure [#523](https://github.com/chef/knife-windows/pull/523) ([nikhil2611](https://github.com/nikhil2611)) <!-- 5.0.2 -->
 - Windows Certs PR #3 - this is for knife-windows to be able to consume… [#516](https://github.com/chef/knife-windows/pull/516) ([johnmccrae](https://github.com/johnmccrae)) <!-- 5.0.1 -->
 - Require Ruby 2.7+ and the knife gem [#517](https://github.com/chef/knife-windows/pull/517) ([tas50](https://github.com/tas50)) <!-- 5.0.0 -->
 - Fixed knife winrm fails with echo as undefined [#514](https://github.com/chef/knife-windows/pull/514) ([sanga1794](https://github.com/sanga1794)) <!-- 4.0.10 -->
