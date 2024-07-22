@@ -8,7 +8,7 @@ if ENV["GEMFILE_MOD"]
   puts "GEMFILE_MOD: #{ENV["GEMFILE_MOD"]}"
   instance_eval(ENV["GEMFILE_MOD"])
 else
-  gem "ohai", git: "https://github.com/chef/ohai", branch: "main"
+  gem "ohai", "~> 18.0"
   gem "knife"
 end
 
