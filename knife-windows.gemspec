@@ -12,9 +12,10 @@ Gem::Specification.new do |s|
   s.summary     = %q{Plugin that adds functionality to Chef Infra's Knife CLI for configuring/interacting with nodes running Microsoft Windows}
   s.description = s.summary
 
-  s.required_ruby_version = ">= 2.7", "< 3.1"
-  s.add_dependency "chef", "~> 17.10"
+  s.required_ruby_version = ">= 3.0", "< 3.1"
+  s.add_dependency "chef", "~> 17.10.122"
   s.add_dependency "winrm", "~> 2.1"
+  s.add_dependency "rexml", "<= 3.3.1" # A non xml string parsing will throw an error 3.3.2 onward. https://github.com/ruby/rexml/issues/180
   s.add_dependency "winrm-elevated", "~> 1.0"
 
   s.add_development_dependency "pry"
