@@ -98,12 +98,16 @@ class Chef
         if response.nil? || response.status_code != 200
           output_object.error_message = "No valid WSMan endoint listening at #{node.endpoint}."
         else
-          doc = REXML::Document.new(response.body)
-          output_object.protocol_version = search_xpath(doc, "//wsmid:ProtocolVersion")
-          output_object.product_version  = search_xpath(doc, "//wsmid:ProductVersion")
-          output_object.product_vendor = search_xpath(doc, "//wsmid:ProductVendor")
-          if output_object.protocol_version.to_s.strip.length == 0
-            output_object.error_message = "Endpoint #{node.endpoint} on #{node.host} does not appear to be a WSMAN endpoint. Response body was #{response.body}"
+          begin
+            doc = REXML::Document.new(response.body)
+            output_object.protocol_version = search_xpath(doc, "//wsmid:ProtocolVersion")
+            output_object.product_version  = search_xpath(doc, "//wsmid:ProductVersion")
+            output_object.product_vendor = search_xpath(doc, "//wsmid:ProductVendor")
+            if output_object.protocol_version.to_s.strip.length == 0
+              output_object.error_message = "Endpoint #{node.endpoint} on #{node.host} does not appear to be a WSMAN endpoint. Response body was #{response.body}"
+            end
+          rescue REXML::ParseException => e
+            output_object.error_message = e.message
           end
         end
         output_object
