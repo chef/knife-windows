@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = ">= 3.1"
   s.add_dependency "chef", ">= 18.2"
-  s.add_dependency "winrm", "~> 2.1"
-  s.add_dependency "winrm-elevated", "~> 1.0"
+  s.add_dependency "chef-winrm", "~> 2.3"
+  s.add_dependency "chef-winrm-elevated", "~> 1.2"
 
   s.add_development_dependency "pry"
 
