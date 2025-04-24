@@ -82,7 +82,7 @@ class Chef
 
       def print_data(host, data, color = :cyan)
         if data =~ /\n/
-          data.split(/\n/).each { |d| print_data(host, d, color) }
+          data.split("\n").each { |d| print_data(host, d, color) }
         elsif !data.nil?
           print Chef::Knife::Winrm.ui.color(host, color)
           puts " #{data}"
