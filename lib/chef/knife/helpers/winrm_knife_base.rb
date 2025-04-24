@@ -92,7 +92,8 @@ class Chef
           def extract_nested_value(data, nested_value_spec)
             nested_value_spec.split(".").each do |attr|
               if data.nil?
-                nil # don't get no method error on nil
+                # return "" # don't get no method error on nil
+                nil
               elsif data.respond_to?(attr.to_sym)
                 data = data.send(attr.to_sym)
               elsif data.respond_to?(:[])
