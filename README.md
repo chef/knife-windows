@@ -3,7 +3,7 @@ Knife Windows Plugin
 [![Build status](https://badge.buildkite.com/2e8cc60e947d9ce9e846ec6ef644717cce3ae7a40d6903c3b0.svg?branch=master)](https://buildkite.com/chef-oss/chef-knife-windows-master-verify)
 [![Gem Version](https://badge.fury.io/rb/knife-windows.svg)](https://badge.fury.io/rb/knife-windows)
 
-**Umbrella Project**: [Knife](https://github.com/chef/chef-oss-practices/blob/master/projects/knife.md)
+
 
 This plugin adds additional functionality to the Chef Knife CLI tool for
 configuring / interacting with nodes running Microsoft Windows:
