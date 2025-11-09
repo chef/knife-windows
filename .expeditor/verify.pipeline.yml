@@ -35,3 +35,13 @@ steps:
       docker:
         host_os: windows
         image: rubydistros/windows-2019:3.1
+- label: run-lint-and-specs-windows-ruby-3.4
+  command:
+    - gem install chef-utils
+    - bundle install --jobs=7 --retry=3
+    - bundle exec rake
+  expeditor:
+    executor:
+      docker:
+        host_os: windows
+        image: rubydistros/windows-2019:3.4
