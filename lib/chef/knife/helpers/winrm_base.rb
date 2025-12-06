@@ -53,7 +53,7 @@ class Chef
             long: "--winrm-shell SHELL",
             description: "The WinRM shell type. Valid choices are [cmd, powershell, elevated]. 'elevated' runs powershell in a scheduled task",
             default: :cmd,
-            proc: Proc.new { |shell| shell.to_sym }
+            proc: Proc.new(&:to_sym)
 
           option :winrm_transport,
             short: "-w TRANSPORT",
@@ -90,7 +90,7 @@ class Chef
             long: "--winrm-ssl-verify-mode SSL_VERIFY_MODE",
             description: "The WinRM peer verification mode. Valid choices are [verify_peer, verify_none]",
             default: :verify_peer,
-            proc: Proc.new { |verify_mode| verify_mode.to_sym }
+            proc: Proc.new(&:to_sym)
 
           option :ssl_peer_fingerprint,
             long: "--ssl-peer-fingerprint FINGERPRINT",

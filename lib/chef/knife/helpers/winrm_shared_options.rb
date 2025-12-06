@@ -41,7 +41,7 @@ class Chef
             short: "-C NUM",
             long: "--concurrency NUM",
             description: "The number of allowed concurrent connections - default is number of hosts",
-            proc: lambda { |o| o.to_i }
+            proc: lambda(&:to_i)
         end
       end
 

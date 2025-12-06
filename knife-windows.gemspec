@@ -14,12 +14,12 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = ">= 3.1"
   s.add_dependency "chef", ">= 18.2"
-  s.add_dependency "chef-winrm", "~> 2.3"
+  s.add_dependency "chef-winrm", "~> 2.4"
   s.add_dependency "chef-winrm-elevated", "~> 1.2"
 
   s.add_development_dependency "pry"
+  s.add_development_dependency "cookstyle", "~> 8.1"
 
   s.files = %w{LICENSE} + Dir.glob("{spec,lib}/**/*")
-  s.test_files    = `git ls-files -- spec/*`.split("\n")
   s.require_paths = ["lib"]
 end
