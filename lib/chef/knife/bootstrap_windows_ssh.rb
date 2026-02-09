@@ -42,7 +42,7 @@ class Chef
         short: "-p PORT",
         long: "--ssh-port PORT",
         description: "The ssh port",
-        proc: Proc.new { |key| key.strip }
+        proc: Proc.new(&:strip)
 
       option :ssh_gateway,
         short: "-G GATEWAY",
