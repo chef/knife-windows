@@ -3,13 +3,7 @@ Knife Windows Plugin
 [![Build status](https://badge.buildkite.com/2e8cc60e947d9ce9e846ec6ef644717cce3ae7a40d6903c3b0.svg?branch=master)](https://buildkite.com/chef-oss/chef-knife-windows-master-verify)
 [![Gem Version](https://badge.fury.io/rb/knife-windows.svg)](https://badge.fury.io/rb/knife-windows)
 
-**Umbrella Project**: [Knife](https://github.com/chef/chef-oss-practices/blob/master/projects/knife.md)
 
-**Project State**: [Active](https://github.com/chef/chef-oss-practices/blob/master/repo-management/repo-states.md#active)
-
-**Issues [Response Time Maximum](https://github.com/chef/chef-oss-practices/blob/master/repo-management/repo-states.md)**: 14 days
-
-**Pull Request [Response Time Maximum](https://github.com/chef/chef-oss-practices/blob/master/repo-management/repo-states.md)**: 14 days
 
 This plugin adds additional functionality to the Chef Knife CLI tool for
 configuring / interacting with nodes running Microsoft Windows:
@@ -392,7 +386,6 @@ More information on the contribution process for Chef projects can be found in t
 # LICENSE:
 
 Author:: Seth Chisamore (<schisamo@chef.io>)
-Copyright:: Copyright (c) 2015-2016 Chef Software, Inc.
 License:: Apache License, Version 2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -406,3 +399,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+# Copyright
+See [COPYRIGHT.md](./COPYRIGHT.md).
