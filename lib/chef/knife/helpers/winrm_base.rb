@@ -33,7 +33,6 @@ class Chef
 
           deps do
             require "chef/encrypted_data_bag_item"
-            require "kconv"
             require "readline"
             require "chef/json_compat"
           end
