@@ -4,17 +4,19 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 5.0.4 -->
-## [v5.0.4](https://github.com/chef/knife-windows/tree/v5.0.4) (2025-04-08)
+<!-- latest_release 5.0.6 -->
+## [v5.0.6](https://github.com/chef/knife-windows/tree/v5.0.6) (2026-02-11)
 
 #### Merged Pull Requests
-- use chef-winrm and chef-winrm-elevated [#530](https://github.com/chef/knife-windows/pull/530) ([rishichawda](https://github.com/rishichawda))
+- Add Ruby 3.4 support to CI pipeline [#536](https://github.com/chef/knife-windows/pull/536) ([sanjain-progress](https://github.com/sanjain-progress))
 <!-- latest_release -->
 
 <!-- release_rollup since=4.0.7 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Add Ruby 3.4 support to CI pipeline [#536](https://github.com/chef/knife-windows/pull/536) ([sanjain-progress](https://github.com/sanjain-progress)) <!-- 5.0.6 -->
+- CHEF-27667 Update and standardize copyright notices to Progress Software Corporation - copyright_update [#538](https://github.com/chef/knife-windows/pull/538) ([clintoncwolfe](https://github.com/clintoncwolfe)) <!-- 5.0.5 -->
 - use chef-winrm and chef-winrm-elevated [#530](https://github.com/chef/knife-windows/pull/530) ([rishichawda](https://github.com/rishichawda)) <!-- 5.0.4 -->
 - Handle REXML exception [#528](https://github.com/chef/knife-windows/pull/528) ([tpowell-progress](https://github.com/tpowell-progress)) <!-- 5.0.3 -->
 - CHEF-1917 Fixed the knife-windows verify test failure [#523](https://github.com/chef/knife-windows/pull/523) ([nikhil2611](https://github.com/nikhil2611)) <!-- 5.0.2 -->
