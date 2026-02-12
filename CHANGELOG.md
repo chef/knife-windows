@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 5.0.6 -->
-## [v5.0.6](https://github.com/chef/knife-windows/tree/v5.0.6) (2026-02-11)
+<!-- latest_release 5.0.7 -->
+## [v5.0.7](https://github.com/chef/knife-windows/tree/v5.0.7) (2026-02-12)
 
 #### Merged Pull Requests
-- Add Ruby 3.4 support to CI pipeline [#536](https://github.com/chef/knife-windows/pull/536) ([sanjain-progress](https://github.com/sanjain-progress))
+- CHEF-25718 - Replace CONTRIBUTING.md file with standard template for Workstation [#532](https://github.com/chef/knife-windows/pull/532) ([cgunasree08](https://github.com/cgunasree08))
 <!-- latest_release -->
 
 <!-- release_rollup since=4.0.7 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- CHEF-25718 - Replace CONTRIBUTING.md file with standard template for Workstation [#532](https://github.com/chef/knife-windows/pull/532) ([cgunasree08](https://github.com/cgunasree08)) <!-- 5.0.7 -->
 - Add Ruby 3.4 support to CI pipeline [#536](https://github.com/chef/knife-windows/pull/536) ([sanjain-progress](https://github.com/sanjain-progress)) <!-- 5.0.6 -->
 - CHEF-27667 Update and standardize copyright notices to Progress Software Corporation - copyright_update [#538](https://github.com/chef/knife-windows/pull/538) ([clintoncwolfe](https://github.com/clintoncwolfe)) <!-- 5.0.5 -->
 - use chef-winrm and chef-winrm-elevated [#530](https://github.com/chef/knife-windows/pull/530) ([rishichawda](https://github.com/rishichawda)) <!-- 5.0.4 -->
