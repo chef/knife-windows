@@ -4,36 +4,33 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 5.0.7 -->
-## [v5.0.7](https://github.com/chef/knife-windows/tree/v5.0.7) (2026-02-12)
-
-#### Merged Pull Requests
-- CHEF-25718 - Replace CONTRIBUTING.md file with standard template for Workstation [#532](https://github.com/chef/knife-windows/pull/532) ([cgunasree08](https://github.com/cgunasree08))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=4.0.7 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- CHEF-25718 - Replace CONTRIBUTING.md file with standard template for Workstation [#532](https://github.com/chef/knife-windows/pull/532) ([cgunasree08](https://github.com/cgunasree08)) <!-- 5.0.7 -->
-- Add Ruby 3.4 support to CI pipeline [#536](https://github.com/chef/knife-windows/pull/536) ([sanjain-progress](https://github.com/sanjain-progress)) <!-- 5.0.6 -->
-- CHEF-27667 Update and standardize copyright notices to Progress Software Corporation - copyright_update [#538](https://github.com/chef/knife-windows/pull/538) ([clintoncwolfe](https://github.com/clintoncwolfe)) <!-- 5.0.5 -->
-- use chef-winrm and chef-winrm-elevated [#530](https://github.com/chef/knife-windows/pull/530) ([rishichawda](https://github.com/rishichawda)) <!-- 5.0.4 -->
-- Handle REXML exception [#528](https://github.com/chef/knife-windows/pull/528) ([tpowell-progress](https://github.com/tpowell-progress)) <!-- 5.0.3 -->
-- CHEF-1917 Fixed the knife-windows verify test failure [#523](https://github.com/chef/knife-windows/pull/523) ([nikhil2611](https://github.com/nikhil2611)) <!-- 5.0.2 -->
-- Windows Certs PR #3 - this is for knife-windows to be able to consume… [#516](https://github.com/chef/knife-windows/pull/516) ([johnmccrae](https://github.com/johnmccrae)) <!-- 5.0.1 -->
-- Require Ruby 2.7+ and the knife gem [#517](https://github.com/chef/knife-windows/pull/517) ([tas50](https://github.com/tas50)) <!-- 5.0.0 -->
-- Fixed knife winrm fails with echo as undefined [#514](https://github.com/chef/knife-windows/pull/514) ([sanga1794](https://github.com/sanga1794)) <!-- 4.0.10 -->
-- Upgrade to GitHub-native Dependabot [#511](https://github.com/chef/knife-windows/pull/511) ([dependabot-preview[bot]](https://github.com/dependabot-preview[bot])) <!-- 4.0.9 -->
-- Support external testing [#512](https://github.com/chef/knife-windows/pull/512) ([lamont-granquist](https://github.com/lamont-granquist)) <!-- 4.0.8 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [v5.0.7](https://github.com/chef/knife-windows/tree/v5.0.7) (2026-02-16)
+
+#### Merged Pull Requests
+- Support external testing [#512](https://github.com/chef/knife-windows/pull/512) ([lamont-granquist](https://github.com/lamont-granquist))
+- Upgrade to GitHub-native Dependabot [#511](https://github.com/chef/knife-windows/pull/511) ([dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- Fixed knife winrm fails with echo as undefined [#514](https://github.com/chef/knife-windows/pull/514) ([sanga1794](https://github.com/sanga1794))
+- Require Ruby 2.7+ and the knife gem [#517](https://github.com/chef/knife-windows/pull/517) ([tas50](https://github.com/tas50))
+- Windows Certs PR #3 - this is for knife-windows to be able to consume… [#516](https://github.com/chef/knife-windows/pull/516) ([johnmccrae](https://github.com/johnmccrae))
+- CHEF-1917 Fixed the knife-windows verify test failure [#523](https://github.com/chef/knife-windows/pull/523) ([nikhil2611](https://github.com/nikhil2611))
+- Handle REXML exception [#528](https://github.com/chef/knife-windows/pull/528) ([tpowell-progress](https://github.com/tpowell-progress))
+- use chef-winrm and chef-winrm-elevated [#530](https://github.com/chef/knife-windows/pull/530) ([rishichawda](https://github.com/rishichawda))
+- CHEF-27667 Update and standardize copyright notices to Progress Software Corporation - copyright_update [#538](https://github.com/chef/knife-windows/pull/538) ([clintoncwolfe](https://github.com/clintoncwolfe))
+- Add Ruby 3.4 support to CI pipeline [#536](https://github.com/chef/knife-windows/pull/536) ([sanjain-progress](https://github.com/sanjain-progress))
+- CHEF-25718 - Replace CONTRIBUTING.md file with standard template for Workstation [#532](https://github.com/chef/knife-windows/pull/532) ([cgunasree08](https://github.com/cgunasree08))
+<!-- latest_stable_release -->
+
 ## [v4.0.7](https://github.com/chef/knife-windows/tree/v4.0.7) (2021-03-25)
 
 #### Merged Pull Requests
 - Fix test for ruby-3.0 [#510](https://github.com/chef/knife-windows/pull/510) ([lamont-granquist](https://github.com/lamont-granquist))
-<!-- latest_stable_release -->
 
 ## [v4.0.6](https://github.com/chef/knife-windows/tree/v4.0.6) (2020-09-09)
 
