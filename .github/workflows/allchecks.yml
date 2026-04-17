@@ -1,0 +1,19 @@
+name: All checks pass
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+jobs:
+  allchecks:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: read
+      contents: read
+    steps:
+      - uses: wechuli/allcheckspassed@v2
+        with:
+          # SonarCloud - never works for forks
+          checks_exclude: ".*(SonarCloud Code Analysis).*"
+          # Retry every minute for 30 minutes...
+          retries: 90
+          verbose: true
