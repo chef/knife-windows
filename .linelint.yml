@@ -1,0 +1,8 @@
+rules:
+  end-of-file:
+    enable: true
+    single-new-line: true
+    ignore:
+      # these files are changed by automated processes
+      - CHANGELOG.md
+      - VERSION

@@ -1,0 +1,46 @@
+---
+name: lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: lint-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  cookstyle:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_WITHOUT: ruby_shadow:packaging
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+          bundler-cache: false
+      - uses: r7kamura/rubocop-problem-matchers-action@v1  # this shows the failures in the PR
+      - run: |
+          bundle install
+          bundle exec cookstyle --chefstyle -c .rubocop.yml
+
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: |
+          curl --location 'https://raw.githubusercontent.com/chef/chef_dictionary/main/chef.txt' --output chef_dictionary.txt
+      - uses: streetsidesoftware/cspell-action@v8.3.0
+
+  linelint:
+    runs-on: ubuntu-latest
+    name: Check if all files end in newline
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Linelint
+        uses: fernandrone/linelint@master
+        id: linelint
