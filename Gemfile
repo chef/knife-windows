@@ -3,7 +3,7 @@ source "https://rubygems.org"
 # Specify the gem's dependencies in knife-windows.gemspec
 gemspec
 
-# Necessary for the external tests in https://github.com/chef/chef
+# Necessary for the external tests in https://github.com/chef/knife
 if ENV["GEMFILE_MOD"]
   puts "GEMFILE_MOD: #{ENV["GEMFILE_MOD"]}"
   instance_eval(ENV["GEMFILE_MOD"])
