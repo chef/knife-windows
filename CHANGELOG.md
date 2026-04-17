@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 5.0.9 -->
-## [v5.0.9](https://github.com/chef/knife-windows/tree/v5.0.9) (2026-04-17)
+<!-- latest_release 5.0.10 -->
+## [v5.0.10](https://github.com/chef/knife-windows/tree/v5.0.10) (2026-04-17)
 
 #### Merged Pull Requests
-- Start fixing up CI [#542](https://github.com/chef/knife-windows/pull/542) ([jaymzh](https://github.com/jaymzh))
+- Cleaning up reference to chef-in-knife [#541](https://github.com/chef/knife-windows/pull/541) ([jaymzh](https://github.com/jaymzh))
 <!-- latest_release -->
 
 <!-- release_rollup since=5.0.7 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Cleaning up reference to chef-in-knife [#541](https://github.com/chef/knife-windows/pull/541) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.10 -->
 - Start fixing up CI [#542](https://github.com/chef/knife-windows/pull/542) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.9 -->
 - Update CODEOWNERS [#543](https://github.com/chef/knife-windows/pull/543) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.8 -->
 <!-- release_rollup -->
