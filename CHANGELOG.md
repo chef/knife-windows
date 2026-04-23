@@ -4,17 +4,18 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release 5.0.11 -->
-## [v5.0.11](https://github.com/chef/knife-windows/tree/v5.0.11) (2026-04-18)
+<!-- latest_release unreleased -->
+## Unreleased
 
 #### Merged Pull Requests
-- Update dependabot to manage bundler updates [#544](https://github.com/chef/knife-windows/pull/544) ([jaymzh](https://github.com/jaymzh))
+- Bump actions/checkout from 3 to 6 [#546](https://github.com/chef/knife-windows/pull/546) ([dependabot[bot]](https://github.com/dependabot[bot]))
 <!-- latest_release -->
 
 <!-- release_rollup since=5.0.7 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Bump actions/checkout from 3 to 6 [#546](https://github.com/chef/knife-windows/pull/546) ([dependabot[bot]](https://github.com/dependabot[bot])) <!-- 5.0.11 -->
 - Update dependabot to manage bundler updates [#544](https://github.com/chef/knife-windows/pull/544) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.11 -->
 - Cleaning up reference to chef-in-knife [#541](https://github.com/chef/knife-windows/pull/541) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.10 -->
 - Start fixing up CI [#542](https://github.com/chef/knife-windows/pull/542) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.9 -->
