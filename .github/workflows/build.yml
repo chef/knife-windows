@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ip-range-controlled
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: SonarQube Scan
