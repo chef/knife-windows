@@ -4,10 +4,11 @@ Note: this log contains only changes from knife-windows release 0.6.0 and later
 -- it does not contain the changes from prior releases. To view change history
 prior to release 0.6.0, please visit the [source repository](https://github.com/chef/knife-windows/commits).
 
-<!-- latest_release unreleased -->
-## Unreleased
+<!-- latest_release 5.0.12 -->
+## [v5.0.12](https://github.com/chef/knife-windows/tree/v5.0.12) (2026-04-23)
 
 #### Merged Pull Requests
+- Bump streetsidesoftware/cspell-action from 8.3.0 to 8.4.0 [#545](https://github.com/chef/knife-windows/pull/545) ([dependabot[bot]](https://github.com/dependabot[bot]))
 - Bump actions/checkout from 3 to 6 [#546](https://github.com/chef/knife-windows/pull/546) ([dependabot[bot]](https://github.com/dependabot[bot]))
 <!-- latest_release -->
 
@@ -15,6 +16,7 @@ prior to release 0.6.0, please visit the [source repository](https://github.com/
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Bump streetsidesoftware/cspell-action from 8.3.0 to 8.4.0 [#545](https://github.com/chef/knife-windows/pull/545) ([dependabot[bot]](https://github.com/dependabot[bot])) <!-- 5.0.12 -->
 - Bump actions/checkout from 3 to 6 [#546](https://github.com/chef/knife-windows/pull/546) ([dependabot[bot]](https://github.com/dependabot[bot])) <!-- 5.0.11 -->
 - Update dependabot to manage bundler updates [#544](https://github.com/chef/knife-windows/pull/544) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.11 -->
 - Cleaning up reference to chef-in-knife [#541](https://github.com/chef/knife-windows/pull/541) ([jaymzh](https://github.com/jaymzh)) <!-- 5.0.10 -->
